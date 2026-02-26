@@ -1,0 +1,1998 @@
+<html><head><style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1a1a2e;
+      line-height: 1.6;
+      padding: 40px 48px;
+      background: #ffffff;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4361ee;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-left: 3px solid #4361ee;
+      background: #f7f7ff;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: #4361ee;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn:hover {
+      background: #3651d4;
+    }
+    ul {
+      margin: 12px 0 20px 24px;
+      font-size: 15px;
+      color: #444;
+    }
+    ul li {
+      margin-bottom: 6px;
+    }
+    .card {
+      background: #f8f9ff;
+      border: 1px solid #e0e3f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #4361ee;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 0;
+    }
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e3f0;
+      font-size: 13px;
+      color: #888;
+    }
+  </style><style id="se-drag-styles" style="">
+                .se-drag-handle {
+                    position: absolute;
+                    left: -28px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 20px;
+                    height: 20px;
+                    cursor: grab;
+                    opacity: 0;
+                    transition: opacity 0.15s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(67, 97, 238, 0.1);
+                    border-radius: 4px;
+                    z-index: 100;
+                    pointer-events: auto;
+                }
+                .se-drag-handle svg {
+                    width: 14px;
+                    height: 14px;
+                    fill: #4361ee;
+                }
+                .se-draggable {
+                    position: relative;
+                }
+                .se-draggable:hover > .se-drag-handle {
+                    opacity: 1;
+                }
+                .se-drag-over {
+                    border-top: 3px solid #4361ee !important;
+                }
+                .se-dragging {
+                    opacity: 0.4;
+                }
+            </style><style>
+            @page {
+                size: a4;
+                margin: 20mm;
+            }
+
+            /* === CRITICAL: Normalize ALL layout for Paged.js fragmentation === */
+
+            /* 1. Force body to exact A4 width so Paged.js measures correctly */
+            body {
+                width: 794px !important;
+                max-width: 794px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                overflow: hidden !important;
+            }
+
+            /* 2. Convert ALL flex and grid containers to block so Paged.js can
+                  fragment them across page boundaries. Flex/grid children become
+                  normal block flow items. */
+            * {
+                flex-shrink: 1 !important;
+            }
+            body *, body *::before, body *::after {
+                /* Kill viewport-relative heights that create giant unbreakable blocks */
+                max-height: none !important;
+            }
+
+            /* 3. Neutralize viewport units on ANY element */
+            [style*="100vh"], [style*="100svh"], [style*="vh"],
+            [style*="100vw"], [style*="100svw"] {
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                width: auto !important;
+                max-width: 100% !important;
+            }
+
+            /* 4. Ensure images don't overflow page width */
+            img, svg, video, canvas, picture {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            /* 5. Tables should break across pages */
+            table { page-break-inside: auto !important; break-inside: auto !important; }
+            tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+
+            /* 6. Headings should stay with their next sibling */
+            h1, h2, h3, h4, h5, h6 {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+
+            /* 7. Paged.js page styling */
+            .pagedjs_page {
+                background: white;
+                margin: 0 auto 24px auto !important;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            }
+
+            @media print {
+                body { background: white; padding: 0; }
+                .pagedjs_page { box-shadow: none; margin: 0 !important; }
+            }
+
+            /* Hide drag handles and overlays */
+            .se-drag-handle, #se-drag-styles { display: none !important; }
+        </style></head><body><div class="pagedjs_pages" style="--pagedjs-page-count: 22; transform: none; width: 794px; margin: 0px auto;">
+<div class="pagedjs_page pagedjs_first_page pagedjs_right_page" data-page-number="1" id="page-1">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><meta charset="UTF-8" data-ref="fcc446fd-4d42-4e0c-9d93-2bc91cf73b94"> <style data-ref="2e84b309-c624-4ee7-a529-3375f7c3a1be">
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1a1a2e;
+      line-height: 1.6;
+      padding: 40px 48px;
+      background: #ffffff;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4361ee;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-left: 3px solid #4361ee;
+      background: #f7f7ff;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: #4361ee;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn:hover {
+      background: #3651d4;
+    }
+    ul {
+      margin: 12px 0 20px 24px;
+      font-size: 15px;
+      color: #444;
+    }
+    ul li {
+      margin-bottom: 6px;
+    }
+    .card {
+      background: #f8f9ff;
+      border: 1px solid #e0e3f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #4361ee;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 0;
+    }
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e3f0;
+      font-size: 13px;
+      color: #888;
+    }
+  </style>
+<style id="se-drag-styles" style="" data-ref="92ca2bbb-daf2-43e0-a73e-40e74538626f" data-id="se-drag-styles" data-undisplayed="undisplayed">
+                .se-drag-handle {
+                    position: absolute;
+                    left: -28px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 20px;
+                    height: 20px;
+                    cursor: grab;
+                    opacity: 0;
+                    transition: opacity 0.15s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(67, 97, 238, 0.1);
+                    border-radius: 4px;
+                    z-index: 100;
+                    pointer-events: auto;
+                }
+                .se-drag-handle svg {
+                    width: 14px;
+                    height: 14px;
+                    fill: #4361ee;
+                }
+                .se-draggable {
+                    position: relative;
+                }
+                .se-draggable:hover > .se-drag-handle {
+                    opacity: 1;
+                }
+                .se-drag-over {
+                    border-top: 3px solid #4361ee !important;
+                }
+                .se-dragging {
+                    opacity: 0.4;
+                }
+            </style> <p data-ref="2d49d550-4436-4656-a501-462005cee44c">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="2" id="page-2">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><style data-ref="2e84b309-c624-4ee7-a529-3375f7c3a1be">
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1a1a2e;
+      line-height: 1.6;
+      padding: 40px 48px;
+      background: #ffffff;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4361ee;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-left: 3px solid #4361ee;
+      background: #f7f7ff;
+    }
+    p {
+      font-size: 15px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: #4361ee;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn:hover {
+      background: #3651d4;
+    }
+    ul {
+      margin: 12px 0 20px 24px;
+      font-size: 15px;
+      color: #444;
+    }
+    ul li {
+      margin-bottom: 6px;
+    }
+    .card {
+      background: #f8f9ff;
+      border: 1px solid #e0e3f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #4361ee;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 0;
+    }
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e3f0;
+      font-size: 13px;
+      color: #888;
+    }
+  </style>
+<style id="se-drag-styles" style="" data-ref="92ca2bbb-daf2-43e0-a73e-40e74538626f" data-id="se-drag-styles" data-undisplayed="undisplayed">
+                .se-drag-handle {
+                    position: absolute;
+                    left: -28px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 20px;
+                    height: 20px;
+                    cursor: grab;
+                    opacity: 0;
+                    transition: opacity 0.15s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(67, 97, 238, 0.1);
+                    border-radius: 4px;
+                    z-index: 100;
+                    pointer-events: auto;
+                }
+                .se-drag-handle svg {
+                    width: 14px;
+                    height: 14px;
+                    fill: #4361ee;
+                }
+                .se-draggable {
+                    position: relative;
+                }
+                .se-draggable:hover > .se-drag-handle {
+                    opacity: 1;
+                }
+                .se-drag-over {
+                    border-top: 3px solid #4361ee !important;
+                }
+                .se-dragging {
+                    opacity: 0.4;
+                }
+            </style> </div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="3" id="page-3">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="2d49d550-4436-4656-a501-462005cee44c">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="c6fd2ad9-414f-4f07-aedc-f1a215883282">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="99bb83af-9d5f-4481-a804-e4bbda00d596">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="bb86cd4c-85d7-4d54-be14-3709ef350997">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="204c6528-8838-4757-b231-1e9ea854fbf8">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="e871dac3-fa89-47b8-b577-f1d9cc99b1cd">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="4" id="page-4">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="c6fd2ad9-414f-4f07-aedc-f1a215883282">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="99bb83af-9d5f-4481-a804-e4bbda00d596">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="bb86cd4c-85d7-4d54-be14-3709ef350997">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="204c6528-8838-4757-b231-1e9ea854fbf8">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="e871dac3-fa89-47b8-b577-f1d9cc99b1cd">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="5" id="page-5">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="99bb83af-9d5f-4481-a804-e4bbda00d596">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="bb86cd4c-85d7-4d54-be14-3709ef350997">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="204c6528-8838-4757-b231-1e9ea854fbf8">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="e871dac3-fa89-47b8-b577-f1d9cc99b1cd">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="6" id="page-6">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="bb86cd4c-85d7-4d54-be14-3709ef350997">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="204c6528-8838-4757-b231-1e9ea854fbf8">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="e871dac3-fa89-47b8-b577-f1d9cc99b1cd">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="7" id="page-7">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="204c6528-8838-4757-b231-1e9ea854fbf8">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="e871dac3-fa89-47b8-b577-f1d9cc99b1cd">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="8" id="page-8">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="e871dac3-fa89-47b8-b577-f1d9cc99b1cd">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="9" id="page-9">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="f62c7a22-4222-45be-aea8-3edc85ad173b">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="10" id="page-10">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="caa3a031-5eb9-4207-af85-fb4322813d96">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="11" id="page-11">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="04129f8f-5cbb-4a40-9bd3-965bb05435b7">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="12" id="page-12">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="5d9a5b88-35d2-4ead-89ac-ebc133cf52b1">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="13" id="page-13">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="d3a15547-593f-4a0f-b45f-efa00aa090ca">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="14" id="page-14">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="b863c1b1-c61d-4e43-9d5c-55883c7c8dbc">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="15" id="page-15">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="9ca8309b-401a-49f1-bf1b-7cad896ad276">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="16" id="page-16">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="40c60879-8564-44d7-9c8b-1a5814529d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="17" id="page-17">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="554751a6-2cae-45a2-a44a-2a8c2662af4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="64747bd1-3539-4a94-8a9b-c6c78a64dc28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="18" id="page-18">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="01587c95-4031-4048-95cd-1a1f402823f3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="64747bd1-3539-4a94-8a9b-c6c78a64dc28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="cf8a86fd-eb6c-4a51-ac83-eb5cc09cd3c0">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="19" id="page-19">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="90ece44d-a404-44c0-8c29-98a00aa83eb3">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="64747bd1-3539-4a94-8a9b-c6c78a64dc28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="cf8a86fd-eb6c-4a51-ac83-eb5cc09cd3c0">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="db4a5a2a-c8cf-4c82-8b83-6f27d90b08ce">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="20" id="page-20">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="9eaf8217-4773-4702-9c1a-f5ad18e25e3e">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="64747bd1-3539-4a94-8a9b-c6c78a64dc28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="cf8a86fd-eb6c-4a51-ac83-eb5cc09cd3c0">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="db4a5a2a-c8cf-4c82-8b83-6f27d90b08ce">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5f91b597-70d6-438d-96b2-fc439344aea5">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_right_page" data-page-number="21" id="page-21">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="7ad4b2b2-bd31-4154-91a1-f71eb1223d6f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="64747bd1-3539-4a94-8a9b-c6c78a64dc28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="cf8a86fd-eb6c-4a51-ac83-eb5cc09cd3c0">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="db4a5a2a-c8cf-4c82-8b83-6f27d90b08ce">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5f91b597-70d6-438d-96b2-fc439344aea5">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="23872b3a-4db6-4d37-81eb-b72d8f9e8160">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="pagedjs_page pagedjs_left_page" data-page-number="22" id="page-22">
+	<div class="pagedjs_sheet">
+		<div class="pagedjs_bleed pagedjs_bleed-top">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-bottom">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-left">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>		<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_bleed pagedjs_bleed-right">
+			<div class="pagedjs_marks-crop"></div>
+			<div class="pagedjs_marks-middle">
+				<div class="pagedjs_marks-cross"></div>
+			</div>
+			<div class="pagedjs_marks-crop"></div>
+		</div>
+		<div class="pagedjs_pagebox">
+			<div class="pagedjs_margin-top-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top">
+				<div class="pagedjs_margin pagedjs_margin-top-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-top-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-top-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-top-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-right">
+				<div class="pagedjs_margin pagedjs_margin-right-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-right-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-left">
+				<div class="pagedjs_margin pagedjs_margin-left-top"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-middle"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-left-bottom"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-left-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom">
+				<div class="pagedjs_margin pagedjs_margin-bottom-left"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-center"><div class="pagedjs_margin-content"></div></div>
+				<div class="pagedjs_margin pagedjs_margin-bottom-right"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_margin-bottom-right-corner-holder">
+				<div class="pagedjs_margin pagedjs_margin-bottom-right-corner"><div class="pagedjs_margin-content"></div></div>
+			</div>
+			<div class="pagedjs_area">
+				<div class="pagedjs_page_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left) + var(--pagedjs-bleed-right) + var(--pagedjs-bleed-left) + var(--pagedjs-column-gap-offset));"><div><p data-ref="fe7055fd-a2c5-449e-849a-6e92c4c1ea4f">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="7bb510f8-0e7a-40d0-99a5-accf59fde3a2">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="b6dbdbd4-0f51-46c6-988e-06ec90ef4542">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2f872087-0949-403d-9b5e-1ec033a39c85">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="2c155811-4411-4eba-9d9a-819e9af1dd28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="9ea8348b-078e-4282-8dd4-a5dbdad0cdc4">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="64747bd1-3539-4a94-8a9b-c6c78a64dc28">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="cf8a86fd-eb6c-4a51-ac83-eb5cc09cd3c0">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="db4a5a2a-c8cf-4c82-8b83-6f27d90b08ce">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="5f91b597-70d6-438d-96b2-fc439344aea5">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><p data-ref="23872b3a-4db6-4d37-81eb-b72d8f9e8160">This is a paragraph of a very long text to push the heading down to the bottom of the A4 page. We want the heading to land around pixel 1100 so it naturally falls on the first page, but the table falls on the second. The script should pull the heading down with the table.</p><h2 data-ref="4443f6c3-519a-4169-abdf-d74d67ff1b13">This is a Heading That Should Stick To The Table</h2><table border="1" style="width: 100%; height: 300px;" data-ref="871b3a21-8225-4743-a0d0-97f33282d63a" data-undisplayed="undisplayed"><tbody data-ref="6fcce538-729e-4c2f-b259-4c8419523671"><tr data-ref="332dc3ce-eadf-45f1-a196-b1700cece6e5"><th data-ref="73d731d7-260f-45bb-adf0-56bce94654e7">Header 1</th><th data-ref="575e02b9-2750-46fb-a5ab-8bbb2ab9155f">Header 2</th></tr> <tr data-ref="2e76eb10-9a99-4b8e-aef3-61e1b2f5e985"><td data-ref="cfdaed36-3b41-472d-8831-b89fff30188d">Data 1</td><td data-ref="c22aabce-5d79-4d42-9a3f-092dc55ae148">Data 2</td></tr><tr data-ref="1dc720c8-ebf5-47d7-b4cc-4c26fd6d27a3"><td data-ref="3ad048cd-8a4c-4d82-ba34-77f8b89cc418">Data 3</td><td data-ref="9cdd2194-8e50-4d81-a263-670ac4b25f59">Data 4</td></tr></tbody></table></div></div>
+				<div class="pagedjs_footnote_area">
+					<div class="pagedjs_footnote_content pagedjs_footnote_empty">
+						<div class="pagedjs_footnote_inner_content" style="column-width: 794px; column-gap: calc(var(--pagedjs-margin-right) + var(--pagedjs-margin-left)); height: auto;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div></div></body></html>

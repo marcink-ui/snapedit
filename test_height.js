@@ -1,0 +1,10 @@
+const fs = require('fs');
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+const html = fs.readFileSync('/root/Transformacja/artifacts/clients/dps-software/raport-ai-sprint-v2.html', 'utf8');
+const dom = new JSDOM(html);
+const doc = dom.window.document;
+const body = doc.body;
+const htmlEl = doc.documentElement;
+console.log("body.scrollHeight:", body?.scrollHeight);
+console.log("html.scrollHeight:", htmlEl?.scrollHeight);
