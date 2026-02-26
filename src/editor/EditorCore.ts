@@ -241,6 +241,32 @@ export class EditorCore {
         this.pushHistory('Insert image');
     }
 
+    /**
+     * Insert raw HTML string into the editor, either inside the selected element or at the end of the body.
+     */
+    insertHTML(htmlString: string): void {
+        const doc = this.iframe.contentDocument;
+        if (!doc?.body) return;
+
+        const range = doc.createRange();
+        const frag = range.createContextualFragment(htmlString);
+
+        const selected = this.selectionManager.getSelectedElement();
+        if (selected && selected !== doc.body && selected !== doc.documentElement) {
+            // If they selected a layout wrapper, insert inside it. Otherwise, insert after it.
+            if (selected.tagName === 'SECTION' || selected.tagName === 'DIV' || selected.tagName === 'HEADER' || selected.tagName === 'FOOTER') {
+                selected.appendChild(frag);
+            } else {
+                selected.parentNode?.insertBefore(frag, selected.nextSibling);
+            }
+        } else {
+            doc.body.appendChild(frag);
+        }
+
+        this.requestResize();
+        this.pushHistory('Insert structural block');
+    }
+
     /** Manually trigger an iframe resize */
     requestResize(): void {
         this.doResize();

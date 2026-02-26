@@ -84,8 +84,36 @@
                     <input type="text" id="site-header-logo" placeholder="Brand Name" />
                   </div>
                   <div class="style-field" style="margin-bottom:10px;">
-                    <label>Nav Links <small style="opacity:0.5">(comma-separated)</small></label>
-                    <input type="text" id="site-header-links" placeholder="Home, About, Contact" />
+                    <label>Nav Links <small style="opacity:0.5">(Name=URL, comma separated)</small></label>
+                    <textarea id="site-header-links" placeholder="Home=/, About=/about, Pricing=#pricing" rows="2"
+                      style="width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--panel-text-bright); border-radius: 4px; padding: 4px 8px; font-size: 11px; resize: vertical;"></textarea>
+                  </div>
+                  <div class="style-row-grid two-col" style="margin-bottom:10px;">
+                    <div class="style-field">
+                      <label>Font</label>
+                      <select id="site-header-font"
+                        style="width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--panel-text-bright); border-radius: 4px; padding: 4px; font-size: 11px;">
+                        <option value="inherit">Inherit</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Outfit', sans-serif">Outfit</option>
+                        <option value="'Playfair Display', serif">Playfair Display</option>
+                      </select>
+                    </div>
+                    <div class="style-field">
+                      <label>Size (px)</label>
+                      <input type="number" id="site-header-fontsize" placeholder="16" />
+                    </div>
+                  </div>
+                  <div class="style-row-grid two-col" style="margin-bottom:10px;">
+                    <div class="style-field">
+                      <label>Padding Y (px)</label>
+                      <input type="number" id="site-header-padding" placeholder="20" />
+                    </div>
+                    <div class="style-field">
+                      <label>Item Gap (px)</label>
+                      <input type="number" id="site-header-gap" placeholder="24" />
+                    </div>
                   </div>
                   <div class="style-row-grid two-col">
                     <div class="style-field">
@@ -105,11 +133,13 @@
                     </label>
                   </div>
                   <div class="style-field" style="margin-top:10px;">
-                    <label>Style</label>
-                    <select id="site-header-style">
-                      <option value="simple">Simple</option>
+                    <label>Style Preset</label>
+                    <select id="site-header-style"
+                      style="width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--panel-text-bright); border-radius: 4px; padding: 4px; font-size: 11px;">
+                      <option value="simple">Simple Left</option>
                       <option value="centered">Centered</option>
-                      <option value="split">Split</option>
+                      <option value="pill">Pill Glassmorphism</option>
+                      <option value="minimal">Minimal Underline</option>
                     </select>
                   </div>
                 </div>
@@ -131,8 +161,33 @@
                     <input type="text" id="site-footer-text" placeholder="© 2026 My Company" />
                   </div>
                   <div class="style-field" style="margin-bottom:10px;">
-                    <label>Links <small style="opacity:0.5">(comma-separated)</small></label>
-                    <input type="text" id="site-footer-links" placeholder="Privacy, Terms, Contact" />
+                    <label>Links <small style="opacity:0.5">(Name=URL, comma separated)</small></label>
+                    <textarea id="site-footer-links" placeholder="Privacy=/privacy, Terms=/terms, Contact=/contact"
+                      rows="2"
+                      style="width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--panel-text-bright); border-radius: 4px; padding: 4px 8px; font-size: 11px; resize: vertical;"></textarea>
+                  </div>
+                  <div class="style-row-grid two-col" style="margin-bottom:10px;">
+                    <div class="style-field">
+                      <label>Font</label>
+                      <select id="site-footer-font"
+                        style="width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--panel-text-bright); border-radius: 4px; padding: 4px; font-size: 11px;">
+                        <option value="inherit">Inherit</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Outfit', sans-serif">Outfit</option>
+                        <option value="'Playfair Display', serif">Playfair Display</option>
+                      </select>
+                    </div>
+                    <div class="style-field">
+                      <label>Size (px)</label>
+                      <input type="number" id="site-footer-fontsize" placeholder="14" />
+                    </div>
+                  </div>
+                  <div class="style-row-grid two-col" style="margin-bottom:10px;">
+                    <div class="style-field">
+                      <label>Padding Y (px)</label>
+                      <input type="number" id="site-footer-padding" placeholder="40" />
+                    </div>
                   </div>
                   <div class="style-row-grid two-col">
                     <div class="style-field">
@@ -144,13 +199,13 @@
                       <div class="color-input-hex" id="site-footer-text-color"></div>
                     </div>
                   </div>
-                  <div class="style-field" style="margin-top:8px;">
-                    <label>Alignment</label>
-                    <select id="site-footer-align">
-                      <option value="center">Center</option>
-                      <option value="left">Left</option>
-                      <option value="right">Right</option>
-                      <option value="space-between">Spread</option>
+                  <div class="style-field" style="margin-top:10px;">
+                    <label>Style Preset</label>
+                    <select id="site-footer-align"
+                      style="width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--panel-text-bright); border-radius: 4px; padding: 4px; font-size: 11px;">
+                      <option value="center">Simple Centered</option>
+                      <option value="left">Simple Left</option>
+                      <option value="space-between">Split (Space Between)</option>
                     </select>
                   </div>
                 </div>
@@ -347,6 +402,7 @@
         <div class="panel-tabs">
           <button class="panel-tab active" data-tab="element">Element</button>
           <button class="panel-tab" data-tab="insert">Insert</button>
+          <button class="panel-tab" data-tab="sections">Sections</button>
         </div>
       </div>
 
@@ -910,6 +966,17 @@
             style="width:100%; margin-top:10px; padding:8px 12px; font-size:13px;">
             ✓ Insert Form
           </button>
+        </div>
+      </div>
+
+      <!-- ======= Sections Tab ======= -->
+      <div id="panel-content-sections" class="panel-content">
+        <div class="panel-section">
+          <h3 class="section-title">Predefined Blocks</h3>
+          <p style="font-size:11px; opacity:0.6; margin-bottom:12px;">Click a block to insert it into your page.</p>
+          <div id="sections-container" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Categories injected by SectionsPanel.ts -->
+          </div>
         </div>
       </div>
 

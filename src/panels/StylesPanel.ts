@@ -158,6 +158,7 @@ export class StylesPanel {
         const tabs = document.querySelectorAll('.panel-tab');
         const elementContent = document.getElementById('panel-content-element')!;
         const insertContent = document.getElementById('panel-content-insert')!;
+        const sectionsContent = document.getElementById('panel-content-sections')!;
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -167,6 +168,9 @@ export class StylesPanel {
                 const tabName = (tab as HTMLElement).dataset.tab;
                 elementContent.classList.toggle('active', tabName === 'element');
                 insertContent.classList.toggle('active', tabName === 'insert');
+                if (sectionsContent) {
+                    sectionsContent.classList.toggle('active', tabName === 'sections');
+                }
             });
         });
     }
