@@ -1,7 +1,6 @@
 import { EditorCore } from '../editor/EditorCore';
 import { ColorInput } from '../utils/ColorInput';
 import { rgbToHex, parsePx, getTagDescriptor, showToast } from '../utils/dom-helpers';
-import { BoxModelEditor } from './BoxModelEditor';
 
 export class StylesPanel {
     private editor: EditorCore;
@@ -23,7 +22,7 @@ export class StylesPanel {
     private borderWidthInput!: HTMLInputElement;
     private borderRadiusInput!: HTMLInputElement;
     private alignButtons!: NodeListOf<HTMLElement>;
-    private boxModelEditor!: BoxModelEditor;
+    private borderStyleSelect!: HTMLSelectElement;
 
     // Link controls
     private linkSection!: HTMLElement;
@@ -67,7 +66,7 @@ export class StylesPanel {
         this.setupLinkListeners();
         this.setupImageListeners();
         this.setupEventBus();
-        this.initBoxModelEditor();
+        this.initFontPicker();
     }
 
     private bindElements(): void {
@@ -78,6 +77,7 @@ export class StylesPanel {
 
         // Element styles (standard inputs)
         this.fontFamilySelect = document.getElementById('style-font-family') as HTMLSelectElement;
+        this.borderStyleSelect = document.getElementById('style-border-style') as HTMLSelectElement;
         this.fontSizeInput = document.getElementById('style-font-size') as HTMLInputElement;
         this.fontWeightSelect = document.getElementById('style-font-weight') as HTMLSelectElement;
         this.letterSpacingInput = document.getElementById('style-letter-spacing') as HTMLInputElement;
@@ -122,36 +122,76 @@ export class StylesPanel {
         this.selectedTagEl = document.getElementById('selected-element-tag') as HTMLElement;
     }
 
-    // Initialize Box Model editor for margin & padding
-    private initBoxModelEditor(): void {
-        // Create container for the editor
-        const container = document.createElement('div');
-        container.id = 'box-model-editor-container';
-        // Insert after the margin input row (assuming its parent is a row element)
-        const marginRow = document.getElementById('style-margin')?.parentElement;
-        if (marginRow && marginRow.parentElement) {
-            marginRow.parentElement.insertBefore(container, marginRow.nextSibling);
-        }
-        // Instantiate editor with current values
-        this.boxModelEditor = new BoxModelEditor(
-            container,
-            parseInt(this.marginInput.value) || 0,
-            parseInt(this.paddingInput.value) || 0,
-            ({ margin, padding }) => {
-                // Sync input fields
-                this.marginInput.value = String(margin);
-                this.paddingInput.value = String(padding);
-                // Apply styles
-                const apply = (prop: string, value: string) => {
-                    if (this.suppressUpdates || !this.currentElement) return;
-                    this.editor.styleMutator.apply(this.currentElement, prop, value);
-                    this.editor.selectionManager.refreshSelectOverlay();
-                    this.editor.pushHistory(`Change ${prop}`);
-                };
-                apply('margin', `${margin}px`);
-                apply('padding', `${padding}px`);
-            }
-        );
+    // Initialize custom font picker
+    private initFontPicker(): void {
+        const FONTS = [
+            { label: 'Inter', value: 'Inter, sans-serif' },
+            { label: 'Helvetica', value: "'Helvetica Neue', sans-serif" },
+            { label: 'Georgia', value: 'Georgia, serif' },
+            { label: 'Courier', value: "'Courier New', monospace" },
+            { label: 'Arial', value: 'Arial, sans-serif' },
+            { label: 'Times', value: "'Times New Roman', serif" },
+            { label: 'Verdana', value: 'Verdana, sans-serif' },
+            { label: 'System', value: 'system-ui, sans-serif' },
+        ];
+
+        const wrapper = this.fontFamilySelect.parentElement!;
+        // Hide native select
+        this.fontFamilySelect.style.display = 'none';
+
+        // Create trigger button
+        const trigger = document.createElement('div');
+        trigger.className = 'font-picker-trigger';
+        trigger.id = 'font-picker-trigger';
+        trigger.innerHTML = '<span class="font-picker-label">Inter</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>';
+        wrapper.appendChild(trigger);
+
+        // Create dropdown
+        const dropdown = document.createElement('div');
+        dropdown.className = 'font-picker-dropdown';
+        dropdown.id = 'font-picker-dropdown';
+
+        FONTS.forEach(f => {
+            const item = document.createElement('div');
+            item.className = 'font-picker-item';
+            item.dataset.value = f.value;
+            item.textContent = f.label;
+            item.style.fontFamily = f.value;
+            item.addEventListener('click', () => {
+                this.fontFamilySelect.value = f.value;
+                this.fontFamilySelect.dispatchEvent(new Event('change'));
+                trigger.querySelector('.font-picker-label')!.textContent = f.label;
+                (trigger.querySelector('.font-picker-label') as HTMLElement).style.fontFamily = f.value;
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            });
+            dropdown.appendChild(item);
+        });
+        wrapper.appendChild(dropdown);
+
+        // Prevent clicks inside dropdown from bubbling to document close handler
+        dropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Toggle dropdown
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            dropdown.classList.toggle('open', !isOpen);
+            trigger.classList.toggle('open', !isOpen);
+        });
+
+        // Close on outside click
+        document.addEventListener('click', () => {
+            dropdown.classList.remove('open');
+            trigger.classList.remove('open');
+        });
+
+        // Store reference for updating
+        (this as any)._fontPickerTrigger = trigger;
+        (this as any)._fontPickerDropdown = dropdown;
+        (this as any)._fontPickerFonts = FONTS;
     }
 
     private setupTabs(): void {
@@ -159,6 +199,7 @@ export class StylesPanel {
         const elementContent = document.getElementById('panel-content-element')!;
         const insertContent = document.getElementById('panel-content-insert')!;
         const sectionsContent = document.getElementById('panel-content-sections')!;
+        const generalContent = document.getElementById('panel-content-global');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -170,6 +211,9 @@ export class StylesPanel {
                 insertContent.classList.toggle('active', tabName === 'insert');
                 if (sectionsContent) {
                     sectionsContent.classList.toggle('active', tabName === 'sections');
+                }
+                if (generalContent) {
+                    generalContent.classList.toggle('active', tabName === 'global');
                 }
             });
         });
@@ -229,37 +273,30 @@ export class StylesPanel {
         });
 
         // ─── Element Spacing ────────────────────────────────────
-        // Keep listeners for backward compatibility; they will also update the BoxModelEditor
         this.paddingInput.addEventListener('input', () => {
-            const val = parseInt(this.paddingInput.value) || 0;
-            this.boxModelEditor = new BoxModelEditor(
-                document.getElementById('box-model-editor-container') as HTMLElement,
-                parseInt(this.marginInput.value) || 0,
-                val,
-                ({ margin, padding }) => {
-                    this.marginInput.value = String(margin);
-                    this.paddingInput.value = String(padding);
-                }
-            );
-            applyStyle('padding', `${val}px`);
+            applyStyle('padding', `${parseInt(this.paddingInput.value) || 0}px`);
         });
         this.marginInput.addEventListener('input', () => {
-            const val = parseInt(this.marginInput.value) || 0;
-            this.boxModelEditor = new BoxModelEditor(
-                document.getElementById('box-model-editor-container') as HTMLElement,
-                val,
-                parseInt(this.paddingInput.value) || 0,
-                ({ margin, padding }) => {
-                    this.marginInput.value = String(margin);
-                    this.paddingInput.value = String(padding);
-                }
-            );
-            applyStyle('margin', `${val}px`);
+            applyStyle('margin', `${parseInt(this.marginInput.value) || 0}px`);
         });
 
         // ─── Element Border ─────────────────────────────────────
-        this.borderWidthInput.addEventListener('input', () => applyStyle('borderWidth', this.borderWidthInput.value + 'px'));
+        this.borderWidthInput.addEventListener('input', () => {
+            applyStyle('borderWidth', this.borderWidthInput.value + 'px');
+            // Auto-set border-style to solid if width > 0 and style is none
+            if (this.currentElement && parseInt(this.borderWidthInput.value) > 0) {
+                const cs = window.getComputedStyle(this.currentElement);
+                if (!cs.borderStyle || cs.borderStyle === 'none') {
+                    applyStyle('borderStyle', 'solid');
+                    this.borderStyleSelect.value = 'solid';
+                }
+            }
+        });
         this.borderRadiusInput.addEventListener('input', () => applyStyle('borderRadius', this.borderRadiusInput.value + 'px'));
+        // Border style
+        if (this.borderStyleSelect) {
+            this.borderStyleSelect.addEventListener('change', () => applyStyle('borderStyle', this.borderStyleSelect.value));
+        }
 
         // Align buttons
         this.alignButtons.forEach(btn => {
@@ -547,23 +584,29 @@ export class StylesPanel {
         // Spacing
         this.paddingInput.value = String(parsePx(computed.padding));
         this.marginInput.value = String(parsePx(computed.margin));
-        // Update BoxModelEditor if initialized
-        if (this.boxModelEditor) {
-            this.boxModelEditor = new BoxModelEditor(
-                document.getElementById('box-model-editor-container') as HTMLElement,
-                parseInt(this.marginInput.value) || 0,
-                parseInt(this.paddingInput.value) || 0,
-                ({ margin, padding }) => {
-                    this.marginInput.value = String(margin);
-                    this.paddingInput.value = String(padding);
-                }
-            );
-        }
 
         // Border
         this.borderWidthInput.value = String(parsePx(computed.borderWidth));
         this.borderRadiusInput.value = String(parsePx(computed.borderRadius));
         this.borderColorInput.value = rgbToHex(computed.borderColor);
+        if (this.borderStyleSelect) {
+            const bs = computed.borderStyle || 'none';
+            // borderStyle can return "solid solid solid solid" — take first word
+            this.borderStyleSelect.value = bs.split(' ')[0];
+        }
+
+        // Update font picker trigger label
+        const fontPickerTrigger = (this as any)._fontPickerTrigger as HTMLElement;
+        const fontPickerFonts = (this as any)._fontPickerFonts as Array<{ label: string, value: string }>;
+        if (fontPickerTrigger && fontPickerFonts) {
+            const fontFamily = computed.fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+            const match = fontPickerFonts.find((f: any) => f.value.toLowerCase().includes(fontFamily.toLowerCase()) || f.label.toLowerCase() === fontFamily.toLowerCase());
+            const lbl = fontPickerTrigger.querySelector('.font-picker-label') as HTMLElement;
+            if (lbl) {
+                lbl.textContent = match ? match.label : fontFamily;
+                lbl.style.fontFamily = match ? match.value : fontFamily;
+            }
+        }
 
         this.suppressUpdates = false;
     }

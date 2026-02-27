@@ -1,21 +1,21 @@
 export interface BlockTemplate {
-    name: string;
-    thumbnail?: string;
-    html: string;
+  name: string;
+  thumbnail?: string;
+  html: string;
 }
 
 export interface BlockCategory {
-    title: string;
-    blocks: BlockTemplate[];
+  title: string;
+  blocks: BlockTemplate[];
 }
 
 export const PREDEFINED_BLOCKS: BlockCategory[] = [
-    {
-        title: 'Menu / Header Presets',
-        blocks: [
-            {
-                name: 'Simple Left Navbar',
-                html: `<header class="snap-nav-left" style="padding: 20px 40px; background: #fff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea;">
+  {
+    title: 'Menu / Header Presets',
+    blocks: [
+      {
+        name: 'Simple Left Navbar',
+        html: `<header class="snap-nav-left" style="padding: 20px 40px; background: #fff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea;">
           <div style="font-size: 24px; font-weight: bold; color: #111;">Brand</div>
           <nav style="display: flex; gap: 24px;">
             <a href="#" style="text-decoration: none; color: #555; font-size: 16px;">Home</a>
@@ -24,10 +24,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
           </nav>
           <button style="padding: 10px 20px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Get Started</button>
         </header>`
-            },
-            {
-                name: 'Centered Navbar',
-                html: `<header class="snap-nav-center" style="padding: 20px 40px; background: #fff; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid #eaeaea;">
+      },
+      {
+        name: 'Centered Navbar',
+        html: `<header class="snap-nav-center" style="padding: 20px 40px; background: #fff; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1px solid #eaeaea;">
           <nav style="display: flex; gap: 24px; justify-content: flex-start;">
             <a href="#" style="text-decoration: none; color: #555; font-size: 16px;">Features</a>
             <a href="#" style="text-decoration: none; color: #555; font-size: 16px;">Company</a>
@@ -38,10 +38,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <button style="padding: 10px 20px; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Sign Up</button>
           </div>
         </header>`
-            },
-            {
-                name: 'Dark Floating Pill (Glass)',
-                html: `<div style="padding: 20px; position: sticky; top: 0; z-index: 50; display: flex; justify-content: center;">
+      },
+      {
+        name: 'Dark Floating Pill (Glass)',
+        html: `<div style="padding: 20px; position: sticky; top: 0; z-index: 50; display: flex; justify-content: center;">
           <header class="snap-nav-pill" style="padding: 12px 24px; background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; box-shadow: 0 4px 24px rgba(0,0,0,0.1);">
             <div style="font-size: 20px; font-weight: bold; color: #fff;">Pill UI</div>
             <nav style="display: flex; gap: 32px;">
@@ -52,10 +52,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <button style="padding: 10px 24px; background: #fff; color: #111; border: none; border-radius: 999px; font-weight: 600; cursor: pointer;">Book Demo</button>
           </header>
         </div>`
-            },
-            {
-                name: 'Minimal Underline Nav',
-                html: `<header class="snap-nav-minimal" style="padding: 30px 40px; background: transparent; display: flex; justify-content: space-between; align-items: center;">
+      },
+      {
+        name: 'Minimal Underline Nav',
+        html: `<header class="snap-nav-minimal" style="padding: 30px 40px; background: transparent; display: flex; justify-content: space-between; align-items: center;">
           <div style="font-size: 22px; font-weight: 800; color: #111; text-transform: uppercase;">Studio</div>
           <nav style="display: flex; gap: 40px;">
             <a href="#" style="text-decoration: none; color: #111; font-size: 14px; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #111; padding-bottom: 4px;">Work</a>
@@ -63,15 +63,15 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <a href="#" style="text-decoration: none; color: #888; font-size: 14px; font-weight: 600; text-transform: uppercase; padding-bottom: 4px;">Contact</a>
           </nav>
         </header>`
-            }
-        ]
-    },
-    {
-        title: 'Hero Sections',
-        blocks: [
-            {
-                name: 'Hero Left Align',
-                html: `<section class="snap-hero-left" style="padding: 100px 5%; background: #f8f9fa;">
+      }
+    ]
+  },
+  {
+    title: 'Hero Sections',
+    blocks: [
+      {
+        name: 'Hero Left Align',
+        html: `<section class="snap-hero-left" style="padding: 100px 5%; background: #f8f9fa;">
           <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: flex-start; gap: 32px;">
             <h1 style="font-size: 56px; margin: 0; color: #111; line-height: 1.1; font-weight: 800;">Build your next big idea</h1>
             <p style="font-size: 20px; color: #555; max-width: 600px; margin: 0; line-height: 1.6;">SnapEdit helps you design and structure your landing pages with ease. Drag, drop, and export clean HTML.</p>
@@ -81,10 +81,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Hero Centered',
-                html: `<section class="snap-hero-center" style="padding: 120px 20px; background: #ffffff; text-align: center;">
+      },
+      {
+        name: 'Hero Centered',
+        html: `<section class="snap-hero-center" style="padding: 120px 20px; background: #ffffff; text-align: center;">
           <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 24px;">
             <span style="padding: 6px 16px; background: #f1f5f9; color: #0f172a; border-radius: 999px; font-size: 14px; font-weight: 600; border: 1px solid #e2e8f0;">Announcing V2.0</span>
             <h1 style="font-size: 64px; margin: 0; color: #111; line-height: 1.1; font-weight: 800;">The fastest way to build</h1>
@@ -94,10 +94,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Hero Split Header/Image',
-                html: `<section class="snap-hero-split" style="padding: 80px 5%; background: #ffffff;">
+      },
+      {
+        name: 'Hero Split Header/Image',
+        html: `<section class="snap-hero-split" style="padding: 80px 5%; background: #ffffff;">
           <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 24px;">
               <h1 style="font-size: 48px; margin: 0; color: #111; font-weight: 800; line-height: 1.2;">Design at the speed of thought</h1>
@@ -109,10 +109,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Hero Dark Mode',
-                html: `<section class="snap-hero-dark" style="padding: 120px 20px; background: #0f172a; color: #ffffff; text-align: center;">
+      },
+      {
+        name: 'Hero Dark Mode',
+        html: `<section class="snap-hero-dark" style="padding: 120px 20px; background: #0f172a; color: #ffffff; text-align: center;">
           <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 32px;">
             <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #3b82f6, #ec4899); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: -10px;">✨</div>
             <h1 style="font-size: 64px; margin: 0; line-height: 1.1; font-weight: 800; background: -webkit-linear-gradient(#fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Experience the dark side</h1>
@@ -123,15 +123,15 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            }
-        ]
-    },
-    {
-        title: 'Features Grid',
-        blocks: [
-            {
-                name: 'Grid 3 Columns (Icons Top)',
-                html: `<section class="snap-features-3col" style="padding: 80px 5%; background: #fff;">
+      }
+    ]
+  },
+  {
+    title: 'Features Grid',
+    blocks: [
+      {
+        name: 'Grid 3 Columns (Icons Top)',
+        html: `<section class="snap-features-3col" style="padding: 80px 5%; background: #fff;">
           <div style="max-width: 1200px; margin: 0 auto;">
             <div style="text-align: center; margin-bottom: 60px;">
               <h2 style="font-size: 36px; margin: 0 0 16px 0; color: #111;">Everything you need</h2>
@@ -156,10 +156,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Grid 2x2 (Cards)',
-                html: `<section class="snap-features-cards" style="padding: 80px 5%; background: #f8f9fa;">
+      },
+      {
+        name: 'Grid 2x2 (Cards)',
+        html: `<section class="snap-features-cards" style="padding: 80px 5%; background: #f8f9fa;">
           <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
             <div style="background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
                <h3 style="font-size: 24px; margin: 0 0 16px; color: #111;">Visual Editing</h3>
@@ -183,10 +183,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'List Features (Left Image, Right Text)',
-                html: `<section class="snap-features-list" style="padding: 80px 5%; background: #ffffff;">
+      },
+      {
+        name: 'List Features (Left Image, Right Text)',
+        html: `<section class="snap-features-list" style="padding: 80px 5%; background: #ffffff;">
           <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
             <div style="background: #f1f5f9; border-radius: 16px; height: 600px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 20px;">[Large Image or UI Mockup]</div>
             <div style="display: flex; flex-direction: column; gap: 40px;">
@@ -205,10 +205,32 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Dark Grid 4 Columns',
-                html: `<section class="snap-features-dark" style="padding: 100px 5%; background: #111111; color: #fff;">
+      },
+      {
+        name: 'List Features (Left Text, Right Image)',
+        html: `<section class="snap-features-list-reversed" style="padding: 80px 5%; background: #ffffff;">
+          <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+            <div style="display: flex; flex-direction: column; gap: 40px;">
+              <div>
+                <h3 style="font-size: 28px; margin: 0 0 12px; color: #111;">1. Real-time analytics</h3>
+                <p style="font-size: 18px; color: #666; margin: 0; line-height: 1.6;">Track every metric that matters with live dashboards updated every second.</p>
+              </div>
+              <div>
+                <h3 style="font-size: 28px; margin: 0 0 12px; color: #111;">2. Smart automations</h3>
+                <p style="font-size: 18px; color: #666; margin: 0; line-height: 1.6;">Set up triggers and workflows that run on autopilot to keep your team focused.</p>
+              </div>
+              <div>
+                <h3 style="font-size: 28px; margin: 0 0 12px; color: #111;">3. Team collaboration</h3>
+                <p style="font-size: 18px; color: #666; margin: 0; line-height: 1.6;">Invite your whole team with role-based access, comments, and shared views.</p>
+              </div>
+            </div>
+            <div style="background: #f1f5f9; border-radius: 16px; height: 600px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 20px;">[Large Image or UI Mockup]</div>
+          </div>
+        </section>`
+      },
+      {
+        name: 'Dark Grid 4 Columns',
+        html: `<section class="snap-features-dark" style="padding: 100px 5%; background: #111111; color: #fff;">
           <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
             <h2 style="font-size: 40px; margin: 0 0 60px 0; color: #fff;">Built for scale</h2>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; text-align: left;">
@@ -235,15 +257,68 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            }
-        ]
-    },
-    {
-        title: 'Testimonials / Opinions',
-        blocks: [
-            {
-                name: 'Single Large Quote',
-                html: `<section class="snap-testimonial-large" style="padding: 100px 5%; background: #fff; text-align: center;">
+      },
+      {
+        name: 'Alternating Zig-Zag Rows',
+        html: `<section style="padding: 80px 5%; background: #ffffff;">
+          <div style="max-width: 1100px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 60px;">
+              <h2 style="font-size: 36px; margin: 0 0 16px; color: #111;">How it works</h2>
+              <p style="font-size: 18px; color: #666; max-width: 550px; margin: 0 auto;">A simple three-step process to get you from idea to launch.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 60px; margin-bottom: 60px;">
+              <div style="flex: 1;"><span style="font-size: 13px; font-weight: 700; color: #4361ee; text-transform: uppercase; letter-spacing: 1px;">Step 1</span><h3 style="font-size: 28px; margin: 8px 0 12px; color: #111;">Design visually</h3><p style="font-size: 16px; color: #555; line-height: 1.7; margin: 0;">Drag and drop components onto the canvas and see changes in real time.</p></div>
+              <div style="flex: 1; background: #f1f5f9; border-radius: 16px; height: 240px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">[Image]</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 60px; flex-direction: row-reverse; margin-bottom: 60px;">
+              <div style="flex: 1;"><span style="font-size: 13px; font-weight: 700; color: #f72585; text-transform: uppercase; letter-spacing: 1px;">Step 2</span><h3 style="font-size: 28px; margin: 8px 0 12px; color: #111;">Customise styles</h3><p style="font-size: 16px; color: #555; line-height: 1.7; margin: 0;">Fine-tune typography, colours, spacing and borders from the style panel.</p></div>
+              <div style="flex: 1; background: #fdf4ff; border-radius: 16px; height: 240px; display: flex; align-items: center; justify-content: center; color: #c084fc;">[Image]</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 60px;">
+              <div style="flex: 1;"><span style="font-size: 13px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 1px;">Step 3</span><h3 style="font-size: 28px; margin: 8px 0 12px; color: #111;">Export & deploy</h3><p style="font-size: 16px; color: #555; line-height: 1.7; margin: 0;">Export clean HTML and host it anywhere — no lock-in.</p></div>
+              <div style="flex: 1; background: #f0fdf4; border-radius: 16px; height: 240px; display: flex; align-items: center; justify-content: center; color: #6ee7b7;">[Image]</div>
+            </div>
+          </div>
+        </section>`
+      },
+      {
+        name: 'Stats / Numbers Bar',
+        html: `<section style="padding: 60px 5%; background: linear-gradient(135deg, #4361ee, #7c3aed);">
+          <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; text-align: center;">
+            <div><div style="font-size: 48px; font-weight: 800; color: #fff; line-height: 1;">10K+</div><div style="font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 8px;">Active Users</div></div>
+            <div><div style="font-size: 48px; font-weight: 800; color: #fff; line-height: 1;">99.9%</div><div style="font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 8px;">Uptime</div></div>
+            <div><div style="font-size: 48px; font-weight: 800; color: #fff; line-height: 1;">50+</div><div style="font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 8px;">Integrations</div></div>
+            <div><div style="font-size: 48px; font-weight: 800; color: #fff; line-height: 1;">4.9★</div><div style="font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 8px;">Rating</div></div>
+          </div>
+        </section>`
+      },
+      {
+        name: 'Icon Grid 2×3 Centered',
+        html: `<section style="padding: 80px 5%; background: #fafafa;">
+          <div style="max-width: 1100px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 56px;">
+              <h2 style="font-size: 36px; margin: 0 0 16px; color: #111;">Packed with features</h2>
+              <p style="font-size: 18px; color: #666; max-width: 520px; margin: 0 auto;">Everything you need to build, launch and grow.</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 48px;">
+              <div style="text-align: center;"><div style="width: 56px; height: 56px; margin: 0 auto 16px; background: #eff6ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px;">✏️</div><h4 style="font-size: 18px; margin: 0 0 8px; color: #111;">Visual Editor</h4><p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">Point-and-click editing with live preview.</p></div>
+              <div style="text-align: center;"><div style="width: 56px; height: 56px; margin: 0 auto 16px; background: #fdf4ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px;">🎨</div><h4 style="font-size: 18px; margin: 0 0 8px; color: #111;">Style Controls</h4><p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">Full CSS controls for colour, type and spacing.</p></div>
+              <div style="text-align: center;"><div style="width: 56px; height: 56px; margin: 0 auto 16px; background: #f0fdf4; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px;">📱</div><h4 style="font-size: 18px; margin: 0 0 8px; color: #111;">Responsive</h4><p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">Preview and adjust layouts for any screen.</p></div>
+              <div style="text-align: center;"><div style="width: 56px; height: 56px; margin: 0 auto 16px; background: #fef3c7; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px;">⚡</div><h4 style="font-size: 18px; margin: 0 0 8px; color: #111;">Fast Builds</h4><p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">Optimised output for fast page loads.</p></div>
+              <div style="text-align: center;"><div style="width: 56px; height: 56px; margin: 0 auto 16px; background: #fce7f3; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px;">🔌</div><h4 style="font-size: 18px; margin: 0 0 8px; color: #111;">Integrations</h4><p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">Connect third-party tools and APIs.</p></div>
+              <div style="text-align: center;"><div style="width: 56px; height: 56px; margin: 0 auto 16px; background: #e0e7ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px;">🚀</div><h4 style="font-size: 18px; margin: 0 0 8px; color: #111;">One-Click Deploy</h4><p style="font-size: 14px; color: #666; margin: 0; line-height: 1.6;">Push your site live instantly.</p></div>
+            </div>
+          </div>
+        </section>`
+      }
+    ]
+  },
+  {
+    title: 'Testimonials / Opinions',
+    blocks: [
+      {
+        name: 'Single Large Quote',
+        html: `<section class="snap-testimonial-large" style="padding: 100px 5%; background: #fff; text-align: center;">
           <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 32px;">
             <div style="font-size: 40px; color: #000; opacity: 0.2; line-height: 0;">❝</div>
             <h2 style="font-size: 32px; font-weight: 400; font-style: italic; color: #111; margin: 0; line-height: 1.5;">"SnapEdit completely changed how our marketing team ships landing pages. What used to take days of engineering back-and-forth now takes exactly 30 minutes."</h2>
@@ -256,10 +331,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Grid 3 Columns Cards',
-                html: `<section class="snap-testimonial-grid" style="padding: 80px 5%; background: #f8f9fa;">
+      },
+      {
+        name: 'Grid 3 Columns Cards',
+        html: `<section class="snap-testimonial-grid" style="padding: 80px 5%; background: #f8f9fa;">
           <div style="max-width: 1200px; margin: 0 auto;">
             <h2 style="font-size: 36px; text-align: center; margin: 0 0 60px 0; color: #111;">Loved by modern creators</h2>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
@@ -281,10 +356,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Dark Highlight Box',
-                html: `<section class="snap-testimonial-dark" style="padding: 100px 5%; background: #111;">
+      },
+      {
+        name: 'Dark Highlight Box',
+        html: `<section class="snap-testimonial-dark" style="padding: 100px 5%; background: #111;">
           <div style="max-width: 900px; margin: 0 auto; background: #1a1a1a; padding: 60px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
             <p style="font-size: 24px; color: #fff; margin: 0 0 40px; line-height: 1.6; font-weight: 500;">"Finally, a tool that understands how developers and designers need to collaborate. The exported HTML is phenomenally clean."</p>
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
@@ -294,10 +369,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Left Meta, Right Quote',
-                html: `<section class="snap-testimonial-split" style="padding: 80px 5%; background: #fff;">
+      },
+      {
+        name: 'Left Meta, Right Quote',
+        html: `<section class="snap-testimonial-split" style="padding: 80px 5%; background: #fff;">
           <div style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 40px; align-items: center;">
              <div style="display: flex; flex-direction: column; gap: 12px;">
                <div style="width: 80px; height: 80px; background: #e2e8f0; border-radius: 50%;"></div>
@@ -309,15 +384,15 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
              </div>
           </div>
         </section>`
-            }
-        ]
-    },
-    {
-        title: 'FAQ (Accordion & Lists)',
-        blocks: [
-            {
-                name: 'Simple List FAQ',
-                html: `<section class="snap-faq-list" style="padding: 80px 5%; background: #ffffff;">
+      }
+    ]
+  },
+  {
+    title: 'FAQ (Accordion & Lists)',
+    blocks: [
+      {
+        name: 'Simple List FAQ',
+        html: `<section class="snap-faq-list" style="padding: 80px 5%; background: #ffffff;">
           <div style="max-width: 800px; margin: 0 auto;">
             <h2 style="font-size: 36px; text-align: center; margin: 0 0 60px 0; color: #111;">Frequently Asked Questions</h2>
             <div style="display: flex; flex-direction: column; gap: 32px;">
@@ -338,10 +413,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Grid 2 Column FAQ',
-                html: `<section class="snap-faq-grid" style="padding: 80px 5%; background: #f8f9fa;">
+      },
+      {
+        name: 'Grid 2 Column FAQ',
+        html: `<section class="snap-faq-grid" style="padding: 80px 5%; background: #f8f9fa;">
           <div style="max-width: 1200px; margin: 0 auto;">
             <div style="margin-bottom: 60px;">
               <h2 style="font-size: 36px; margin: 0 0 16px 0; color: #111;">Got questions?</h2>
@@ -367,10 +442,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Dark FAQ Stack',
-                html: `<section class="snap-faq-dark" style="padding: 100px 5%; background: #111111; color: #fff;">
+      },
+      {
+        name: 'Dark FAQ Stack',
+        html: `<section class="snap-faq-dark" style="padding: 100px 5%; background: #111111; color: #fff;">
           <div style="max-width: 800px; margin: 0 auto;">
             <h2 style="font-size: 40px; text-align: center; margin: 0 0 60px 0;">FAQ</h2>
             <div style="display: flex; flex-direction: column; gap: 24px;">
@@ -385,10 +460,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Accordion HTML (Native details tag)',
-                html: `<section class="snap-faq-accordion" style="padding: 80px 5%; background: #ffffff;">
+      },
+      {
+        name: 'Accordion HTML (Native details tag)',
+        html: `<section class="snap-faq-accordion" style="padding: 80px 5%; background: #ffffff;">
           <div style="max-width: 700px; margin: 0 auto;">
             <h2 style="font-size: 32px; text-align: center; margin: 0 0 40px; color: #111;">Frequently Asked Questions</h2>
             <style>.snap-faq-accordion details { padding: 20px 0; border-bottom: 1px solid #eee; } .snap-faq-accordion summary { font-size: 18px; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; } .snap-faq-accordion summary::-webkit-details-marker { display: none; } .snap-faq-accordion summary::after { content: '+'; font-size: 24px; color: #666; font-weight: 300; } .snap-faq-accordion details[open] summary::after { content: '-'; } .snap-faq-accordion p { padding-top: 16px; margin: 0; color: #555; line-height: 1.6; }</style>
@@ -406,23 +481,23 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </details>
           </div>
         </section>`
-            }
-        ]
-    },
-    {
-        title: 'Objections / Text Blocks',
-        blocks: [
-            {
-                name: 'Large Typography Statement',
-                html: `<section class="snap-text-statement" style="padding: 120px 5%; background: #3b82f6; color: #fff; text-align: center;">
+      }
+    ]
+  },
+  {
+    title: 'Objections / Text Blocks',
+    blocks: [
+      {
+        name: 'Large Typography Statement',
+        html: `<section class="snap-text-statement" style="padding: 120px 5%; background: #3b82f6; color: #fff; text-align: center;">
           <div style="max-width: 800px; margin: 0 auto;">
             <h2 style="font-size: 48px; font-weight: 800; margin: 0; line-height: 1.2; letter-spacing: -1px;">Stop losing customers to slow, poorly designed landing pages.</h2>
           </div>
         </section>`
-            },
-            {
-                name: 'Left/Right Split Text',
-                html: `<section class="snap-text-split" style="padding: 80px 5%; background: #ffffff;">
+      },
+      {
+        name: 'Left/Right Split Text',
+        html: `<section class="snap-text-split" style="padding: 80px 5%; background: #ffffff;">
           <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px;">
             <h2 style="font-size: 36px; color: #111; margin: 0; line-height: 1.3;">Most sites bounce 80% of traffic. Here is why we fix that.</h2>
             <div style="font-size: 18px; color: #555; line-height: 1.6;">
@@ -431,10 +506,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Objection Handling List',
-                html: `<section class="snap-text-objections" style="padding: 80px 5%; background: #f8f9fa;">
+      },
+      {
+        name: 'Objection Handling List',
+        html: `<section class="snap-text-objections" style="padding: 80px 5%; background: #f8f9fa;">
           <div style="max-width: 800px; margin: 0 auto;">
             <h2 style="font-size: 32px; text-align: center; margin: 0 0 60px; color: #111;">"But I already use WordPress..."</h2>
             <div style="display: flex; flex-direction: column; gap: 32px;">
@@ -455,24 +530,24 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'Simple Centered Text Block',
-                html: `<section class="snap-text-center" style="padding: 100px 5%; background: #ffffff; text-align: center;">
+      },
+      {
+        name: 'Simple Centered Text Block',
+        html: `<section class="snap-text-center" style="padding: 100px 5%; background: #ffffff; text-align: center;">
           <div style="max-width: 600px; margin: 0 auto;">
             <p style="font-size: 20px; color: #111; font-weight: 600; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 2px; color: #3b82f6;">Our Mission</p>
             <p style="font-size: 18px; color: #555; line-height: 1.8; margin: 0;">We believe that the web should be accessible, beautiful, and fast. Everyone should be able to create stunning visual experiences without a computer science degree.</p>
           </div>
         </section>`
-            }
-        ]
-    },
-    {
-        title: 'Logo Carousels',
-        blocks: [
-            {
-                name: 'Static Row (5 Logos)',
-                html: `<section class="snap-logos-static" style="padding: 60px 5%; background: #ffffff; text-align: center; border-bottom: 1px solid #eee;">
+      }
+    ]
+  },
+  {
+    title: 'Logo Carousels',
+    blocks: [
+      {
+        name: 'Static Row (5 Logos)',
+        html: `<section class="snap-logos-static" style="padding: 60px 5%; background: #ffffff; text-align: center; border-bottom: 1px solid #eee;">
           <p style="font-size: 14px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 32px;">Trusted by innovative teams</p>
           <div style="max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 32px;">
             <div style="font-size: 24px; font-weight: 800; color: #ccc;">Company A</div>
@@ -482,10 +557,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <div style="font-size: 24px; font-weight: 800; color: #ccc;">Company E</div>
           </div>
         </section>`
-            },
-            {
-                name: 'Dark Background Logos',
-                html: `<section class="snap-logos-dark" style="padding: 60px 5%; background: #111; text-align: center;">
+      },
+      {
+        name: 'Dark Background Logos',
+        html: `<section class="snap-logos-dark" style="padding: 60px 5%; background: #111; text-align: center;">
           <p style="font-size: 14px; color: #666; margin: 0 0 32px;">Powering the next generation of startups</p>
           <div style="max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 40px; opacity: 0.5;">
             <div style="width: 120px; height: 40px; background: #fff; border-radius: 4px; display: flex; align-items:center; justify-content:center; color:#111; font-weight:bold;">Logo</div>
@@ -494,10 +569,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <div style="width: 120px; height: 40px; background: #fff; border-radius: 4px; display: flex; align-items:center; justify-content:center; color:#111; font-weight:bold;">Logo</div>
           </div>
         </section>`
-            },
-            {
-                name: 'Grid Logos (2x3)',
-                html: `<section class="snap-logos-grid" style="padding: 80px 5%; background: #f8f9fa;">
+      },
+      {
+        name: 'Grid Logos (2x3)',
+        html: `<section class="snap-logos-grid" style="padding: 80px 5%; background: #f8f9fa;">
           <div style="max-width: 800px; margin: 0 auto;">
             <h2 style="text-align: center; font-size: 24px; color: #111; margin: 0 0 40px;">Backed by the best</h2>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
@@ -510,10 +585,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </section>`
-            },
-            {
-                name: 'CSS Auto-Scrolling Marquee',
-                html: `<section class="snap-logos-marquee" style="padding: 60px 0; background: #ffffff; overflow: hidden; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+      },
+      {
+        name: 'CSS Auto-Scrolling Marquee',
+        html: `<section class="snap-logos-marquee" style="padding: 60px 0; background: #ffffff; overflow: hidden; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
           <style>@keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-200px * 5)); } } .snap-marquee-track { display: flex; width: calc(200px * 10); animation: scroll 20s linear infinite; } .snap-marquee-track:hover { animation-play-state: paused; } .snap-marquee-item { width: 200px; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: #ccc; }</style>
           <div class="snap-marquee-track">
             <div class="snap-marquee-item">Brand 1</div>
@@ -529,15 +604,15 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <div class="snap-marquee-item">Brand 5</div>
           </div>
         </section>`
-            }
-        ]
-    },
-    {
-        title: 'Predefined Footers',
-        blocks: [
-            {
-                name: 'Simple Centered Footer',
-                html: `<footer class="snap-footer-center" style="padding: 60px 20px; background: #111; color: #fff; text-align: center;">
+      }
+    ]
+  },
+  {
+    title: 'Predefined Footers',
+    blocks: [
+      {
+        name: 'Simple Centered Footer',
+        html: `<footer class="snap-footer-center" style="padding: 60px 20px; background: #111; color: #fff; text-align: center;">
           <div style="font-size: 24px; font-weight: bold; margin-bottom: 24px;">Brand</div>
           <div style="display: flex; justify-content: center; gap: 24px; margin-bottom: 32px;">
             <a href="#" style="color: #aaa; text-decoration: none;">Twitter</a>
@@ -546,10 +621,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
           </div>
           <p style="color: #666; font-size: 14px; margin: 0;">© 2026 SnapEdit Inc. All rights reserved.</p>
         </footer>`
-            },
-            {
-                name: '4-Column Mega Footer',
-                html: `<footer class="snap-footer-mega" style="padding: 80px 5%; background: #f8f9fa;">
+      },
+      {
+        name: '4-Column Mega Footer',
+        html: `<footer class="snap-footer-mega" style="padding: 80px 5%; background: #f8f9fa;">
           <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
             <div>
               <div style="font-size: 24px; font-weight: bold; color: #111; margin-bottom: 16px;">Brand</div>
@@ -584,10 +659,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <span>Made with SnapEdit</span>
           </div>
         </footer>`
-            },
-            {
-                name: 'Dark Split Footer',
-                html: `<footer class="snap-footer-dark" style="padding: 60px 40px; background: #0f172a; color: #fff;">
+      },
+      {
+        name: 'Dark Split Footer',
+        html: `<footer class="snap-footer-dark" style="padding: 60px 40px; background: #0f172a; color: #fff;">
           <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 40px; margin-bottom: 40px;">
             <h2 style="font-size: 32px; margin: 0; font-weight: 700;">Ready to get started?</h2>
             <button style="padding: 12px 24px; background: #3b82f6; color: #fff; border: none; border-radius: 6px; font-weight: 600;">Create Account</button>
@@ -601,10 +676,10 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             </div>
           </div>
         </footer>`
-            },
-            {
-                name: 'Minimal Underline Links Footer',
-                html: `<footer class="snap-footer-minimal" style="padding: 40px 5%; background: #ffffff;">
+      },
+      {
+        name: 'Minimal Underline Links Footer',
+        html: `<footer class="snap-footer-minimal" style="padding: 40px 5%; background: #ffffff;">
           <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 16px; font-weight: bold; color: #111;">Brand.</div>
             <nav style="display: flex; gap: 32px;">
@@ -615,7 +690,7 @@ export const PREDEFINED_BLOCKS: BlockCategory[] = [
             <div style="color: #888; font-size: 13px;">hello@brand.com</div>
           </div>
         </footer>`
-            }
-        ]
-    }
+      }
+    ]
+  }
 ];

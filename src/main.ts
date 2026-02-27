@@ -15,6 +15,7 @@ import { PageSelector } from './panels/PageSelector';
 import { PrintPreviewPanel } from './panels/PrintPreviewPanel';
 import { SiteSettingsPanel } from './panels/SiteSettingsPanel';
 import { SectionsPanel } from './panels/SectionsPanel';
+import { GeneralPanel } from './panels/GeneralPanel';
 
 // Initialize SnapEdit
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new BreadcrumbBar(editor);
     new SiteSettingsPanel(editor);
     new SectionsPanel(editor);
+    new GeneralPanel(editor);
 
     // Layout panels
     new BreakpointManager(editor.bus);

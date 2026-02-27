@@ -98,6 +98,11 @@ export class InsertPanel {
                         this.showEmbedBuilder();
                         return;
                     }
+                    case 'custom-code':
+                        el = doc.createElement('div');
+                        el.innerHTML = '<style>\n  /* Custom CSS */\n  .custom-box { padding: 20px; background: #f3f4f6; border: 1px dashed #9ca3af; text-align: center; }\n</style>\n<div class="custom-box">Double-click to edit custom HTML/CSS</div>';
+                        el.setAttribute('data-se-label', 'Custom Code');
+                        break;
                     case 'video': {
                         const videoUrl = prompt('Enter video URL (.mp4, .webm, or YouTube embed):', 'https://www.w3schools.com/html/mov_bbb.mp4');
                         if (!videoUrl) return;
