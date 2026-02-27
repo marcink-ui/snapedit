@@ -93,6 +93,14 @@ export class InsertPanel {
                         // Visual marker (only visible on screen, hidden in print)
                         el.innerHTML = '<div style="border-top: 2px dashed #9ca3af; width: 100%;"></div><span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 2px 12px; font-size: 11px; color: #9ca3af; font-family: Inter, system-ui, sans-serif; letter-spacing: 0.5px; text-transform: uppercase;">✂ Page Break</span>';
                         break;
+                    case 'icon':
+                        el = doc.createElement('div');
+                        const iconUrl = prompt("Enter an SVG snippet or click OK for a default icon:");
+                        if (iconUrl === null) return;
+                        el.innerHTML = iconUrl && iconUrl.trim().startsWith('<svg') ? iconUrl : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+                        el.style.cssText = 'display: inline-flex; align-items: center; justify-content: center; font-size: 32px; color: #4361ee; margin: 8px; line-height: 1;';
+                        el.setAttribute('data-se-label', 'Icon (SVG)');
+                        break;
                     case 'embed': {
                         // Show embed panel instead of prompt
                         this.showEmbedBuilder();

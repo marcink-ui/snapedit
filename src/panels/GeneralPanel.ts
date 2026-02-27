@@ -54,7 +54,8 @@ export class GeneralPanel {
     private sectionOpen: Record<string, boolean> = { colors: true, typography: true, buttons: true, transitions: false };
     private activeTypoTag = 'body';
     private activeBtnVariant = 'primary';
-    private activeGlobalFont = 'Inter';
+    private activeBodyFont = 'Inter';
+    private activeHeadingFont = 'Inter';
     private btnVariants: Record<string, { bg: string; text: string; radius: string; padding: string; hoverBg: string; hoverText: string; hoverOpacity: string }> = {
         primary: { bg: '#4361ee', text: '#ffffff', radius: '8', padding: '10px 20px', hoverBg: '#3451d4', hoverText: '#ffffff', hoverOpacity: '0.9' },
         secondary: { bg: '#f72585', text: '#ffffff', radius: '8', padding: '10px 20px', hoverBg: '#d91f73', hoverText: '#ffffff', hoverOpacity: '0.9' },
@@ -147,32 +148,64 @@ export class GeneralPanel {
 
         // === Typography Section ===
         this.root.appendChild(this.buildSection('typography', 'Typography', 'Global tags', SECTION_ICONS.typography, (body) => {
-            // Global Font selector
-            const fontWrap = document.createElement('div');
-            fontWrap.style.cssText = 'margin-bottom: 14px;';
-            const fontLabel = document.createElement('label');
-            fontLabel.textContent = 'Global Font';
-            fontLabel.style.cssText = 'display:block; font-size:11px; color:var(--panel-text-dim); margin-bottom:6px; font-weight:500;';
-            fontWrap.appendChild(fontLabel);
+            // Global Font selectors
+            const fontGrid = document.createElement('div');
+            fontGrid.className = 'style-row-grid two-col';
+            fontGrid.style.cssText = 'margin-bottom: 14px; gap: 8px;';
 
-            const fontSelect = document.createElement('select');
-            fontSelect.className = 'gp-font-select';
-            fontSelect.id = 'gp-global-font';
             const fonts = ['Inter', 'Roboto', 'Poppins', 'Montserrat', 'Open Sans', 'Lato', 'Raleway', 'Nunito', 'Playfair Display', 'Merriweather', 'Work Sans', 'DM Sans', 'Space Grotesk', 'Outfit', 'Fira Sans'];
+
+            // Body Font
+            const bodyFontWrap = document.createElement('div');
+            const bodyFontLabel = document.createElement('label');
+            bodyFontLabel.textContent = 'Body Font';
+            bodyFontLabel.style.cssText = 'display:block; font-size:11px; color:var(--panel-text-dim); margin-bottom:6px; font-weight:500;';
+            bodyFontWrap.appendChild(bodyFontLabel);
+
+            const bodyFontSelect = document.createElement('select');
+            bodyFontSelect.className = 'gp-font-select';
+            bodyFontSelect.id = 'gp-body-font';
             fonts.forEach(f => {
                 const opt = document.createElement('option');
                 opt.value = f;
                 opt.textContent = f;
                 opt.style.fontFamily = f;
-                if (f === this.activeGlobalFont) opt.selected = true;
-                fontSelect.appendChild(opt);
+                if (f === this.activeBodyFont) opt.selected = true;
+                bodyFontSelect.appendChild(opt);
             });
-            fontSelect.addEventListener('change', () => {
-                this.activeGlobalFont = fontSelect.value;
-                this.applyGlobalFont(fontSelect.value);
+            bodyFontSelect.addEventListener('change', () => {
+                this.activeBodyFont = bodyFontSelect.value;
+                this.applyGlobalFonts();
             });
-            fontWrap.appendChild(fontSelect);
-            body.appendChild(fontWrap);
+            bodyFontWrap.appendChild(bodyFontSelect);
+            fontGrid.appendChild(bodyFontWrap);
+
+            // Heading Font
+            const headingFontWrap = document.createElement('div');
+            const headingFontLabel = document.createElement('label');
+            headingFontLabel.textContent = 'Heading Font';
+            headingFontLabel.style.cssText = 'display:block; font-size:11px; color:var(--panel-text-dim); margin-bottom:6px; font-weight:500;';
+            headingFontWrap.appendChild(headingFontLabel);
+
+            const headingFontSelect = document.createElement('select');
+            headingFontSelect.className = 'gp-font-select';
+            headingFontSelect.id = 'gp-heading-font';
+            fonts.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f;
+                opt.textContent = f;
+                opt.style.fontFamily = f;
+                if (f === this.activeHeadingFont) opt.selected = true;
+                headingFontSelect.appendChild(opt);
+            });
+            headingFontSelect.addEventListener('change', () => {
+                this.activeHeadingFont = headingFontSelect.value;
+                this.applyGlobalFonts();
+            });
+            headingFontWrap.appendChild(headingFontSelect);
+            fontGrid.appendChild(headingFontWrap);
+
+            body.appendChild(fontGrid);
             // Tag selector pills
             const tags = document.createElement('div');
             tags.className = 'gp-typo-tags';
@@ -757,27 +790,37 @@ export class GeneralPanel {
     }
 
     // ─── Global Font ────────────────────────────────────────────────
-    private applyGlobalFont(fontName: string) {
+    private applyGlobalFonts() {
         const doc = this.editor.getIframeDocument();
         if (!doc) return;
 
-        // Load the font via Google Fonts in the iframe
-        const fontId = 'se-global-font-link';
-        let link = doc.getElementById(fontId) as HTMLLinkElement;
-        if (!link) {
-            link = doc.createElement('link');
-            link.id = fontId;
-            link.rel = 'stylesheet';
-            doc.head.appendChild(link);
+        // Load the Body font
+        const bodyFontId = "se-global-body-font-link";
+        let bodyLink = doc.getElementById(bodyFontId) as HTMLLinkElement;
+        if (!bodyLink) {
+            bodyLink = doc.createElement("link");
+            bodyLink.id = bodyFontId;
+            bodyLink.rel = "stylesheet";
+            doc.head.appendChild(bodyLink);
         }
-        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700&display=swap`;
+        bodyLink.href = `https://fonts.googleapis.com/css2?family=${this.activeBodyFont.replace(/ /g, "+")}:wght@300;400;500;600;700&display=swap`;
+
+        // Load heading font as well
+        const headingFontId = "se-global-heading-font-link";
+        let headingLink = doc.getElementById(headingFontId) as HTMLLinkElement;
+        if (!headingLink) {
+            headingLink = doc.createElement("link");
+            headingLink.id = headingFontId;
+            headingLink.rel = "stylesheet";
+            doc.head.appendChild(headingLink);
+        }
+        headingLink.href = `https://fonts.googleapis.com/css2?family=${this.activeHeadingFont.replace(/ /g, "+")}:wght@300;400;500;600;700&display=swap`;
 
         // Apply font to body
-        this.updateGlobalCSSRule('global-font', `body { font-family: '${fontName}', sans-serif !important; }`);
-        this.editor.pushHistory(`Set global font: ${fontName}`);
-        showToast(`Font: ${fontName}`);
+        this.updateGlobalCSSRule("global-font", `body { font-family: "${this.activeBodyFont}", sans-serif !important; } h1, h2, h3, h4, h5, h6 { font-family: "${this.activeHeadingFont}", sans-serif !important; }`);
+        this.editor.pushHistory(`Set global fonts`);
+        showToast(`Fonts updated`);
     }
-
     // ─── Buttons ─────────────────────────────────────────────────
     private applyBtnPreset(preset: string) {
         let css = '';

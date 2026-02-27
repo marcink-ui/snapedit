@@ -336,12 +336,49 @@ export class EditorCore {
     }
 
     private autoResizeIframe(): void {
-        // Disabled: Iframe now fills the viewport using flex: 1 and scrolls internally
-        // to prevent infinite loops caused by user HTML containing 'vh' units.
+        const doc = this.iframe.contentDocument;
+        if (!doc) return;
+
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
+        if (this.contentResizeObserver) {
+            this.contentResizeObserver.disconnect();
+            this.contentResizeObserver = null;
+        }
+
+        // Observe DOM mutations to trigger resize
+        this.resizeObserver = new MutationObserver(() => this.doResize());
+        this.resizeObserver.observe(doc.body, { childList: true, subtree: true, attributes: true, characterData: true });
+
+        // Observe layout resizes
+        this.contentResizeObserver = new ResizeObserver(() => {
+            if (!this.resizeLocked) this.doResize();
+        });
+        this.contentResizeObserver.observe(doc.body);
+
+        this.doResize();
     }
 
     private doResize(): void {
-        // Disabled: Height is now managed entirely by CSS (flex: 1 on #canvas-iframe)
+        if (this.resizeLocked) return;
+        const doc = this.iframe.contentDocument;
+        if (!doc?.documentElement) return;
+
+        this.resizeLocked = true;
+
+        const contentHeight = doc.documentElement.offsetHeight;
+        const newHeight = Math.max(800, contentHeight + 40);
+
+        if (this.iframe.style.height !== newHeight + "px") {
+            this.iframe.style.height = newHeight + "px";
+            this.bus.emit('canvas:resized');
+        }
+
+        requestAnimationFrame(() => {
+            this.resizeLocked = false;
+        });
     }
 
     private setupDragAndDrop(): void {

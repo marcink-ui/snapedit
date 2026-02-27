@@ -134,13 +134,23 @@ export class StylesPanel {
     private initFontPicker(): void {
         const FONTS = [
             { label: 'Inter', value: 'Inter, sans-serif' },
-            { label: 'Helvetica', value: "'Helvetica Neue', sans-serif" },
+            { label: 'Roboto', value: 'Roboto, sans-serif' },
+            { label: 'Poppins', value: 'Poppins, sans-serif' },
+            { label: 'Montserrat', value: 'Montserrat, sans-serif' },
+            { label: 'Open Sans', value: '"Open Sans", sans-serif' },
+            { label: 'Lato', value: 'Lato, sans-serif' },
+            { label: 'Raleway', value: 'Raleway, sans-serif' },
+            { label: 'Nunito', value: 'Nunito, sans-serif' },
+            { label: 'Playfair Display', value: '"Playfair Display", serif' },
+            { label: 'Merriweather', value: 'Merriweather, serif' },
+            { label: 'Work Sans', value: '"Work Sans", sans-serif' },
+            { label: 'DM Sans', value: '"DM Sans", sans-serif' },
+            { label: 'Space Grotesk', value: '"Space Grotesk", sans-serif' },
+            { label: 'Outfit', value: 'Outfit, sans-serif' },
+            { label: 'Fira Sans', value: '"Fira Sans", sans-serif' },
+            { label: 'Helvetica', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
             { label: 'Georgia', value: 'Georgia, serif' },
-            { label: 'Courier', value: "'Courier New', monospace" },
-            { label: 'Arial', value: 'Arial, sans-serif' },
-            { label: 'Times', value: "'Times New Roman', serif" },
-            { label: 'Verdana', value: 'Verdana, sans-serif' },
-            { label: 'System', value: 'system-ui, sans-serif' },
+            { label: 'System', value: 'system-ui, sans-serif' }
         ];
 
         const wrapper = this.fontFamilySelect.parentElement!;
@@ -207,7 +217,7 @@ export class StylesPanel {
         const elementContent = document.getElementById('panel-content-element')!;
         const insertContent = document.getElementById('panel-content-insert')!;
         const sectionsContent = document.getElementById('panel-content-sections')!;
-        const generalContent = document.getElementById('panel-content-global');
+        const generalContent = document.getElementById('panel-content-global-tab');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
