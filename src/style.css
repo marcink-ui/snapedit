@@ -879,31 +879,53 @@ body {
   margin-bottom: 12px;
 }
 
-/* Collapsible section titles */
+/* Collapsible section titles — rich bar style (matches Global panel) */
 .section-title[data-collapsible] {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   cursor: pointer;
-  padding: 6px 8px;
-  margin: 0 -8px 12px -8px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0 -12px 12px -12px;
+  border-radius: 0;
   transition: background 0.15s ease, color 0.15s ease;
   user-select: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--panel-text-bright);
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .section-title[data-collapsible]:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--panel-text);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.section-title[data-collapsible] span {
+.section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(67, 97, 238, 0.12);
+  color: var(--panel-accent);
+  flex-shrink: 0;
+}
+
+.section-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.section-title[data-collapsible] span:not(.section-icon) {
   flex: 1;
 }
 
 .collapse-chevron {
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0.5;
+  opacity: 0.4;
   flex-shrink: 0;
 }
 
