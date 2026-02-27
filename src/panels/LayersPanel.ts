@@ -195,8 +195,9 @@ export class LayersPanel {
             // Smart auto-label: ID > meaningful class > tag + preview
             const el = node.element;
             const elId = el.id && !el.id.startsWith('se-') ? `#${el.id}` : '';
-            const meaningfulClass = el.className
-                ?.split(' ')
+            const rawClass = el.getAttribute('class') || '';
+            const meaningfulClass = rawClass
+                .split(' ')
                 .filter(c => !c.startsWith('se-') && c.length > 0)
                 .slice(0, 2)
                 .join('.');
@@ -399,8 +400,9 @@ export class LayersPanel {
                 node.element.removeAttribute('data-se-label');
                 this.customNames.delete(node.element);
                 // Restore class name display
-                const className = node.element.className
-                    ?.split(' ')
+                const rawClass = node.element.getAttribute('class') || '';
+                const className = rawClass
+                    .split(' ')
                     .filter(c => !c.startsWith('se-'))
                     .join('.');
                 nameEl.textContent = className ? '.' + className : '';

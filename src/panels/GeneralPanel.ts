@@ -17,6 +17,29 @@ const GP_STORAGE_KEY = 'snapedit-general-panel-state';
 
 const CHEVRON_SVG = `<svg class="gp-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
 
+const ICON_LIBRARY: { name: string; svg: string }[] = [
+    { name: 'Arrow Right', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>' },
+    { name: 'Arrow Left', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>' },
+    { name: 'Chevron Right', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>' },
+    { name: 'Cart', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>' },
+    { name: 'Search', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' },
+    { name: 'Menu', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>' },
+    { name: 'Heart', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+    { name: 'Star', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+    { name: 'Plus', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' },
+    { name: 'Check', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' },
+    { name: 'External Link', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' },
+    { name: 'Download', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' },
+    { name: 'Upload', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' },
+    { name: 'Mail', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>' },
+    { name: 'Phone', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' },
+    { name: 'Settings', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' },
+    { name: 'User', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' },
+    { name: 'Trash', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' },
+    { name: 'Edit', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' },
+    { name: 'Play', svg: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>' },
+];
+
 const SECTION_ICONS = {
     colors: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="15.5" r="2.5"/><circle cx="8.5" cy="15.5" r="2.5"/></svg>`,
     typography: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
@@ -61,6 +84,11 @@ export class GeneralPanel {
         secondary: { bg: '#f72585', text: '#ffffff', radius: '8', padding: '10px 20px', hoverBg: '#d91f73', hoverText: '#ffffff', hoverOpacity: '0.9' },
         tertiary: { bg: 'transparent', text: '#4361ee', radius: '8', padding: '10px 20px', hoverBg: 'rgba(67,97,238,0.08)', hoverText: '#3451d4', hoverOpacity: '1' }
     };
+
+    // Icon button state
+    private btnIconEnabled = false;
+    private btnIconIndex = -1;
+    private btnIconPosition: 'left' | 'right' = 'left';
 
     private root!: HTMLElement;
 
@@ -377,6 +405,70 @@ export class GeneralPanel {
             hoverTxtField.appendChild(hoverTxtDiv);
             row3.appendChild(hoverTxtField);
             fields.appendChild(row3);
+
+            // ─── Icon Button Sub-Section ─────────────────────────
+            const iconHeader = document.createElement('div');
+            iconHeader.style.cssText = 'font-size:11px; font-weight:600; color:var(--panel-text-bright); margin-top:8px; margin-bottom:6px; padding-top:8px; border-top:1px solid var(--panel-border); display:flex; align-items:center; gap:8px;';
+
+            const iconToggle = document.createElement('input');
+            iconToggle.type = 'checkbox';
+            iconToggle.id = 'gp-btn-icon-toggle';
+            iconToggle.checked = this.btnIconEnabled;
+            iconToggle.style.cssText = 'accent-color:var(--accent-primary); cursor:pointer;';
+            iconToggle.addEventListener('change', () => {
+                this.btnIconEnabled = iconToggle.checked;
+                iconPickerWrap.style.display = this.btnIconEnabled ? 'block' : 'none';
+                this.updateBtnPreview();
+            });
+            const iconLabel = document.createElement('label');
+            iconLabel.textContent = 'Add Icon';
+            iconLabel.htmlFor = 'gp-btn-icon-toggle';
+            iconLabel.style.cssText = 'cursor:pointer;';
+            iconHeader.appendChild(iconToggle);
+            iconHeader.appendChild(iconLabel);
+            fields.appendChild(iconHeader);
+
+            // Icon picker grid (hidden until toggle is on)
+            const iconPickerWrap = document.createElement('div');
+            iconPickerWrap.style.display = this.btnIconEnabled ? 'block' : 'none';
+
+            // Position selector
+            const posRow = document.createElement('div');
+            posRow.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:8px;';
+            const posLabel = document.createElement('label');
+            posLabel.textContent = 'Position';
+            posLabel.style.cssText = 'font-size:11px; color:var(--panel-text-dim); font-weight:500;';
+            const posSelect = document.createElement('select');
+            posSelect.className = 'gp-font-select';
+            posSelect.style.cssText = 'flex:1;';
+            posSelect.innerHTML = '<option value="left">Left</option><option value="right">Right</option>';
+            posSelect.value = this.btnIconPosition;
+            posSelect.addEventListener('change', () => {
+                this.btnIconPosition = posSelect.value as 'left' | 'right';
+                this.updateBtnPreview();
+            });
+            posRow.appendChild(posLabel);
+            posRow.appendChild(posSelect);
+            iconPickerWrap.appendChild(posRow);
+
+            // Icon grid
+            const iconGrid = document.createElement('div');
+            iconGrid.className = 'gp-icon-grid';
+            ICON_LIBRARY.forEach((icon, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'gp-icon-cell' + (this.btnIconIndex === idx ? ' active' : '');
+                cell.innerHTML = icon.svg;
+                cell.title = icon.name;
+                cell.addEventListener('click', () => {
+                    this.btnIconIndex = idx;
+                    iconGrid.querySelectorAll('.gp-icon-cell').forEach(c => c.classList.remove('active'));
+                    cell.classList.add('active');
+                    this.updateBtnPreview();
+                });
+                iconGrid.appendChild(cell);
+            });
+            iconPickerWrap.appendChild(iconGrid);
+            fields.appendChild(iconPickerWrap);
 
             const applyBtn = document.createElement('button');
             applyBtn.className = 'insert-go-btn';
@@ -948,6 +1040,17 @@ export class GeneralPanel {
         } else {
             preview.style.border = 'none';
         }
+
+        // Icon preview
+        if (this.btnIconEnabled && this.btnIconIndex >= 0) {
+            const icon = ICON_LIBRARY[this.btnIconIndex];
+            const iconHtml = `<span style="display:inline-flex;align-items:center;vertical-align:middle;margin-${this.btnIconPosition === 'left' ? 'right' : 'left'}:6px">${icon.svg}</span>`;
+            preview.innerHTML = this.btnIconPosition === 'left'
+                ? iconHtml + 'Button Preview'
+                : 'Button Preview' + iconHtml;
+        } else {
+            preview.textContent = 'Button Preview';
+        }
     }
 
     private applyBtnVariant() {
@@ -989,7 +1092,24 @@ export class GeneralPanel {
         focusRule += `outline-offset: 2px !important; `;
         focusRule += '}';
 
-        this.updateGlobalCSSRule(`btn-variant-${variant}`, rule + '\n' + hoverRule + '\n' + activeRule + '\n' + focusRule);
+        // Icon pseudo-element CSS
+        let iconRules = '';
+        if (this.btnIconEnabled && this.btnIconIndex >= 0) {
+            const icon = ICON_LIBRARY[this.btnIconIndex];
+            const encodedSvg = encodeURIComponent(icon.svg.replace('currentColor', v.text));
+            const dataUri = `url("data:image/svg+xml,${encodedSvg}")`;
+            const pseudo = this.btnIconPosition === 'left' ? '::before' : '::after';
+            const margin = this.btnIconPosition === 'left' ? 'margin-right: 6px' : 'margin-left: 6px';
+            iconRules = `\n${wideSelectors}${pseudo} { content: ${dataUri} !important; display: inline-block !important; width: 1em !important; height: 1em !important; ${margin} !important; vertical-align: middle !important; }`;
+            // Remove the opposite pseudo if previously set
+            const oppPseudo = this.btnIconPosition === 'left' ? '::after' : '::before';
+            iconRules += `\n${wideSelectors}${oppPseudo} { content: none !important; }`;
+        } else {
+            // Clear icon pseudo-elements
+            iconRules = `\n${wideSelectors}::before { content: none !important; }\n${wideSelectors}::after { content: none !important; }`;
+        }
+
+        this.updateGlobalCSSRule(`btn-variant-${variant}`, rule + '\n' + hoverRule + '\n' + activeRule + '\n' + focusRule + iconRules);
         this.updateBtnPreview();
         this.editor.pushHistory(`Update ${variant} button`);
         showToast('Button variant updated');

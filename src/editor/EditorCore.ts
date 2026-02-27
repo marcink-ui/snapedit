@@ -45,6 +45,101 @@ export class EditorCore {
         this.setupKeyboardShortcuts();
     }
 
+    /** Load a multi-file project by URL (served externally) */
+    loadFromURL(url: string): void {
+        // Disconnect old observers
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
+        if (this.contentResizeObserver) {
+            this.contentResizeObserver.disconnect();
+            this.contentResizeObserver = null;
+        }
+
+        this.iframe.src = url;
+        this.iframe.onload = () => {
+            const doc = this.iframe.contentDocument;
+            if (!doc) return;
+
+            // Inject editor-specific CSS constraints
+            const editorStyle = doc.createElement('style');
+            editorStyle.id = 'se-editor-overrides';
+            editorStyle.textContent = `
+                html, body {
+                    height: auto !important;
+                    overflow: visible !important;
+                }
+                body > div {
+                    height: auto !important;
+                    overflow: visible !important;
+                }
+            `;
+            doc.head.appendChild(editorStyle);
+
+            setTimeout(() => {
+                this.autoResizeIframe();
+                this.setupDragAndDrop();
+                this.selectionManager.init();
+                this.inlineEditor.init();
+
+                // Save initial history state
+                this.history.saveInitial(this.getContentHTML());
+
+                // Re-apply drag/drop handlers when DOM changes
+                this.bus.on('dom:changed', () => {
+                    this.setupDragAndDrop();
+                    this.requestResize();
+                });
+
+                // Click on body clears selection
+                doc.addEventListener('click', (e: MouseEvent) => {
+                    const target = e.target as HTMLElement;
+                    if (target === doc.body || target === doc.documentElement) {
+                        this.selectionManager.clearSelection();
+                    }
+                });
+
+                // Stop inline editing when clicking outside the editing element
+                doc.addEventListener('mousedown', (e: MouseEvent) => {
+                    if (this.inlineEditor.isEditing()) {
+                        const target = e.target as HTMLElement;
+                        const selected = this.selectionManager.getSelectedElement();
+                        if (target !== selected && !selected?.contains(target)) {
+                            this.inlineEditor.stopEditing();
+                        }
+                    }
+                });
+
+                // Prevent selection overlay from overlapping with inline edit outline
+                this.bus.on('inline:start', () => {
+                    this.selectionManager.setEnabled(false);
+                });
+                this.bus.on('inline:stop', (el: HTMLElement) => {
+                    this.selectionManager.setEnabled(true);
+                    this.selectionManager.selectElement(el);
+                });
+
+                // Right-click context menu forwarding
+                doc.addEventListener('contextmenu', (e: MouseEvent) => {
+                    e.preventDefault();
+                    const target = e.target as HTMLElement;
+                    if (target === doc.body || target === doc.documentElement) return;
+                    this.selectionManager.selectElement(target);
+                    const iframeRect = this.iframe.getBoundingClientRect();
+                    const scrollY = this.canvasWrapper.closest('#canvas-area')?.scrollTop || 0;
+                    this.bus.emit('element:contextmenu', {
+                        element: target,
+                        x: e.clientX + iframeRect.left,
+                        y: e.clientY + iframeRect.top - scrollY,
+                    });
+                });
+
+                this.bus.emit('content:loaded');
+            }, 200);
+        };
+    }
+
     loadContent(html: string): void {
         const doc = this.iframe.contentDocument;
         if (!doc) return;
@@ -537,6 +632,9 @@ export class EditorCore {
             // Delete selected element
             if (e.key === 'Delete' || e.key === 'Backspace') {
                 if (this.inlineEditor.isEditing()) return;
+                // Don't delete elements when a sidebar input/select/textarea has focus
+                const active = document.activeElement;
+                if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA' || (active as HTMLElement).isContentEditable)) return;
                 const selected = this.selectionManager.getSelectedElement();
                 if (selected && selected.tagName !== 'BODY') {
                     e.preventDefault();

@@ -279,7 +279,7 @@ body {
 .glass-dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
-  right: 16px;
+  left: 0;
   width: 340px;
   background: linear-gradient(180deg, rgba(30, 30, 46, 0.98), rgba(22, 22, 38, 0.99));
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -293,7 +293,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px) scale(0.98);
-  transform-origin: top right;
+  transform-origin: top left;
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     visibility 0.2s;
@@ -866,7 +866,7 @@ body {
 }
 
 .panel-section {
-  padding: 14px 16px;
+  padding: 0 16px;
   border-bottom: 1px solid var(--panel-border);
 }
 
@@ -876,7 +876,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--panel-text-dim);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* Collapsible section titles — rich bar style (matches Global panel) */
@@ -886,16 +886,20 @@ body {
   gap: 10px;
   cursor: pointer;
   padding: 10px 12px;
-  margin: 0 -12px 12px -12px;
+  margin: 0 -12px 0 -12px;
   border-radius: 0;
   transition: background 0.15s ease, color 0.15s ease;
   user-select: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   font-size: 12px;
   font-weight: 600;
   color: var(--panel-text-bright);
   letter-spacing: 0.01em;
   text-transform: none;
+}
+
+/* When section is expanded, add bottom margin to title for content spacing */
+.panel-section:not(.collapsed) .section-title[data-collapsible] {
+  margin-bottom: 8px;
 }
 
 .section-title[data-collapsible]:hover {
@@ -906,9 +910,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   background: rgba(67, 97, 238, 0.12);
   color: var(--panel-accent);
   flex-shrink: 0;
@@ -951,6 +955,11 @@ body {
   pointer-events: none;
 }
 
+/* When expanded, give the section bottom padding for content breathing room */
+.panel-section:not(.collapsed) {
+  padding-bottom: 8px;
+}
+
 /* Typography toggle buttons (italic, underline, strikethrough) */
 .typo-toggle-btn {
   position: relative;
@@ -967,7 +976,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .style-row:last-child {
@@ -984,8 +993,8 @@ body {
 
 .style-row-grid {
   display: grid;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .style-row-grid.two-col {
@@ -1312,6 +1321,398 @@ select {
 }
 
 /* ===========================
+   Load Content Modal — Layout
+   =========================== */
+
+.load-modal {
+  width: 620px;
+  max-width: 90vw;
+}
+
+.load-modal-body {
+  padding: 20px 24px 24px;
+}
+
+/* ─── Tab Pills ─── */
+
+.load-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--color-gray-800);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+.load-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--color-gray-400);
+}
+
+.load-tab.active {
+  background: var(--color-gray-700);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.load-tab:not(.active):hover {
+  color: var(--color-gray-200);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.load-tab svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.load-tab.active svg {
+  opacity: 1;
+}
+
+/* ─── Panels ─── */
+
+.load-panel {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===========================
+   Upload Dropzone
+   =========================== */
+
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  border: 2px dashed var(--panel-border);
+  border-radius: 10px;
+  background: var(--color-gray-900);
+  transition: all var(--transition-fast);
+  color: var(--panel-text-bright);
+  padding: 32px;
+  text-align: center;
+}
+
+.upload-dropzone.drag-active {
+  border-color: var(--panel-accent);
+  background: rgba(88, 101, 242, 0.05);
+  /* very light accent background */
+}
+
+.upload-dropzone .upload-icon {
+  color: var(--panel-text-dim);
+  margin-bottom: 16px;
+  width: 48px;
+  height: 48px;
+}
+
+.upload-dropzone p {
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  font-weight: 500;
+}
+
+.upload-dropzone .upload-divider {
+  font-size: 12px;
+  color: var(--panel-text-dim);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* ===========================
+   Project Cards (Load Modal)
+   =========================== */
+
+.project-cards-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header row: label + count */
+.project-cards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.project-cards-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--color-gray-400);
+}
+
+.project-cards-count {
+  font-size: 10px;
+  color: var(--color-gray-500);
+  background: var(--color-gray-800);
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* Cards list (sub-grid) */
+.project-cards-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Individual card */
+.project-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--panel-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: cardSlideIn 0.2s ease;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-card:hover {
+  border-color: var(--panel-accent);
+  background: rgba(67, 97, 238, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Folder icon */
+.project-card-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Info group */
+.project-card-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.project-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--panel-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-card-desc {
+  font-size: 10px;
+  color: var(--color-gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 3px;
+}
+
+/* Chevron arrow */
+.project-card-arrow {
+  flex-shrink: 0;
+  color: var(--color-gray-600);
+  display: flex;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.project-card:hover .project-card-arrow {
+  color: var(--panel-accent);
+  transform: translateX(2px);
+}
+
+/* Delete button */
+.project-card-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-gray-600);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.15s;
+  z-index: 2;
+}
+
+.project-card:hover .project-card-delete {
+  opacity: 1;
+}
+
+.project-card-delete:hover {
+  background: rgba(255, 77, 106, 0.15);
+  color: #ff4d6a;
+}
+
+/* "+" Add Project button */
+.project-card-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 60px;
+  border: 2px dashed var(--panel-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-gray-500);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+}
+
+.project-card-add:hover {
+  border-color: var(--panel-accent);
+  color: var(--panel-accent);
+  background: rgba(67, 97, 238, 0.04);
+}
+
+.project-card-add svg {
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.project-card-add:hover svg {
+  opacity: 1;
+}
+
+/* ─── Add Project Inline Form ─── */
+
+.project-add-form {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  border: 1px solid var(--panel-accent);
+  border-radius: 10px;
+  background: rgba(67, 97, 238, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: cardSlideIn 0.15s ease;
+}
+
+.project-form-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--panel-text-bright);
+}
+
+.project-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.project-add-form input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: var(--panel-text-bright);
+  font-family: var(--font);
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.project-add-form input:focus {
+  border-color: var(--panel-accent);
+  box-shadow: 0 0 0 2px var(--panel-accent-glow);
+}
+
+.project-add-form input::placeholder {
+  color: var(--panel-text-dim);
+}
+
+.project-add-form-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.project-add-form-actions button {
+  padding: 7px 16px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.project-add-form-actions .btn-save {
+  background: var(--panel-accent);
+  color: #fff;
+}
+
+.project-add-form-actions .btn-save:hover {
+  background: var(--panel-accent-hover);
+  transform: translateY(-1px);
+}
+
+.project-add-form-actions .btn-cancel {
+  background: var(--panel-surface);
+  color: var(--panel-text);
+  border: 1px solid var(--panel-border);
+}
+
+.project-add-form-actions .btn-cancel:hover {
+  background: var(--color-gray-700);
+}
+
+/* ===========================
    Modal
    =========================== */
 
@@ -1398,18 +1799,20 @@ select {
 
 #html-input {
   flex: 1;
+  width: 100%;
   min-height: 300px;
-  margin: 16px 20px;
-  padding: 14px;
-  background: var(--panel-surface);
+  margin: 0 0 16px;
+  padding: 16px;
+  background: var(--color-gray-900);
   border: 1px solid var(--panel-border);
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--panel-text-bright);
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  line-height: 1.5;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
   resize: vertical;
   outline: none;
+  box-sizing: border-box;
   transition: border-color var(--transition-fast);
 }
 
@@ -1420,6 +1823,25 @@ select {
 
 #html-input::placeholder {
   color: var(--panel-text-dim);
+  font-style: italic;
+}
+
+/* Custom scrollbar for textarea */
+#html-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+#html-input::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#html-input::-webkit-scrollbar-thumb {
+  background: var(--color-gray-600);
+  border-radius: 3px;
+}
+
+#html-input::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
 }
 
 .preview-actions {
@@ -1482,8 +1904,9 @@ input:checked+.toggle-slider:before {
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 20px;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 0;
   border-top: 1px solid var(--panel-border);
 }
 
@@ -2938,4 +3361,136 @@ input:checked+.toggle-slider:before {
   color: var(--panel-text);
   text-align: center;
   width: 100%;
+}
+
+/* ===========================
+   Icon Button Picker Grid (A3)
+   =========================== */
+
+.gp-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.gp-icon-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: var(--panel-surface);
+  color: var(--panel-text-dim);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gp-icon-cell:hover {
+  border-color: var(--panel-accent);
+  color: var(--panel-text-bright);
+  background: var(--panel-accent-glow);
+}
+
+.gp-icon-cell.active {
+  border-color: var(--panel-accent);
+  background: var(--panel-accent);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(67, 97, 238, 0.3);
+}
+
+.gp-icon-cell svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ===========================
+   Components List (D9)
+   =========================== */
+
+.components-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.component-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.component-card:hover {
+  border-color: var(--panel-accent);
+  background: var(--panel-accent-glow);
+  transform: translateY(-1px);
+}
+
+.component-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.component-card-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.component-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.component-card-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--panel-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.component-card-tag {
+  font-size: 10px;
+  color: var(--panel-text-dim);
+  margin-top: 1px;
+}
+
+.component-card-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  color: var(--panel-text-dim);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.component-card-delete:hover {
+  background: rgba(255, 77, 106, 0.15);
+  color: #ff4d6a;
 }

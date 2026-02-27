@@ -1,6 +1,8 @@
 import { EditorCore } from '../editor/EditorCore';
 import { showToast, parsePx } from '../utils/dom-helpers';
 
+const COMPONENTS_KEY = 'snapedit-components';
+
 /**
  * InsertPanel — Handles the 'Insert' tab in the right sidebar:
  * - Image insertion via URL or file upload
@@ -15,6 +17,7 @@ export class InsertPanel {
         this.editor = editor;
         this.setupElementInsert();
         this.setupEmbedBuilder();
+        this.setupComponents();
         this.setupEventBus();
     }
 
@@ -25,6 +28,10 @@ export class InsertPanel {
 
         this.editor.bus.on('selection:clear', () => {
             this.currentElement = null;
+        });
+
+        this.editor.bus.on('component:saved', () => {
+            this.renderComponents();
         });
     }
 
@@ -326,6 +333,94 @@ export class InsertPanel {
             // Hide form builder
             const section = document.getElementById('form-builder-section');
             if (section) section.style.display = 'none';
+        });
+    }
+
+    // ─── Components ──────────────────────────────────────────────
+    private setupComponents(): void {
+        this.renderComponents();
+    }
+
+    private renderComponents(): void {
+        const list = document.getElementById('components-list');
+        if (!list) return;
+
+        let components: { id: string; name: string; tag: string; html: string; created: number }[] = [];
+        try {
+            components = JSON.parse(localStorage.getItem(COMPONENTS_KEY) || '[]');
+        } catch { /* ignore */ }
+
+        if (components.length === 0) {
+            list.innerHTML = '<p class="panel-empty-hint" style="text-align:center; font-size:11px; color:var(--color-gray-400); padding:12px 0;">No components saved yet.<br>Right-click an element → Save as Component</p>';
+            return;
+        }
+
+        list.innerHTML = '';
+        components.forEach(comp => {
+            const card = document.createElement('div');
+            card.className = 'component-card';
+            card.title = `Click to insert "${comp.name}"`;
+
+            card.innerHTML = `
+                <div class="component-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+                <div class="component-card-info">
+                    <div class="component-card-name">${comp.name}</div>
+                    <div class="component-card-tag">&lt;${comp.tag}&gt;</div>
+                </div>
+            `;
+
+            // Delete button
+            const delBtn = document.createElement('button');
+            delBtn.className = 'component-card-delete';
+            delBtn.innerHTML = '×';
+            delBtn.title = 'Delete component';
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                try {
+                    const stored = JSON.parse(localStorage.getItem(COMPONENTS_KEY) || '[]');
+                    const updated = stored.filter((c: any) => c.id !== comp.id);
+                    localStorage.setItem(COMPONENTS_KEY, JSON.stringify(updated));
+                    this.renderComponents();
+                    showToast('Component deleted');
+                } catch { /* ignore */ }
+            });
+            card.appendChild(delBtn);
+
+            // Click to insert
+            card.addEventListener('click', () => {
+                const doc = this.editor.getIframeDocument();
+                if (!doc?.body) return;
+
+                // Parse HTML and insert using a robust approach
+                const temp = doc.createElement('div');
+                temp.innerHTML = comp.html.trim();
+
+                // Get all children to insert (component might be multi-element)
+                const children = Array.from(temp.children) as HTMLElement[];
+                if (children.length === 0) {
+                    showToast('Component HTML is empty');
+                    return;
+                }
+
+                const insertionPoint = this.currentElement && this.currentElement.parentNode
+                    ? this.currentElement : null;
+
+                children.forEach(child => {
+                    if (insertionPoint && insertionPoint.parentNode) {
+                        insertionPoint.parentNode.insertBefore(child, insertionPoint.nextSibling);
+                    } else {
+                        doc.body.appendChild(child);
+                    }
+                });
+
+                this.editor.requestResize();
+                this.editor.bus.emit('dom:changed');
+                this.editor.pushHistory(`Insert component: ${comp.name}`);
+                if (children[0]) this.editor.selectionManager.selectElement(children[0]);
+                showToast(`Inserted "${comp.name}"`);
+            });
+
+            list.appendChild(card);
         });
     }
 }

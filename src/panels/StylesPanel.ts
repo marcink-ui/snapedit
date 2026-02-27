@@ -2,6 +2,14 @@ import { EditorCore } from '../editor/EditorCore';
 import { ColorInput } from '../utils/ColorInput';
 import { rgbToHex, parsePx, getTagDescriptor, showToast } from '../utils/dom-helpers';
 
+/** Detect if an element is an SVG or contains a direct child SVG */
+function findSvgElement(el: HTMLElement): SVGElement | null {
+    if (el instanceof SVGElement) return el;
+    const childSvg = el.querySelector(':scope > svg');
+    if (childSvg instanceof SVGElement) return childSvg;
+    return null;
+}
+
 export class StylesPanel {
     private editor: EditorCore;
     private currentElement: HTMLElement | null = null;
@@ -47,6 +55,15 @@ export class StylesPanel {
     private imgGrayscale!: HTMLInputElement;
     private imgBlur!: HTMLInputElement;
 
+    // SVG controls
+    private svgSelectedSettings!: HTMLElement;
+    private svgWidthInput!: HTMLInputElement;
+    private svgHeightInput!: HTMLInputElement;
+    private svgStrokeWidthInput!: HTMLInputElement;
+    private svgColorInput!: ColorInput;
+    private svgFillInput!: ColorInput;
+    private svgStrokeInput!: ColorInput;
+
     // Global controls (HEX color inputs)
     private globalTextColor!: ColorInput;
     private globalBgColor!: ColorInput;
@@ -69,6 +86,7 @@ export class StylesPanel {
         this.setupListeners();
         this.setupLinkListeners();
         this.setupImageListeners();
+        this.setupSvgListeners();
         this.setupEventBus();
         this.initFontPicker();
     }
@@ -113,6 +131,12 @@ export class StylesPanel {
         this.imgContrast = document.getElementById('img-contrast') as HTMLInputElement;
         this.imgGrayscale = document.getElementById('img-grayscale') as HTMLInputElement;
         this.imgBlur = document.getElementById('img-blur') as HTMLInputElement;
+
+        // SVG controls
+        this.svgSelectedSettings = document.getElementById('svg-selected-settings') as HTMLElement;
+        this.svgWidthInput = document.getElementById('svg-width') as HTMLInputElement;
+        this.svgHeightInput = document.getElementById('svg-height') as HTMLInputElement;
+        this.svgStrokeWidthInput = document.getElementById('svg-stroke-width') as HTMLInputElement;
 
         // Global color inputs — now using ColorInput with HEX
         this.globalTextColor = new ColorInput('global-text-color');
@@ -615,6 +639,7 @@ export class StylesPanel {
         this.populateStyles(el);
         this.populateLink(el);
         this.populateImage(el);
+        this.populateSvg(el);
     }
 
     private populateStyles(el: HTMLElement): void {
@@ -754,6 +779,120 @@ export class StylesPanel {
         if (this.imgContrast) this.imgContrast.value = cMatch ? String(Math.round(Number(cMatch[1]))) : '100';
         if (this.imgGrayscale) this.imgGrayscale.value = gMatch ? String(Math.round(Number(gMatch[1]))) : '0';
         if (this.imgBlur) this.imgBlur.value = blMatch ? String(Math.round(Number(blMatch[1]))) : '0';
+    }
+
+    private setupSvgListeners(): void {
+        if (!this.svgSelectedSettings) return;
+
+        // Color inputs for SVG — lazily initialized since DOM is ready
+        requestAnimationFrame(() => {
+            this.svgColorInput = new ColorInput('svg-color');
+            this.svgFillInput = new ColorInput('svg-fill');
+            this.svgStrokeInput = new ColorInput('svg-stroke');
+
+            this.svgColorInput.onChange((hex) => {
+                if (!this.currentElement) return;
+                const svg = findSvgElement(this.currentElement);
+                if (svg) {
+                    this.currentElement.style.color = hex;
+                    svg.style.color = hex;
+                    this.editor.pushHistory('SVG color');
+                }
+            });
+
+            this.svgFillInput.onChange((hex) => {
+                if (!this.currentElement) return;
+                const svg = findSvgElement(this.currentElement);
+                if (svg) {
+                    svg.setAttribute('fill', hex);
+                    svg.style.fill = hex;
+                    this.editor.pushHistory('SVG fill');
+                }
+            });
+
+            this.svgStrokeInput.onChange((hex) => {
+                if (!this.currentElement) return;
+                const svg = findSvgElement(this.currentElement);
+                if (svg) {
+                    svg.setAttribute('stroke', hex);
+                    svg.style.stroke = hex;
+                    this.editor.pushHistory('SVG stroke');
+                }
+            });
+        });
+
+        this.svgWidthInput?.addEventListener('input', () => {
+            if (!this.currentElement) return;
+            const svg = findSvgElement(this.currentElement);
+            if (svg) {
+                const val = this.svgWidthInput.value;
+                svg.setAttribute('width', val);
+                svg.style.width = val + 'px';
+                this.editor.selectionManager.refreshSelectOverlay();
+                this.editor.pushHistory('SVG width');
+            }
+        });
+
+        this.svgHeightInput?.addEventListener('input', () => {
+            if (!this.currentElement) return;
+            const svg = findSvgElement(this.currentElement);
+            if (svg) {
+                const val = this.svgHeightInput.value;
+                svg.setAttribute('height', val);
+                svg.style.height = val + 'px';
+                this.editor.selectionManager.refreshSelectOverlay();
+                this.editor.pushHistory('SVG height');
+            }
+        });
+
+        this.svgStrokeWidthInput?.addEventListener('input', () => {
+            if (!this.currentElement) return;
+            const svg = findSvgElement(this.currentElement);
+            if (svg) {
+                const val = this.svgStrokeWidthInput.value;
+                svg.setAttribute('stroke-width', val);
+                svg.style.strokeWidth = val;
+                this.editor.pushHistory('SVG stroke-width');
+            }
+        });
+    }
+
+    private populateSvg(el: HTMLElement): void {
+        if (!this.svgSelectedSettings) return;
+
+        const svg = findSvgElement(el);
+        if (!svg) {
+            this.svgSelectedSettings.style.display = 'none';
+            return;
+        }
+
+        this.svgSelectedSettings.style.display = 'block';
+
+        // Width/height
+        const w = svg.getAttribute('width') || svg.style.width || '24';
+        const h = svg.getAttribute('height') || svg.style.height || '24';
+        this.svgWidthInput.value = String(parseInt(w) || 24);
+        this.svgHeightInput.value = String(parseInt(h) || 24);
+
+        // Color (CSS)
+        const computed = getComputedStyle(el);
+        if (this.svgColorInput) this.svgColorInput.value = rgbToHex(computed.color);
+
+        // Fill
+        const fill = svg.getAttribute('fill') || svg.style.fill || 'none';
+        if (this.svgFillInput) {
+            this.svgFillInput.value = fill === 'none' || fill === 'currentColor' ? '#000000' : rgbToHex(fill);
+        }
+
+        // Stroke
+        const stroke = svg.getAttribute('stroke') || svg.style.stroke || 'currentColor';
+        if (this.svgStrokeInput) {
+            this.svgStrokeInput.value = stroke === 'currentColor' ? rgbToHex(computed.color) : rgbToHex(stroke);
+        }
+
+        // Stroke width
+        const sw = svg.getAttribute('stroke-width') || svg.style.strokeWidth || '2';
+        this.svgStrokeWidthInput.value = String(parseFloat(sw) || 2);
     }
 
     private selectClosestOption(select: HTMLSelectElement, value: string): void {

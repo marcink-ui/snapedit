@@ -1,5 +1,8 @@
 import { EditorCore } from '../editor/EditorCore';
 import { StyleClipboard } from '../utils/StyleClipboard';
+import { showToast } from '../utils/dom-helpers';
+
+const COMPONENTS_KEY = 'snapedit-components';
 
 interface MenuItem {
     label: string;
@@ -149,6 +152,41 @@ export class ContextMenu {
                     this.editor.bus.emit('dom:changed');
                 },
                 disabled: () => element.children.length === 0,
+                dividerAfter: true,
+            },
+            {
+                label: 'Save as Component',
+                icon: '📦',
+                action: () => {
+                    const name = prompt('Component name:', element.tagName.toLowerCase() + ' component');
+                    if (!name) return;
+                    try {
+                        // Clone and strip editor artifacts before saving
+                        const clone = element.cloneNode(true) as HTMLElement;
+                        clone.querySelectorAll('.se-drag-handle').forEach(h => h.remove());
+                        clone.classList.remove('se-draggable');
+                        clone.removeAttribute('draggable');
+                        // Also clean nested elements
+                        clone.querySelectorAll('.se-draggable').forEach(el => {
+                            el.classList.remove('se-draggable');
+                            el.removeAttribute('draggable');
+                        });
+
+                        const stored = JSON.parse(localStorage.getItem(COMPONENTS_KEY) || '[]');
+                        stored.push({
+                            id: 'comp_' + Date.now(),
+                            name,
+                            tag: element.tagName.toLowerCase(),
+                            html: clone.outerHTML,
+                            created: Date.now()
+                        });
+                        localStorage.setItem(COMPONENTS_KEY, JSON.stringify(stored));
+                        this.editor.bus.emit('component:saved');
+                        showToast(`Component "${name}" saved`);
+                    } catch {
+                        showToast('Failed to save component');
+                    }
+                },
             },
         ];
     }
