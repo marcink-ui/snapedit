@@ -422,6 +422,9 @@ export class EditorCore {
                 .se-drag-over {
                     border-top: 3px solid #4361ee !important;
                 }
+                .se-drag-over-bottom {
+                    border-bottom: 3px solid #4361ee !important;
+                }
                 .se-dragging {
                     opacity: 0.4;
                 }
@@ -455,7 +458,10 @@ export class EditorCore {
 
             el.addEventListener('dragend', () => {
                 el.classList.remove('se-dragging');
-                doc.querySelectorAll('.se-drag-over').forEach(d => d.classList.remove('se-drag-over'));
+                doc.querySelectorAll('.se-drag-over, .se-drag-over-bottom').forEach(d => {
+                    d.classList.remove('se-drag-over');
+                    d.classList.remove('se-drag-over-bottom');
+                });
                 this.requestResize();
             });
 
@@ -463,25 +469,45 @@ export class EditorCore {
                 if (!this.editorEnabled) return;
                 e.preventDefault();
                 e.dataTransfer!.dropEffect = 'move';
-                doc.querySelectorAll('.se-drag-over').forEach(d => d.classList.remove('se-drag-over'));
-                el.classList.add('se-drag-over');
+                doc.querySelectorAll('.se-drag-over, .se-drag-over-bottom').forEach(d => {
+                    d.classList.remove('se-drag-over');
+                    d.classList.remove('se-drag-over-bottom');
+                });
+                // Determine if cursor is in the top or bottom half
+                const rect = el.getBoundingClientRect();
+                const mid = rect.top + rect.height / 2;
+                if (e.clientY < mid) {
+                    el.classList.add('se-drag-over');
+                } else {
+                    el.classList.add('se-drag-over-bottom');
+                }
             });
 
             el.addEventListener('dragleave', () => {
                 el.classList.remove('se-drag-over');
+                el.classList.remove('se-drag-over-bottom');
             });
 
             el.addEventListener('drop', (e: DragEvent) => {
                 if (!this.editorEnabled) return;
                 e.preventDefault();
+                const isBottom = el.classList.contains('se-drag-over-bottom');
                 el.classList.remove('se-drag-over');
+                el.classList.remove('se-drag-over-bottom');
 
                 const dragging = doc.querySelector('.se-dragging') as HTMLElement;
                 if (dragging && dragging !== el) {
-                    el.parentNode?.insertBefore(dragging, el);
+                    if (isBottom) {
+                        // Insert after the target element
+                        el.parentNode?.insertBefore(dragging, el.nextSibling);
+                    } else {
+                        // Insert before the target element
+                        el.parentNode?.insertBefore(dragging, el);
+                    }
                     dragging.classList.remove('se-dragging');
                     this.requestResize();
                     this.pushHistory('Reorder elements');
+                    this.bus.emit('dom:changed');
                 }
             });
         });

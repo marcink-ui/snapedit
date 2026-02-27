@@ -154,6 +154,7 @@ export class StylesPanel {
         ];
 
         const wrapper = this.fontFamilySelect.parentElement!;
+        wrapper.style.position = 'relative';
         // Hide native select
         this.fontFamilySelect.style.display = 'none';
 
@@ -164,10 +165,24 @@ export class StylesPanel {
         trigger.innerHTML = '<span class="font-picker-label">Inter</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>';
         wrapper.appendChild(trigger);
 
-        // Create dropdown
+        // Create dropdown (appended to body so it's not clipped by overflow)
         const dropdown = document.createElement('div');
         dropdown.className = 'font-picker-dropdown';
         dropdown.id = 'font-picker-dropdown';
+
+        // Search input
+        const searchWrap = document.createElement('div');
+        searchWrap.className = 'font-picker-search-wrap';
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search fonts…';
+        searchInput.className = 'font-picker-search';
+        searchWrap.appendChild(searchInput);
+        dropdown.appendChild(searchWrap);
+
+        // Items container (scrollable)
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'font-picker-items';
 
         FONTS.forEach(f => {
             const item = document.createElement('div');
@@ -183,27 +198,57 @@ export class StylesPanel {
                 dropdown.classList.remove('open');
                 trigger.classList.remove('open');
             });
-            dropdown.appendChild(item);
+            itemsContainer.appendChild(item);
         });
-        wrapper.appendChild(dropdown);
+        dropdown.appendChild(itemsContainer);
+
+        // Append to document body to avoid sidebar overflow clipping
+        document.body.appendChild(dropdown);
+
+        // Search filter
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase();
+            itemsContainer.querySelectorAll('.font-picker-item').forEach((item) => {
+                const el = item as HTMLElement;
+                el.style.display = el.textContent!.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
 
         // Prevent clicks inside dropdown from bubbling to document close handler
-        dropdown.addEventListener('click', (e) => {
+        dropdown.addEventListener('mousedown', (e) => {
             e.stopPropagation();
         });
 
-        // Toggle dropdown
+        // Position and toggle dropdown
+        const positionDropdown = () => {
+            const rect = trigger.getBoundingClientRect();
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 4) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = rect.width + 'px';
+        };
+
         trigger.addEventListener('click', (e) => {
             e.stopPropagation();
             const isOpen = dropdown.classList.contains('open');
+            if (!isOpen) {
+                positionDropdown();
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
             dropdown.classList.toggle('open', !isOpen);
             trigger.classList.toggle('open', !isOpen);
+            if (!isOpen) {
+                setTimeout(() => searchInput.focus(), 50);
+            }
         });
 
         // Close on outside click
-        document.addEventListener('click', () => {
-            dropdown.classList.remove('open');
-            trigger.classList.remove('open');
+        document.addEventListener('mousedown', (e) => {
+            if (!dropdown.contains(e.target as Node) && !trigger.contains(e.target as Node)) {
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            }
         });
 
         // Store reference for updating

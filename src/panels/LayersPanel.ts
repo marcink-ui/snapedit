@@ -372,8 +372,30 @@ export class LayersPanel {
         for (const row of Array.from(rows)) {
             const treeNode = (row as any).__treeNode as TreeNode;
             if (treeNode && treeNode.element === el) {
+                // Auto-expand all collapsed parent containers
+                let parentEl = (row as HTMLElement).parentElement;
+                while (parentEl && parentEl !== this.treeContainer) {
+                    if (parentEl.classList.contains('layer-children') && parentEl.style.display === 'none') {
+                        parentEl.style.display = 'block';
+                        // Also update the arrow in the sibling row
+                        const prevRow = parentEl.previousElementSibling;
+                        if (prevRow) {
+                            const arrow = prevRow.querySelector('.layer-arrow');
+                            if (arrow) arrow.textContent = '▾';
+                            const treeNodeParent = (prevRow as any).__treeNode as TreeNode;
+                            if (treeNodeParent) treeNodeParent.expanded = true;
+                        }
+                    }
+                    parentEl = parentEl.parentElement;
+                }
+
                 (row as HTMLElement).classList.add('layer-active');
                 this.selectedNodeEl = row as HTMLElement;
+
+                // Pulse animation for visual feedback
+                (row as HTMLElement).classList.add('layer-pulse');
+                setTimeout(() => (row as HTMLElement).classList.remove('layer-pulse'), 600);
+
                 row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 break;
             }
