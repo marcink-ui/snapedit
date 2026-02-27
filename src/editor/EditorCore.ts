@@ -330,6 +330,17 @@ export class EditorCore {
             doc.body.appendChild(img);
         }
 
+        setTimeout(() => {
+            const rect = img.getBoundingClientRect();
+            const scrollArea = document.getElementById('canvas-area');
+            if (scrollArea) {
+                scrollArea.scrollTo({
+                    top: scrollArea.scrollTop + rect.top - (scrollArea.clientHeight / 2) + (rect.height / 2),
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+
         this.selectionManager.clearSelection();
         this.bus.emit('selection:change', img);
         this.requestResize();
@@ -346,6 +357,9 @@ export class EditorCore {
         const range = doc.createRange();
         const frag = range.createContextualFragment(htmlString);
 
+        // Grab a reference to the top-level element we are inserting
+        const newEl = frag.firstElementChild as HTMLElement;
+
         const selected = this.selectionManager.getSelectedElement();
         if (selected && selected !== doc.body && selected !== doc.documentElement) {
             // If they selected a layout wrapper, insert inside it. Otherwise, insert after it.
@@ -356,6 +370,19 @@ export class EditorCore {
             }
         } else {
             doc.body.appendChild(frag);
+        }
+
+        if (newEl) {
+            setTimeout(() => {
+                const rect = newEl.getBoundingClientRect();
+                const scrollArea = document.getElementById('canvas-area');
+                if (scrollArea) {
+                    scrollArea.scrollTo({
+                        top: scrollArea.scrollTop + rect.top - (scrollArea.clientHeight / 2) + (rect.height / 2),
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
         }
 
         this.requestResize();

@@ -84,6 +84,15 @@ export class StylesPanel {
         this.bindElements();
         this.setupTabs();
         this.setupListeners();
+
+        // Auto-select text on focus to prevent appending to "0"
+        [this.fontSizeInput, this.letterSpacingInput, this.paddingInput, this.marginInput, this.borderWidthInput, this.borderRadiusInput, this.imgWidth, this.imgHeight, this.imgRadius, this.imgOpacity, this.svgWidthInput, this.svgHeightInput, this.svgStrokeWidthInput].forEach(input => {
+            if (input) {
+                input.addEventListener('focus', () => setTimeout(() => input.select(), 10));
+                input.addEventListener('click', () => setTimeout(() => input.select(), 10));
+            }
+        });
+        
         this.setupLinkListeners();
         this.setupImageListeners();
         this.setupSvgListeners();
