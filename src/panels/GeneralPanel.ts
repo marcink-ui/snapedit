@@ -21,6 +21,7 @@ const SECTION_ICONS = {
     colors: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="15.5" r="2.5"/><circle cx="8.5" cy="15.5" r="2.5"/></svg>`,
     typography: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
     buttons: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="4"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
+    transitions: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
 };
 
 export class GeneralPanel {
@@ -45,17 +46,19 @@ export class GeneralPanel {
     private typoColorInput!: ColorInput;
     private btnBgInput!: ColorInput;
     private btnTextInput!: ColorInput;
+    private btnHoverBgInput!: ColorInput;
+    private btnHoverTextInput!: ColorInput;
 
     // State
     private typoStyles: Record<string, any> = {};
-    private sectionOpen: Record<string, boolean> = { colors: true, typography: true, buttons: true };
+    private sectionOpen: Record<string, boolean> = { colors: true, typography: true, buttons: true, transitions: false };
     private activeTypoTag = 'body';
     private activeBtnVariant = 'primary';
     private activeGlobalFont = 'Inter';
-    private btnVariants: Record<string, { bg: string; text: string; radius: string; padding: string }> = {
-        primary: { bg: '#4361ee', text: '#ffffff', radius: '8', padding: '10px 20px' },
-        secondary: { bg: '#f72585', text: '#ffffff', radius: '8', padding: '10px 20px' },
-        tertiary: { bg: 'transparent', text: '#4361ee', radius: '8', padding: '10px 20px' }
+    private btnVariants: Record<string, { bg: string; text: string; radius: string; padding: string; hoverBg: string; hoverText: string; hoverOpacity: string }> = {
+        primary: { bg: '#4361ee', text: '#ffffff', radius: '8', padding: '10px 20px', hoverBg: '#3451d4', hoverText: '#ffffff', hoverOpacity: '0.9' },
+        secondary: { bg: '#f72585', text: '#ffffff', radius: '8', padding: '10px 20px', hoverBg: '#d91f73', hoverText: '#ffffff', hoverOpacity: '0.9' },
+        tertiary: { bg: 'transparent', text: '#4361ee', radius: '8', padding: '10px 20px', hoverBg: 'rgba(67,97,238,0.08)', hoverText: '#3451d4', hoverOpacity: '1' }
     };
 
     private root!: HTMLElement;
@@ -232,6 +235,28 @@ export class GeneralPanel {
             row2.appendChild(padField);
             fields.appendChild(row2);
 
+            // Letter-spacing + Text-transform row
+            const row3 = this.createRow();
+            const lsField = this.createField('Letter Spacing');
+            const lsWrap = this.createInputUnit('gp-typo-ls', 'px', '0');
+            lsField.appendChild(lsWrap);
+            row3.appendChild(lsField);
+
+            const ttField = this.createField('Transform');
+            const ttSelect = document.createElement('select');
+            ttSelect.id = 'gp-typo-tt';
+            ttSelect.className = 'gp-font-select';
+            ttSelect.style.cssText = 'font-size:11px; padding:4px 6px;';
+            ['none', 'uppercase', 'lowercase', 'capitalize'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+                ttSelect.appendChild(opt);
+            });
+            ttField.appendChild(ttSelect);
+            row3.appendChild(ttField);
+            fields.appendChild(row3);
+
             // Apply button
             const applyBtn = document.createElement('button');
             applyBtn.className = 'insert-go-btn';
@@ -323,6 +348,27 @@ export class GeneralPanel {
             row2.appendChild(padField);
             fields.appendChild(row2);
 
+            // Hover state controls
+            const hoverHeader = document.createElement('div');
+            hoverHeader.style.cssText = 'font-size:11px; font-weight:600; color:var(--panel-text-bright); margin-top:8px; margin-bottom:6px; padding-top:8px; border-top:1px solid var(--panel-border);';
+            hoverHeader.textContent = 'Hover State';
+            fields.appendChild(hoverHeader);
+
+            const row3 = this.createRow();
+            const hoverBgField = this.createField('Hover BG');
+            const hoverBgDiv = document.createElement('div');
+            hoverBgDiv.className = 'color-input-hex';
+            hoverBgDiv.id = 'gp-btn-hover-bg';
+            hoverBgField.appendChild(hoverBgDiv);
+            row3.appendChild(hoverBgField);
+            const hoverTxtField = this.createField('Hover Text');
+            const hoverTxtDiv = document.createElement('div');
+            hoverTxtDiv.className = 'color-input-hex';
+            hoverTxtDiv.id = 'gp-btn-hover-text';
+            hoverTxtField.appendChild(hoverTxtDiv);
+            row3.appendChild(hoverTxtField);
+            fields.appendChild(row3);
+
             const applyBtn = document.createElement('button');
             applyBtn.className = 'insert-go-btn';
             applyBtn.style.cssText = 'width:100%; margin-top:4px;';
@@ -338,9 +384,86 @@ export class GeneralPanel {
             this.typoColorInput = new ColorInput('gp-typo-color');
             this.btnBgInput = new ColorInput('gp-btn-bg');
             this.btnTextInput = new ColorInput('gp-btn-text');
+            this.btnHoverBgInput = new ColorInput('gp-btn-hover-bg');
+            this.btnHoverTextInput = new ColorInput('gp-btn-hover-text');
             // Load initial variant fields
             this.loadBtnVariantFields();
         });
+
+        // === Transitions Section ===
+        this.root.appendChild(this.buildSection('transitions', 'Transitions', 'Global animations', SECTION_ICONS.transitions, (body) => {
+            const fields = document.createElement('div');
+            fields.style.cssText = 'display:flex; flex-direction:column; gap:10px;';
+
+            // Property
+            const propField = this.createField('Property');
+            const propSelect = document.createElement('select');
+            propSelect.id = 'gp-trans-prop';
+            propSelect.className = 'gp-font-select';
+            ['all', 'opacity', 'transform', 'background', 'color', 'border', 'box-shadow'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+                propSelect.appendChild(opt);
+            });
+            propField.appendChild(propSelect);
+            fields.appendChild(propField);
+
+            const row1 = this.createRow();
+            // Duration
+            const durField = this.createField('Duration');
+            const durWrap = this.createInputUnit('gp-trans-dur', 's', '0.3');
+            durField.appendChild(durWrap);
+            row1.appendChild(durField);
+            // Delay
+            const delField = this.createField('Delay');
+            const delWrap = this.createInputUnit('gp-trans-delay', 's', '0');
+            delField.appendChild(delWrap);
+            row1.appendChild(delField);
+            fields.appendChild(row1);
+
+            // Easing
+            const easeField = this.createField('Easing');
+            const easeSelect = document.createElement('select');
+            easeSelect.id = 'gp-trans-ease';
+            easeSelect.className = 'gp-font-select';
+            [
+                { v: 'ease', l: 'Ease' },
+                { v: 'ease-in', l: 'Ease In' },
+                { v: 'ease-out', l: 'Ease Out' },
+                { v: 'ease-in-out', l: 'Ease In-Out' },
+                { v: 'linear', l: 'Linear' },
+                { v: 'cubic-bezier(0.4, 0, 0.2, 1)', l: 'Material' },
+                { v: 'cubic-bezier(0.22, 1, 0.36, 1)', l: 'Smooth' },
+            ].forEach(({ v, l }) => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = l;
+                easeSelect.appendChild(opt);
+            });
+            easeField.appendChild(easeSelect);
+            fields.appendChild(easeField);
+
+            // Target selector
+            const selectorField = this.createField('Target Selector');
+            const selectorInput = document.createElement('input');
+            selectorInput.type = 'text';
+            selectorInput.id = 'gp-trans-selector';
+            selectorInput.placeholder = '* (all elements)';
+            selectorInput.value = '*';
+            selectorInput.style.cssText = 'width:100%; background:var(--panel-surface); border:1px solid var(--panel-border); color:var(--panel-text-bright); border-radius:4px; padding:4px; font-size:11px;';
+            selectorField.appendChild(selectorInput);
+            fields.appendChild(selectorField);
+
+            const applyBtn = document.createElement('button');
+            applyBtn.className = 'insert-go-btn';
+            applyBtn.style.cssText = 'width:100%; margin-top:4px;';
+            applyBtn.textContent = '✓ Apply Transition';
+            applyBtn.addEventListener('click', () => this.applyTransition());
+            fields.appendChild(applyBtn);
+
+            body.appendChild(fields);
+        }));
     }
 
     // ─── Section builder ─────────────────────────────────────────
@@ -601,9 +724,13 @@ export class GeneralPanel {
         const sizeInput = document.getElementById('gp-typo-size') as HTMLInputElement;
         const lhInput = document.getElementById('gp-typo-lh') as HTMLInputElement;
         const padInput = document.getElementById('gp-typo-padding') as HTMLInputElement;
+        const lsInput = document.getElementById('gp-typo-ls') as HTMLInputElement;
+        const ttSelect = document.getElementById('gp-typo-tt') as HTMLSelectElement;
         if (sizeInput) sizeInput.value = style.fontSize ? parseInt(style.fontSize).toString() : '';
         if (lhInput) lhInput.value = style.lineHeight ? parseInt(style.lineHeight).toString() : '';
         if (padInput) padInput.value = style.padding || '';
+        if (lsInput) lsInput.value = style.letterSpacing ? parseFloat(style.letterSpacing).toString() : '';
+        if (ttSelect) ttSelect.value = style.textTransform || 'none';
         if (this.typoColorInput) this.typoColorInput.value = style.color || '';
     }
 
@@ -612,12 +739,16 @@ export class GeneralPanel {
         const sizeInput = document.getElementById('gp-typo-size') as HTMLInputElement;
         const lhInput = document.getElementById('gp-typo-lh') as HTMLInputElement;
         const padInput = document.getElementById('gp-typo-padding') as HTMLInputElement;
+        const lsInput = document.getElementById('gp-typo-ls') as HTMLInputElement;
+        const ttSelect = document.getElementById('gp-typo-tt') as HTMLSelectElement;
 
         this.typoStyles[tag] = {
             fontSize: sizeInput?.value ? sizeInput.value + 'px' : '',
             lineHeight: lhInput?.value ? lhInput.value + 'px' : '',
             padding: padInput?.value || '',
-            color: this.typoColorInput?.value || ''
+            color: this.typoColorInput?.value || '',
+            letterSpacing: lsInput?.value ? lsInput.value + 'px' : '',
+            textTransform: ttSelect?.value || 'none'
         };
 
         this.updateGlobalStylesBlock();
@@ -671,7 +802,10 @@ export class GeneralPanel {
             bg: this.btnBgInput?.value || this.btnVariants[v].bg,
             text: this.btnTextInput?.value || this.btnVariants[v].text,
             radius: (document.getElementById('gp-btn-radius') as HTMLInputElement)?.value || this.btnVariants[v].radius,
-            padding: (document.getElementById('gp-btn-padding') as HTMLInputElement)?.value || this.btnVariants[v].padding
+            padding: (document.getElementById('gp-btn-padding') as HTMLInputElement)?.value || this.btnVariants[v].padding,
+            hoverBg: this.btnHoverBgInput?.value || this.btnVariants[v].hoverBg,
+            hoverText: this.btnHoverTextInput?.value || this.btnVariants[v].hoverText,
+            hoverOpacity: this.btnVariants[v].hoverOpacity || '0.9'
         };
     }
 
@@ -680,6 +814,8 @@ export class GeneralPanel {
         if (!v) return;
         if (this.btnBgInput) this.btnBgInput.value = v.bg;
         if (this.btnTextInput) this.btnTextInput.value = v.text;
+        if (this.btnHoverBgInput) this.btnHoverBgInput.value = v.hoverBg || v.bg;
+        if (this.btnHoverTextInput) this.btnHoverTextInput.value = v.hoverText || v.text;
         const radInput = document.getElementById('gp-btn-radius') as HTMLInputElement;
         const padInput = document.getElementById('gp-btn-padding') as HTMLInputElement;
         if (radInput) radInput.value = v.radius;
@@ -709,7 +845,6 @@ export class GeneralPanel {
         const v = this.btnVariants[variant];
 
         this.ensureGlobalStyles();
-        // Broad selectors for ALL button-like elements on page
         const baseSelectors = `.btn-${variant}`;
         const wideSelectors = variant === 'primary'
             ? `${baseSelectors}, button, .btn, a.btn, [class*="btn"]:not(.btn-secondary):not(.btn-tertiary)`
@@ -720,12 +855,47 @@ export class GeneralPanel {
         if (v.radius) rule += `border-radius: ${v.radius}px !important; `;
         if (v.padding) rule += `padding: ${v.padding} !important; `;
         if (variant === 'tertiary') rule += `border: 1px solid ${v.text} !important; `;
+        rule += `transition: all 0.2s ease !important; `;
         rule += '}';
 
-        this.updateGlobalCSSRule(`btn-variant-${variant}`, rule);
+        // Hover state
+        let hoverRule = `${wideSelectors}:hover { `;
+        if (v.hoverBg) hoverRule += `background: ${v.hoverBg} !important; `;
+        if (v.hoverText) hoverRule += `color: ${v.hoverText} !important; `;
+        hoverRule += `opacity: ${v.hoverOpacity || '0.9'} !important; `;
+        hoverRule += `transform: translateY(-1px) !important; `;
+        hoverRule += '}';
+
+        // Active state
+        let activeRule = `${wideSelectors}:active { `;
+        activeRule += `transform: translateY(0) scale(0.98) !important; `;
+        activeRule += `opacity: 1 !important; `;
+        activeRule += '}';
+
+        // Focus state
+        let focusRule = `${wideSelectors}:focus-visible { `;
+        focusRule += `outline: 2px solid ${v.bg !== 'transparent' ? v.bg : v.text} !important; `;
+        focusRule += `outline-offset: 2px !important; `;
+        focusRule += '}';
+
+        this.updateGlobalCSSRule(`btn-variant-${variant}`, rule + '\n' + hoverRule + '\n' + activeRule + '\n' + focusRule);
         this.updateBtnPreview();
         this.editor.pushHistory(`Update ${variant} button`);
         showToast('Button variant updated');
+    }
+
+    // ─── Transitions ────────────────────────────────────────────
+    private applyTransition() {
+        const prop = (document.getElementById('gp-trans-prop') as HTMLSelectElement)?.value || 'all';
+        const dur = (document.getElementById('gp-trans-dur') as HTMLInputElement)?.value || '0.3';
+        const ease = (document.getElementById('gp-trans-ease') as HTMLSelectElement)?.value || 'ease';
+        const delay = (document.getElementById('gp-trans-delay') as HTMLInputElement)?.value || '0';
+        const selector = (document.getElementById('gp-trans-selector') as HTMLInputElement)?.value || '*';
+
+        const rule = `${selector} { transition: ${prop} ${dur}s ${ease} ${delay}s !important; }`;
+        this.updateGlobalCSSRule('transition', rule);
+        this.editor.pushHistory('Apply global transition');
+        showToast(`Transition: ${prop} ${dur}s`);
     }
 
     // ─── CSS Injection ───────────────────────────────────────────
@@ -756,6 +926,8 @@ export class GeneralPanel {
             if (style.lineHeight) rules += `line-height: ${style.lineHeight}; `;
             if (style.padding) rules += `padding: ${style.padding}; `;
             if (style.color && style.color !== '#000000') rules += `color: ${style.color}; `;
+            if (style.letterSpacing) rules += `letter-spacing: ${style.letterSpacing}; `;
+            if (style.textTransform && style.textTransform !== 'none') rules += `text-transform: ${style.textTransform}; `;
             if (rules) typoRules += `${tag} { ${rules} }\n`;
         }
         this.updateGlobalCSSRule('typography', typoRules);

@@ -127,4 +127,59 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(key, isCollapsed ? '1' : '0');
         });
     });
+
+    // ─── Collapsible Sidebars ───────────────────────────────
+    const layersPanel = document.getElementById('layers-panel');
+    const layersCollapsed = document.getElementById('layers-collapsed');
+    const toggleLayers = document.getElementById('toggle-layers');
+    const expandLayers = document.getElementById('expand-layers');
+    const resizeLeft = document.getElementById('resize-left');
+
+    const stylesPanel = document.getElementById('styles-panel');
+    const stylesCollapsed = document.getElementById('styles-collapsed');
+    const toggleStyles = document.getElementById('toggle-styles');
+    const expandStyles = document.getElementById('expand-styles');
+    const resizeRight = document.getElementById('resize-right');
+
+    const collapseLeft = () => {
+        if (layersPanel && layersCollapsed && resizeLeft) {
+            layersPanel.style.display = 'none';
+            layersCollapsed.style.display = 'flex';
+            resizeLeft.style.display = 'none';
+            localStorage.setItem('snap_sidebar_layers', 'collapsed');
+        }
+    };
+    const expandLeft = () => {
+        if (layersPanel && layersCollapsed && resizeLeft) {
+            layersPanel.style.display = 'flex';
+            layersCollapsed.style.display = 'none';
+            resizeLeft.style.display = '';
+            localStorage.setItem('snap_sidebar_layers', 'expanded');
+        }
+    };
+    const collapseRight = () => {
+        if (stylesPanel && stylesCollapsed && resizeRight) {
+            stylesPanel.style.display = 'none';
+            stylesCollapsed.style.display = 'flex';
+            resizeRight.style.display = 'none';
+            localStorage.setItem('snap_sidebar_styles', 'collapsed');
+        }
+    };
+    const expandRight = () => {
+        if (stylesPanel && stylesCollapsed && resizeRight) {
+            stylesPanel.style.display = 'flex';
+            stylesCollapsed.style.display = 'none';
+            resizeRight.style.display = '';
+            localStorage.setItem('snap_sidebar_styles', 'expanded');
+        }
+    };
+
+    toggleLayers?.addEventListener('click', collapseLeft);
+    expandLayers?.addEventListener('click', expandLeft);
+    toggleStyles?.addEventListener('click', collapseRight);
+    expandStyles?.addEventListener('click', expandRight);
+
+    // Restore sidebar states
+    if (localStorage.getItem('snap_sidebar_layers') === 'collapsed') collapseLeft();
+    if (localStorage.getItem('snap_sidebar_styles') === 'collapsed') collapseRight();
 });

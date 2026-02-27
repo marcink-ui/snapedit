@@ -42,6 +42,10 @@ export class StylesPanel {
     private imgRadius!: HTMLInputElement;
     private imgOpacity!: HTMLInputElement;
     private imgShadow!: HTMLSelectElement;
+    private imgBrightness!: HTMLInputElement;
+    private imgContrast!: HTMLInputElement;
+    private imgGrayscale!: HTMLInputElement;
+    private imgBlur!: HTMLInputElement;
 
     // Global controls (HEX color inputs)
     private globalTextColor!: ColorInput;
@@ -105,6 +109,10 @@ export class StylesPanel {
         this.imgRadius = document.getElementById('img-radius') as HTMLInputElement;
         this.imgOpacity = document.getElementById('img-opacity') as HTMLInputElement;
         this.imgShadow = document.getElementById('img-shadow') as HTMLSelectElement;
+        this.imgBrightness = document.getElementById('img-brightness') as HTMLInputElement;
+        this.imgContrast = document.getElementById('img-contrast') as HTMLInputElement;
+        this.imgGrayscale = document.getElementById('img-grayscale') as HTMLInputElement;
+        this.imgBlur = document.getElementById('img-blur') as HTMLInputElement;
 
         // Global color inputs — now using ColorInput with HEX
         this.globalTextColor = new ColorInput('global-text-color');
@@ -492,6 +500,23 @@ export class StylesPanel {
         this.imgRadius.addEventListener('input', () => applyImgStyle('borderRadius', this.imgRadius.value + 'px'));
         this.imgOpacity.addEventListener('input', () => applyImgStyle('opacity', String(Number(this.imgOpacity.value) / 100)));
         this.imgShadow.addEventListener('change', () => applyImgStyle('boxShadow', this.imgShadow.value));
+
+        // Filters — compose combined filter string
+        const applyImgFilter = () => {
+            if (!this.currentElement || this.currentElement.tagName !== 'IMG') return;
+            const b = this.imgBrightness?.value || '100';
+            const c = this.imgContrast?.value || '100';
+            const g = this.imgGrayscale?.value || '0';
+            const bl = this.imgBlur?.value || '0';
+            const filter = `brightness(${b}%) contrast(${c}%) grayscale(${g}%) blur(${bl}px)`;
+            this.editor.styleMutator.apply(this.currentElement, 'filter', filter);
+            this.editor.selectionManager.refreshSelectOverlay();
+            this.editor.pushHistory('Image filter');
+        };
+        this.imgBrightness?.addEventListener('input', applyImgFilter);
+        this.imgContrast?.addEventListener('input', applyImgFilter);
+        this.imgGrayscale?.addEventListener('input', applyImgFilter);
+        this.imgBlur?.addEventListener('input', applyImgFilter);
     }
 
     private insertFileAsImage(file: File, alt: string): void {
@@ -663,6 +688,17 @@ export class StylesPanel {
         } else {
             // keep current value
         }
+
+        // Parse filter values
+        const filter = computed.filter || '';
+        const bMatch = filter.match(/brightness\(([\d.]+)%?\)/);
+        const cMatch = filter.match(/contrast\(([\d.]+)%?\)/);
+        const gMatch = filter.match(/grayscale\(([\d.]+)%?\)/);
+        const blMatch = filter.match(/blur\(([\d.]+)px\)/);
+        if (this.imgBrightness) this.imgBrightness.value = bMatch ? String(Math.round(Number(bMatch[1]))) : '100';
+        if (this.imgContrast) this.imgContrast.value = cMatch ? String(Math.round(Number(cMatch[1]))) : '100';
+        if (this.imgGrayscale) this.imgGrayscale.value = gMatch ? String(Math.round(Number(gMatch[1]))) : '0';
+        if (this.imgBlur) this.imgBlur.value = blMatch ? String(Math.round(Number(blMatch[1]))) : '0';
     }
 
     private selectClosestOption(select: HTMLSelectElement, value: string): void {

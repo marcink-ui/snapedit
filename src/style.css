@@ -370,9 +370,16 @@ body {
    Main Layout
    =========================== */
 
+#app-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--toolbar-height));
+}
+
 #app-layout {
   display: flex;
-  height: calc(100vh - var(--toolbar-height));
+  flex: 1;
+  min-height: 0;
 }
 
 /* ===========================
@@ -391,6 +398,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   z-index: 100;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .layers-header {
@@ -1711,27 +1719,31 @@ input:checked+.toggle-slider:before {
    Breadcrumb Bar
    =========================== */
 
-#breadcrumb-bar {
+/* ===========================
+   Bottom Footer Bar (full-width)
+   =========================== */
+
+#app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  max-width: 860px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(26, 26, 42, 0.98), rgba(20, 20, 34, 0.99));
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 200;
+}
+
+#breadcrumb-bar {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 6px 16px;
-  background: linear-gradient(180deg, rgba(30, 30, 46, 0.95), rgba(24, 24, 40, 0.98));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 10px 10px 0 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-bottom: none;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+  padding: 5px 16px;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
-  min-height: 32px;
-  margin-top: auto;
-  margin-bottom: 0;
-  flex-shrink: 0;
+  min-height: 28px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
@@ -1788,18 +1800,11 @@ input:checked+.toggle-slider:before {
 
 /* SYHi Digital Footer */
 #syhi-footer {
-  width: 100%;
-  max-width: 860px;
+  flex-shrink: 0;
   text-align: right;
   padding: 4px 16px;
-  background: rgba(24, 24, 40, 0.95);
-  border-radius: 0 0 10px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-top: none;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.25);
-  flex-shrink: 0;
-  margin-bottom: 4px;
 }
 
 #syhi-footer a {
@@ -1811,6 +1816,78 @@ input:checked+.toggle-slider:before {
 
 #syhi-footer a:hover {
   color: var(--panel-accent);
+}
+
+/* ===========================
+   Sidebar Toggle & Collapse
+   =========================== */
+
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-collapsed-strip {
+  width: 32px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(30, 30, 46, 0.95), rgba(22, 22, 38, 0.98));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+  gap: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 100;
+}
+
+.sidebar-collapsed-right {
+  border-right: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar-expand-btn:hover {
+  background: rgba(67, 97, 238, 0.3);
+  color: #fff;
+}
+
+.sidebar-collapsed-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  user-select: none;
 }
 
 /* Global Font Selector */
