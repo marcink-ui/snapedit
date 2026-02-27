@@ -148,61 +148,37 @@ export class GeneralPanel {
 
         // === Typography Section ===
         this.root.appendChild(this.buildSection('typography', 'Typography', 'Global tags', SECTION_ICONS.typography, (body) => {
-            // Global Font selectors
+            // Global Font selectors (custom picker dropdowns)
             const fontGrid = document.createElement('div');
             fontGrid.className = 'style-row-grid two-col';
             fontGrid.style.cssText = 'margin-bottom: 14px; gap: 8px;';
 
             const fonts = ['Inter', 'Roboto', 'Poppins', 'Montserrat', 'Open Sans', 'Lato', 'Raleway', 'Nunito', 'Playfair Display', 'Merriweather', 'Work Sans', 'DM Sans', 'Space Grotesk', 'Outfit', 'Fira Sans'];
 
-            // Body Font
+            // Body Font with custom picker
             const bodyFontWrap = document.createElement('div');
+            bodyFontWrap.style.position = 'relative';
             const bodyFontLabel = document.createElement('label');
             bodyFontLabel.textContent = 'Body Font';
             bodyFontLabel.style.cssText = 'display:block; font-size:11px; color:var(--panel-text-dim); margin-bottom:6px; font-weight:500;';
             bodyFontWrap.appendChild(bodyFontLabel);
-
-            const bodyFontSelect = document.createElement('select');
-            bodyFontSelect.className = 'gp-font-select';
-            bodyFontSelect.id = 'gp-body-font';
-            fonts.forEach(f => {
-                const opt = document.createElement('option');
-                opt.value = f;
-                opt.textContent = f;
-                opt.style.fontFamily = f;
-                if (f === this.activeBodyFont) opt.selected = true;
-                bodyFontSelect.appendChild(opt);
-            });
-            bodyFontSelect.addEventListener('change', () => {
-                this.activeBodyFont = bodyFontSelect.value;
+            bodyFontWrap.appendChild(this.buildFontPicker(fonts, this.activeBodyFont, (font) => {
+                this.activeBodyFont = font;
                 this.applyGlobalFonts();
-            });
-            bodyFontWrap.appendChild(bodyFontSelect);
+            }));
             fontGrid.appendChild(bodyFontWrap);
 
-            // Heading Font
+            // Heading Font with custom picker
             const headingFontWrap = document.createElement('div');
+            headingFontWrap.style.position = 'relative';
             const headingFontLabel = document.createElement('label');
             headingFontLabel.textContent = 'Heading Font';
             headingFontLabel.style.cssText = 'display:block; font-size:11px; color:var(--panel-text-dim); margin-bottom:6px; font-weight:500;';
             headingFontWrap.appendChild(headingFontLabel);
-
-            const headingFontSelect = document.createElement('select');
-            headingFontSelect.className = 'gp-font-select';
-            headingFontSelect.id = 'gp-heading-font';
-            fonts.forEach(f => {
-                const opt = document.createElement('option');
-                opt.value = f;
-                opt.textContent = f;
-                opt.style.fontFamily = f;
-                if (f === this.activeHeadingFont) opt.selected = true;
-                headingFontSelect.appendChild(opt);
-            });
-            headingFontSelect.addEventListener('change', () => {
-                this.activeHeadingFont = headingFontSelect.value;
+            headingFontWrap.appendChild(this.buildFontPicker(fonts, this.activeHeadingFont, (font) => {
+                this.activeHeadingFont = font;
                 this.applyGlobalFonts();
-            });
-            headingFontWrap.appendChild(headingFontSelect);
+            }));
             fontGrid.appendChild(headingFontWrap);
 
             body.appendChild(fontGrid);
@@ -524,6 +500,98 @@ export class GeneralPanel {
         section.appendChild(body);
 
         return section;
+    }
+
+    // ─── Font Picker Builder ──────────────────────────────────────────
+    private buildFontPicker(fonts: string[], activeFont: string, onChange: (font: string) => void): HTMLElement {
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+
+        // Trigger button
+        const trigger = document.createElement('div');
+        trigger.className = 'font-picker-trigger';
+        trigger.innerHTML = `<span class="font-picker-label" style="font-family:'${activeFont}',sans-serif">${activeFont}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+        container.appendChild(trigger);
+
+        // Dropdown (appended to body for fixed positioning)
+        const dropdown = document.createElement('div');
+        dropdown.className = 'font-picker-dropdown';
+
+        // Search input
+        const searchWrap = document.createElement('div');
+        searchWrap.className = 'font-picker-search-wrap';
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search fonts…';
+        searchInput.className = 'font-picker-search';
+        searchWrap.appendChild(searchInput);
+        dropdown.appendChild(searchWrap);
+
+        // Items
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'font-picker-items';
+
+        fonts.forEach(f => {
+            const item = document.createElement('div');
+            item.className = 'font-picker-item';
+            item.textContent = f;
+            item.style.fontFamily = `'${f}', sans-serif`;
+            item.addEventListener('click', () => {
+                onChange(f);
+                const label = trigger.querySelector('.font-picker-label') as HTMLElement;
+                label.textContent = f;
+                label.style.fontFamily = `'${f}', sans-serif`;
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            });
+            itemsContainer.appendChild(item);
+        });
+        dropdown.appendChild(itemsContainer);
+        document.body.appendChild(dropdown);
+
+        // Search filter
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase();
+            itemsContainer.querySelectorAll('.font-picker-item').forEach((item) => {
+                const el = item as HTMLElement;
+                el.style.display = el.textContent!.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+
+        // Prevent clicks inside dropdown from closing it
+        dropdown.addEventListener('mousedown', (e) => e.stopPropagation());
+
+        // Position and toggle
+        const positionDropdown = () => {
+            const rect = trigger.getBoundingClientRect();
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 4) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = Math.max(rect.width, 200) + 'px';
+        };
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            if (!isOpen) {
+                positionDropdown();
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
+            dropdown.classList.toggle('open', !isOpen);
+            trigger.classList.toggle('open', !isOpen);
+            if (!isOpen) setTimeout(() => searchInput.focus(), 50);
+        });
+
+        // Close on outside click
+        document.addEventListener('mousedown', (e) => {
+            if (!dropdown.contains(e.target as Node) && !trigger.contains(e.target as Node)) {
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            }
+        });
+
+        return container;
     }
 
     // ─── Color Presets ───────────────────────────────────────────
