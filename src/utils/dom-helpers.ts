@@ -44,7 +44,17 @@ export function getRelativeRect(el: HTMLElement, reference: HTMLElement): DOMRec
  */
 export function isTextElement(el: HTMLElement): boolean {
     const textTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SPAN', 'A', 'LI', 'LABEL', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'BUTTON'];
-    return textTags.includes(el.tagName);
+    if (textTags.includes(el.tagName)) return true;
+
+    // Allow DIV elements that have direct text content (e.g. badges, inline labels)
+    if (el.tagName === 'DIV') {
+        const hasDirectText = Array.from(el.childNodes).some(
+            n => n.nodeType === Node.TEXT_NODE && n.textContent && n.textContent.trim().length > 0
+        );
+        return hasDirectText;
+    }
+
+    return false;
 }
 
 /**

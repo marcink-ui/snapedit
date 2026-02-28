@@ -92,7 +92,7 @@ export class StylesPanel {
                 input.addEventListener('click', () => setTimeout(() => input.select(), 10));
             }
         });
-        
+
         this.setupLinkListeners();
         this.setupImageListeners();
         this.setupSvgListeners();
@@ -224,8 +224,14 @@ export class StylesPanel {
             item.textContent = f.label;
             item.style.fontFamily = f.value;
             item.addEventListener('click', () => {
+                // Apply font directly (the native <select> may not have all options)
+                if (this.currentElement && !this.suppressUpdates) {
+                    this.editor.styleMutator.apply(this.currentElement, 'fontFamily', f.value);
+                    this.editor.selectionManager.refreshSelectOverlay();
+                    this.editor.pushHistory('Change fontFamily');
+                }
+                // Update native select for consistency with populateStyles() reads
                 this.fontFamilySelect.value = f.value;
-                this.fontFamilySelect.dispatchEvent(new Event('change'));
                 trigger.querySelector('.font-picker-label')!.textContent = f.label;
                 (trigger.querySelector('.font-picker-label') as HTMLElement).style.fontFamily = f.value;
                 dropdown.classList.remove('open');
@@ -507,6 +513,21 @@ export class StylesPanel {
                 this.linkUrlInput.value = '';
             }
         });
+
+        // Reactively apply target changes when the user switches the dropdown
+        this.linkTargetSelect.addEventListener('change', () => {
+            if (!this.currentElement) return;
+            let anchor: HTMLAnchorElement | null = null;
+            if (this.currentElement.tagName === 'A') {
+                anchor = this.currentElement as HTMLAnchorElement;
+            } else {
+                anchor = this.currentElement.closest('a');
+            }
+            if (anchor) {
+                anchor.target = this.linkTargetSelect.value;
+                this.editor.pushHistory('Change link target');
+            }
+        });
     }
 
     private setupImageListeners(): void {
@@ -738,7 +759,7 @@ export class StylesPanel {
         }
 
         if (anchor) {
-            this.linkUrlInput.value = anchor.href || '';
+            this.linkUrlInput.value = anchor.getAttribute('href') || '';
             this.linkTargetSelect.value = anchor.target || '_self';
         } else {
             this.linkUrlInput.value = '';

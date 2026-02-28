@@ -2624,19 +2624,161 @@ input:checked+.toggle-slider:before {
   .toolbar-center {
     display: none;
   }
+
+  .canvas-main-content {
+    padding: 16px 20px 48px 20px;
+  }
+
+  .toolbar-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
+  .toolbar-export-group {
+    gap: 8px;
+  }
 }
 
 @media (max-width: 768px) {
+  :root {
+    --toolbar-height: 44px;
+  }
+
   #layers-panel {
-    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 200px;
+    z-index: 500;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #layers-panel.layers-visible {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
   }
 
   #styles-panel {
-    width: 240px;
+    width: 220px;
   }
 
   .toolbar-center {
     display: none;
+  }
+
+  #toolbar {
+    padding: 0 12px;
+    gap: 6px;
+  }
+
+  .toolbar-btn {
+    padding: 5px 12px;
+    font-size: 11px;
+    border-radius: 16px;
+  }
+
+  .toolbar-brand {
+    font-size: 12px;
+  }
+
+  .toolbar-divider {
+    margin: 0 4px;
+  }
+
+  .canvas-main-content {
+    padding: 12px 12px 40px 12px;
+  }
+
+  #canvas-wrapper {
+    border-radius: 6px;
+  }
+
+  /* Compact zoom controls */
+  .toolbar-icon-btn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .toolbar-icon-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Glass dropdown needs to fit on smaller screens */
+  .glass-dropdown-menu {
+    width: 280px;
+  }
+
+  /* Panel sections need less padding */
+  .panel-section {
+    padding: 10px 12px;
+  }
+
+  .style-row,
+  .style-row-grid {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --toolbar-height: 42px;
+  }
+
+  #styles-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 260px;
+    z-index: 500;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #styles-panel.styles-visible {
+    transform: translateX(0);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  }
+
+  #toolbar {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .toolbar-brand {
+    font-size: 11px;
+  }
+
+  .toolbar-btn {
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+
+  .toolbar-divider {
+    margin: 0 2px;
+    height: 14px;
+  }
+
+  .canvas-main-content {
+    padding: 8px 6px 32px 6px;
+    min-width: 0;
+  }
+
+  #canvas-wrapper {
+    border-radius: 4px;
+  }
+
+  .glass-dropdown-menu {
+    width: 260px;
+    left: -40px;
+  }
+
+  /* Show toggle buttons for panels on mobile */
+  .panel-toggle-btn {
+    display: flex !important;
   }
 }
 

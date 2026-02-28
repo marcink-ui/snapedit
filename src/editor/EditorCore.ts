@@ -20,6 +20,7 @@ export class EditorCore {
     private resizeObserver: MutationObserver | null = null;
     private contentResizeObserver: ResizeObserver | null = null;
     private resizeLocked: boolean = false;
+    private dragAbortController: AbortController | null = null;
 
     constructor() {
         this.iframe = document.getElementById('canvas-iframe') as HTMLIFrameElement;
@@ -398,17 +399,34 @@ export class EditorCore {
     private getContentHTML(): string {
         const doc = this.iframe.contentDocument;
         if (!doc) return '';
-        // Remove drag handles before snapshotting
-        const handles = doc.querySelectorAll('.se-drag-handle, #se-drag-styles');
-        handles.forEach(h => (h as HTMLElement).style.display = 'none');
 
+        // Fully remove drag artifacts before snapshotting
+        const handles = Array.from(doc.querySelectorAll('.se-drag-handle'));
+        const dragStyles = doc.getElementById('se-drag-styles');
         const overrides = doc.getElementById('se-editor-overrides');
+        const draggables = Array.from(doc.querySelectorAll('.se-draggable'));
+
+        handles.forEach(h => h.remove());
+        if (dragStyles) dragStyles.remove();
         if (overrides) overrides.remove();
+        draggables.forEach(el => {
+            el.classList.remove('se-draggable');
+            (el as HTMLElement).removeAttribute('draggable');
+        });
 
         const html = doc.documentElement.outerHTML;
 
+        // Restore editor artifacts
         if (overrides) doc.head.appendChild(overrides);
-        handles.forEach(h => (h as HTMLElement).style.display = '');
+        if (dragStyles) doc.head.appendChild(dragStyles);
+        draggables.forEach(el => {
+            el.classList.add('se-draggable');
+            (el as HTMLElement).draggable = true;
+        });
+        handles.forEach((h, i) => {
+            if (draggables[i]) draggables[i].insertBefore(h, draggables[i].firstChild);
+        });
+
         return html;
     }
 
@@ -507,6 +525,27 @@ export class EditorCore {
         const doc = this.iframe.contentDocument;
         if (!doc?.body) return;
 
+        // ── Abort previous listeners to prevent stacking ──────────────
+        if (this.dragAbortController) {
+            this.dragAbortController.abort();
+        }
+        this.dragAbortController = new AbortController();
+        const signal = this.dragAbortController.signal;
+
+        // ── Clean up stale DOM artifacts (handles, classes) ──────────
+        doc.querySelectorAll('.se-drag-handle').forEach(h => h.remove());
+        doc.querySelectorAll('.se-draggable').forEach(el => {
+            el.classList.remove('se-draggable');
+            (el as HTMLElement).removeAttribute('draggable');
+            // Remove inline position we may have added
+            if ((el as HTMLElement).style.position === 'relative' &&
+                (el as HTMLElement).dataset.sePositioned) {
+                (el as HTMLElement).style.position = '';
+                delete (el as HTMLElement).dataset.sePositioned;
+            }
+        });
+
+        // ── Inject drag styles (once) ────────────────────────────────
         let styleEl = doc.getElementById('se-drag-styles');
         if (!styleEl) {
             styleEl = doc.createElement('style');
@@ -535,104 +574,159 @@ export class EditorCore {
                     height: 14px;
                     fill: #4361ee;
                 }
-                .se-draggable {
-                    position: relative;
-                }
                 .se-draggable:hover > .se-drag-handle {
                     opacity: 1;
                 }
                 .se-drag-over {
-                    border-top: 3px solid #4361ee !important;
+                    outline: 2px solid #4361ee !important;
+                    outline-offset: -2px;
                 }
                 .se-drag-over-bottom {
-                    border-bottom: 3px solid #4361ee !important;
+                    outline: 2px solid #4361ee !important;
+                    outline-offset: -2px;
+                }
+                .se-drag-over::before {
+                    content: '';
+                    position: absolute;
+                    left: 0; right: 0; top: 0;
+                    height: 3px;
+                    background: #4361ee;
+                    z-index: 999;
+                    pointer-events: none;
+                }
+                .se-drag-over-bottom::after {
+                    content: '';
+                    position: absolute;
+                    left: 0; right: 0; bottom: 0;
+                    height: 3px;
+                    background: #4361ee;
+                    z-index: 999;
+                    pointer-events: none;
                 }
                 .se-dragging {
                     opacity: 0.4;
+                    pointer-events: none;
                 }
             `;
             doc.head.appendChild(styleEl);
         }
 
-        const children = Array.from(doc.body.children).filter(
-            el => !el.classList.contains('se-drag-handle') && el.tagName !== 'STYLE' && el.tagName !== 'SCRIPT'
-        );
+        // ── Configuration ─────────────────────────────────────────────
+        const containerTags = new Set(['BODY', 'SECTION', 'DIV', 'HEADER', 'FOOTER', 'MAIN', 'ARTICLE', 'NAV', 'UL', 'OL', 'FORM']);
+        const skipTags = new Set(['STYLE', 'SCRIPT', 'LINK', 'META', 'BR', 'HR']);
 
-        children.forEach(child => {
-            const el = child as HTMLElement;
+        // Track the currently-dragged element (avoids fragile querySelector)
+        let draggingEl: HTMLElement | null = null;
 
-            if (el.classList.contains('se-draggable')) return;
+        // ── Recursive setup ──────────────────────────────────────────
+        const makeDraggable = (container: HTMLElement) => {
+            const children = Array.from(container.children).filter(
+                el => !el.classList.contains('se-drag-handle') && !skipTags.has(el.tagName)
+            );
+            if (children.length === 0) return;
 
-            el.classList.add('se-draggable');
-            el.draggable = true;
+            children.forEach(child => {
+                const el = child as HTMLElement;
 
-            const handle = doc.createElement('div');
-            handle.className = 'se-drag-handle';
-            handle.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
-            handle.draggable = true;
-            el.insertBefore(handle, el.firstChild);
+                el.classList.add('se-draggable');
+                el.draggable = true;
 
-            el.addEventListener('dragstart', (e: DragEvent) => {
-                if (!this.editorEnabled) return;
-                e.dataTransfer?.setData('text/plain', '');
-                el.classList.add('se-dragging');
-            });
-
-            el.addEventListener('dragend', () => {
-                el.classList.remove('se-dragging');
-                doc.querySelectorAll('.se-drag-over, .se-drag-over-bottom').forEach(d => {
-                    d.classList.remove('se-drag-over');
-                    d.classList.remove('se-drag-over-bottom');
-                });
-                this.requestResize();
-            });
-
-            el.addEventListener('dragover', (e: DragEvent) => {
-                if (!this.editorEnabled) return;
-                e.preventDefault();
-                e.dataTransfer!.dropEffect = 'move';
-                doc.querySelectorAll('.se-drag-over, .se-drag-over-bottom').forEach(d => {
-                    d.classList.remove('se-drag-over');
-                    d.classList.remove('se-drag-over-bottom');
-                });
-                // Determine if cursor is in the top or bottom half
-                const rect = el.getBoundingClientRect();
-                const mid = rect.top + rect.height / 2;
-                if (e.clientY < mid) {
-                    el.classList.add('se-drag-over');
-                } else {
-                    el.classList.add('se-drag-over-bottom');
+                // Only add position:relative if the element isn't already positioned
+                const pos = el.style.position || '';
+                if (!pos || pos === 'static') {
+                    el.style.position = 'relative';
+                    el.dataset.sePositioned = '1';
                 }
-            });
+                // Ensure overflow visible for the handle
+                el.style.overflow = 'visible';
 
-            el.addEventListener('dragleave', () => {
-                el.classList.remove('se-drag-over');
-                el.classList.remove('se-drag-over-bottom');
-            });
+                // Insert drag handle
+                const handle = doc!.createElement('div');
+                handle.className = 'se-drag-handle';
+                handle.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>';
+                handle.draggable = true;
+                el.insertBefore(handle, el.firstChild);
 
-            el.addEventListener('drop', (e: DragEvent) => {
-                if (!this.editorEnabled) return;
-                e.preventDefault();
-                const isBottom = el.classList.contains('se-drag-over-bottom');
-                el.classList.remove('se-drag-over');
-                el.classList.remove('se-drag-over-bottom');
+                // ── Drag events (all use AbortController signal) ──
+                el.addEventListener('dragstart', (e: DragEvent) => {
+                    if (!this.editorEnabled) return;
+                    e.stopPropagation();
+                    e.dataTransfer?.setData('text/plain', '');
+                    e.dataTransfer!.effectAllowed = 'move';
+                    draggingEl = el;
+                    // Defer the class add so the browser captures the original look
+                    requestAnimationFrame(() => el.classList.add('se-dragging'));
+                }, { signal });
 
-                const dragging = doc.querySelector('.se-dragging') as HTMLElement;
-                if (dragging && dragging !== el) {
-                    if (isBottom) {
-                        // Insert after the target element
-                        el.parentNode?.insertBefore(dragging, el.nextSibling);
-                    } else {
-                        // Insert before the target element
-                        el.parentNode?.insertBefore(dragging, el);
-                    }
-                    dragging.classList.remove('se-dragging');
+                el.addEventListener('dragend', () => {
+                    el.classList.remove('se-dragging');
+                    draggingEl = null;
+                    doc!.querySelectorAll('.se-drag-over, .se-drag-over-bottom').forEach(d => {
+                        d.classList.remove('se-drag-over', 'se-drag-over-bottom');
+                    });
                     this.requestResize();
-                    this.pushHistory('Reorder elements');
-                    this.bus.emit('dom:changed');
+                }, { signal });
+
+                el.addEventListener('dragover', (e: DragEvent) => {
+                    if (!this.editorEnabled || !draggingEl) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.dataTransfer!.dropEffect = 'move';
+
+                    // Prevent dropping on self or inside self
+                    if (draggingEl === el || draggingEl.contains(el)) return;
+
+                    // Clear other indicators
+                    doc!.querySelectorAll('.se-drag-over, .se-drag-over-bottom').forEach(d => {
+                        if (d !== el) d.classList.remove('se-drag-over', 'se-drag-over-bottom');
+                    });
+
+                    const rect = el.getBoundingClientRect();
+                    const mid = rect.top + rect.height / 2;
+                    if (e.clientY < mid) {
+                        el.classList.add('se-drag-over');
+                        el.classList.remove('se-drag-over-bottom');
+                    } else {
+                        el.classList.add('se-drag-over-bottom');
+                        el.classList.remove('se-drag-over');
+                    }
+                }, { signal });
+
+                el.addEventListener('dragleave', () => {
+                    el.classList.remove('se-drag-over', 'se-drag-over-bottom');
+                }, { signal });
+
+                el.addEventListener('drop', (e: DragEvent) => {
+                    if (!this.editorEnabled) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const isBottom = el.classList.contains('se-drag-over-bottom');
+                    el.classList.remove('se-drag-over', 'se-drag-over-bottom');
+
+                    // Allow cross-section moves — only prevent drop on self or inside self
+                    if (draggingEl && draggingEl !== el && !draggingEl.contains(el)) {
+                        if (isBottom) {
+                            el.parentNode?.insertBefore(draggingEl, el.nextSibling);
+                        } else {
+                            el.parentNode?.insertBefore(draggingEl, el);
+                        }
+                        draggingEl.classList.remove('se-dragging');
+                        draggingEl = null;
+                        this.requestResize();
+                        this.pushHistory('Move element');
+                        this.bus.emit('dom:changed');
+                    }
+                }, { signal });
+
+                // Recursively set up drag on children if this is a container
+                if (containerTags.has(el.tagName) && el.children.length > 1) {
+                    makeDraggable(el);
                 }
             });
-        });
+        };
+
+        makeDraggable(doc.body);
     }
 
     private setupKeyboardShortcuts(): void {

@@ -40,10 +40,20 @@ export class ContextMenu {
             this.show(data.element, data.x, data.y);
         });
 
-        // Close on click outside
+        // Close on click outside (host document)
         document.addEventListener('mousedown', (e) => {
             if (!this.menu.contains(e.target as Node)) {
                 this.hide();
+            }
+        });
+
+        // Close on click inside the iframe canvas
+        this.editor.bus.on('content:loaded', () => {
+            const doc = this.editor.getIframeDocument();
+            if (doc) {
+                doc.addEventListener('mousedown', () => {
+                    this.hide();
+                });
             }
         });
 
