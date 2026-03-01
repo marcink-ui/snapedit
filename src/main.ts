@@ -16,12 +16,21 @@ import { PrintPreviewPanel } from './panels/PrintPreviewPanel';
 import { SiteSettingsPanel } from './panels/SiteSettingsPanel';
 import { SectionsPanel } from './panels/SectionsPanel';
 import { GeneralPanel } from './panels/GeneralPanel';
+import { AuthUI } from './auth/AuthUI';
 
 // Initialize SnapEdit
 document.addEventListener('DOMContentLoaded', () => {
     const editor = new EditorCore();
     editor.init();
     (window as any).editor = editor;
+
+    // Auth UI — account button + login modal
+    const authUI = new AuthUI((user) => {
+        if (user) {
+            editor.userName = user.name || user.email;
+        }
+    });
+    (window as any).authUI = authUI;
 
     // Initialize UI panels
     new StylesPanel(editor);
