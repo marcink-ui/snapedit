@@ -34,7 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     (window as any).authUI = authUI;
 
     // Command Palette (Cmd+K)
-    new CommandPalette(editor);
+    const cmdPalette = new CommandPalette(editor);
+    (window as any).cmdPalette = cmdPalette;
+
+    // Wire visible toolbar buttons
+    document.getElementById('btn-cmd-k')?.addEventListener('click', () => cmdPalette.toggle());
+    document.getElementById('btn-publish')?.addEventListener('click', () => cmdPalette.publishProject());
 
     // Initialize UI panels
     new StylesPanel(editor);

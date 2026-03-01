@@ -52,7 +52,7 @@ export class CommandPalette {
             },
             {
                 id: 'publish', label: 'Publish Site', icon: '🌐', category: 'File', action: () => {
-                    this.publishCurrentProject();
+                    this.publishProject();
                 }, keywords: 'deploy share public'
             },
 
@@ -86,7 +86,7 @@ export class CommandPalette {
         ];
     }
 
-    private async publishCurrentProject() {
+    public async publishProject() {
         // Get current project URL from the editor
         const iframe = document.querySelector('.canvas-iframe') as HTMLIFrameElement;
         if (!iframe?.src) { showToast('No project loaded to publish.'); return; }
