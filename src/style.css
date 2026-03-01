@@ -2637,6 +2637,22 @@ input:checked+.toggle-slider:before {
   .toolbar-export-group {
     gap: 8px;
   }
+
+  #toolbar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  #print-preview-panel.preview-open {
+    width: 340px;
+    min-width: 340px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2752,6 +2768,10 @@ input:checked+.toggle-slider:before {
     font-size: 11px;
   }
 
+  .toolbar-brand svg {
+    display: none;
+  }
+
   .toolbar-btn {
     padding: 5px 10px;
     font-size: 10px;
@@ -2776,9 +2796,35 @@ input:checked+.toggle-slider:before {
     left: -40px;
   }
 
+  /* Hide less critical toolbar items */
+  .page-selector-group {
+    display: none;
+  }
+
+  /* Compact export text */
+  #btn-print-preview {
+    padding: 5px 8px;
+  }
+
+  #btn-print-preview svg+span,
+  #btn-print-preview svg~text {
+    display: none;
+  }
+
   /* Show toggle buttons for panels on mobile */
   .panel-toggle-btn {
     display: flex !important;
+  }
+
+  /* Print preview fullscreen on mobile */
+  #print-preview-panel.preview-open {
+    position: fixed;
+    left: 0;
+    top: var(--toolbar-height);
+    width: 100vw !important;
+    min-width: 100vw !important;
+    height: calc(100vh - var(--toolbar-height));
+    z-index: 600;
   }
 }
 
@@ -2864,12 +2910,28 @@ input:checked+.toggle-slider:before {
    =========================== */
 
 #print-preview-panel {
-  width: 420px;
+  width: 0;
+  min-width: 0;
+  opacity: 0;
   background: var(--panel-bg);
-  border-left: 1px solid var(--panel-border);
+  border-left: 1px solid transparent;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s ease 0.05s,
+    border-color 0.2s ease,
+    min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+#print-preview-panel.preview-open {
+  width: 420px;
+  min-width: 420px;
+  opacity: 1;
+  border-left-color: var(--panel-border);
+  pointer-events: auto;
 }
 
 .preview-header {
