@@ -17,6 +17,9 @@ export class EditorCore {
     public styleMutator: StyleMutator;
     public history: HistoryManager;
     private editorEnabled: boolean = true;
+    public isReadOnly: boolean = false;
+    private ws: WebSocket | null = null;
+    private currentProjectUrl: string | null = null;
     private resizeObserver: MutationObserver | null = null;
     private contentResizeObserver: ResizeObserver | null = null;
     private resizeLocked: boolean = false;
@@ -48,6 +51,9 @@ export class EditorCore {
 
     /** Load a multi-file project by URL (served externally) */
     loadFromURL(url: string): void {
+        this.currentProjectUrl = url;
+        this.connectWebSocket(url);
+
         // Disconnect old observers
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
@@ -139,6 +145,70 @@ export class EditorCore {
                 this.bus.emit('content:loaded');
             }, 200);
         };
+    }
+
+    private connectWebSocket(url: string): void {
+        if (this.ws) {
+            this.ws.close();
+        }
+
+        // Connect to the WebSocket server running on port 8081
+        const wsUrl = `ws://${window.location.hostname}:8081`;
+        this.ws = new WebSocket(wsUrl);
+
+        this.ws.onopen = () => {
+            console.log('Connected to Locking Server');
+            this.ws?.send(JSON.stringify({ type: 'REQUEST_LOCK', projectUrl: url }));
+        };
+
+        this.ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.projectUrl !== this.currentProjectUrl) return;
+
+                switch (data.type) {
+                    case 'LOCK_DENIED':
+                    case 'PROJECT_LOCKED':
+                        this.setReadOnlyMode(true);
+                        break;
+                    case 'LOCK_GRANTED':
+                    case 'PROJECT_FREED':
+                        // Only clear read-only if we didn't just get freed (if freed, we should request lock again to claim it)
+                        if (data.type === 'PROJECT_FREED') {
+                            this.ws?.send(JSON.stringify({ type: 'REQUEST_LOCK', projectUrl: url }));
+                        } else {
+                            this.setReadOnlyMode(false);
+                        }
+                        break;
+                }
+            } catch (e) {
+                console.error('Error parsing WS message', e);
+            }
+        };
+
+        this.ws.onclose = () => {
+            console.log('Disconnected from Locking Server');
+        };
+    }
+
+    public setReadOnlyMode(readOnly: boolean): void {
+        this.isReadOnly = readOnly;
+        this.bus.emit('editor:readonlyStatus', readOnly);
+
+        if (readOnly) {
+            this.selectionManager.setEnabled(false);
+            if (this.inlineEditor.isEditing()) {
+                this.inlineEditor.stopEditing();
+            }
+            this.iframe.style.pointerEvents = 'none'; // Prevent any interactions in iframe
+            this.hoverOverlay.style.display = 'none';
+            this.selectOverlay.style.display = 'none';
+        } else {
+            this.selectionManager.setEnabled(true);
+            this.iframe.style.pointerEvents = 'auto';
+            this.hoverOverlay.style.display = 'block';
+            this.selectOverlay.style.display = 'block';
+        }
     }
 
     loadContent(html: string): void {

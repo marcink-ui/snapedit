@@ -21,6 +21,7 @@ export class Toolbar {
         this.setupLoadButton();
         this.setupExportButton();
         this.setupSiteSettingsDropdown();
+        this.setupReadOnlyListener();
     }
 
     private setupUndoRedo(): void {
@@ -32,8 +33,46 @@ export class Toolbar {
 
         // Listen for history changes to update button states
         this.editor.bus.on('history:change', (state: { canUndo: boolean; canRedo: boolean }) => {
-            this.undoBtn.disabled = !state.canUndo;
-            this.redoBtn.disabled = !state.canRedo;
+            this.undoBtn.disabled = !state.canUndo || this.editor.isReadOnly;
+            this.redoBtn.disabled = !state.canRedo || this.editor.isReadOnly;
+        });
+    }
+
+    private setupReadOnlyListener(): void {
+        this.editor.bus.on('editor:readonlyStatus', (isReadOnly: boolean) => {
+            const printBtn = document.getElementById('btn-print-preview') as HTMLButtonElement | null;
+            const htmlBtn = document.getElementById('btn-export-html') as HTMLButtonElement | null;
+            const mdBtn = document.getElementById('btn-export-md') as HTMLButtonElement | null;
+
+            if (printBtn) printBtn.disabled = isReadOnly;
+            if (htmlBtn) htmlBtn.disabled = isReadOnly;
+            if (mdBtn) mdBtn.disabled = isReadOnly;
+            this.undoBtn.disabled = isReadOnly || !this.editor.history.canUndo;
+            this.redoBtn.disabled = isReadOnly || !this.editor.history.canRedo;
+
+            let banner = document.getElementById('readonly-banner');
+            if (isReadOnly) {
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = 'readonly-banner';
+                    banner.innerHTML = '🔒 Ten projekt jest obecnie edytowany przez kogoś innego. Tryb tylko do odczytu.';
+                    banner.style.position = 'fixed';
+                    banner.style.top = '0';
+                    banner.style.left = '0';
+                    banner.style.width = '100%';
+                    banner.style.background = '#ffeb3b';
+                    banner.style.color = '#333';
+                    banner.style.textAlign = 'center';
+                    banner.style.padding = '8px';
+                    banner.style.zIndex = '9999';
+                    banner.style.fontWeight = 'bold';
+                    banner.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                    document.body.appendChild(banner);
+                }
+                banner.style.display = 'block';
+            } else {
+                if (banner) banner.style.display = 'none';
+            }
         });
     }
 

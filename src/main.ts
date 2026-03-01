@@ -21,6 +21,7 @@ import { GeneralPanel } from './panels/GeneralPanel';
 document.addEventListener('DOMContentLoaded', () => {
     const editor = new EditorCore();
     editor.init();
+    (window as any).editor = editor;
 
     // Initialize UI panels
     new StylesPanel(editor);
