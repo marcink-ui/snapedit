@@ -30,16 +30,24 @@ db.exec(`
         description TEXT DEFAULT '',
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL,
-        createdBy TEXT DEFAULT ''
+        createdBy TEXT DEFAULT '',
+        ownerId TEXT DEFAULT ''
     )
 `);
 
+// Migration: add ownerId if it doesn't exist yet
+try {
+    db.exec(`ALTER TABLE projects ADD COLUMN ownerId TEXT DEFAULT ''`);
+    console.log('[DB] Added ownerId column (migration)');
+} catch { /* column already exists */ }
+
 const stmts = {
-    listProjects: db.prepare('SELECT * FROM projects ORDER BY updatedAt DESC'),
+    listProjects: db.prepare('SELECT * FROM projects WHERE ownerId = ? ORDER BY updatedAt DESC'),
+    listAllProjects: db.prepare('SELECT * FROM projects ORDER BY updatedAt DESC'),
     getProject: db.prepare('SELECT * FROM projects WHERE slug = ?'),
-    insertProject: db.prepare('INSERT INTO projects (id, slug, name, description, createdAt, updatedAt, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?)'),
+    insertProject: db.prepare('INSERT INTO projects (id, slug, name, description, createdAt, updatedAt, createdBy, ownerId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'),
     updateProject: db.prepare('UPDATE projects SET updatedAt = ? WHERE slug = ?'),
-    deleteProject: db.prepare('DELETE FROM projects WHERE slug = ?'),
+    deleteProject: db.prepare('DELETE FROM projects WHERE slug = ? AND ownerId = ?'),
 };
 
 // ── Helper: generate UUID ────────────────────────────────────
@@ -165,9 +173,13 @@ const server = http.createServer(async (req, res) => {
 
     // ─── API Routes ──────────────────────────────────────────
 
-    // GET /api/projects — list all projects
+    // GET /api/projects — list owner's projects only
     if (pathname === '/api/projects' && method === 'GET') {
-        const projects = stmts.listProjects.all();
+        const ownerId = req.headers['x-owner-id'] || '';
+        if (!ownerId) {
+            return sendJSON(res, 400, { error: 'X-Owner-Id header required' });
+        }
+        const projects = stmts.listProjects.all(ownerId);
         // Enrich with lock info
         const enriched = projects.map(p => ({
             ...p,
@@ -178,6 +190,10 @@ const server = http.createServer(async (req, res) => {
 
     // POST /api/projects — create project
     if (pathname === '/api/projects' && method === 'POST') {
+        const ownerId = req.headers['x-owner-id'] || '';
+        if (!ownerId) {
+            return sendJSON(res, 400, { error: 'X-Owner-Id header required' });
+        }
         const body = await readBody(req);
         if (!body || !body.name || !body.slug) {
             return sendJSON(res, 400, { error: 'name and slug required' });
@@ -215,7 +231,7 @@ const server = http.createServer(async (req, res) => {
 </html>`;
         fs.writeFileSync(path.join(projectDir, 'index.html'), defaultHTML);
 
-        stmts.insertProject.run(id, slug, body.name, body.description || '', now, now, body.createdBy || '');
+        stmts.insertProject.run(id, slug, body.name, body.description || '', now, now, body.createdBy || '', ownerId);
         const project = stmts.getProject.get(slug);
         return sendJSON(res, 201, project);
     }
@@ -223,16 +239,19 @@ const server = http.createServer(async (req, res) => {
     // DELETE /api/projects/:slug
     const deleteMatch = pathname.match(/^\/api\/projects\/([a-z0-9_-]+)$/);
     if (deleteMatch && method === 'DELETE') {
+        const ownerId = req.headers['x-owner-id'] || '';
+        if (!ownerId) return sendJSON(res, 400, { error: 'X-Owner-Id header required' });
         const slug = deleteMatch[1];
         const project = stmts.getProject.get(slug);
         if (!project) return sendJSON(res, 404, { error: 'Project not found' });
+        if (project.ownerId !== ownerId) return sendJSON(res, 403, { error: 'Not your project' });
 
         // Remove files
         const projectDir = path.join(PROJECTS_DIR, slug);
         if (fs.existsSync(projectDir)) {
             fs.rmSync(projectDir, { recursive: true, force: true });
         }
-        stmts.deleteProject.run(slug);
+        stmts.deleteProject.run(slug, ownerId);
         return sendJSON(res, 200, { success: true });
     }
 

@@ -3,6 +3,17 @@ import { showToast } from '../utils/dom-helpers';
 import TurndownService from 'turndown';
 
 const PROJECTS_STORAGE_KEY = 'snapedit-projects';
+const OWNER_ID_KEY = 'snapedit-owner-id';
+
+/** Get or create a unique owner ID for this browser (tenant isolation) */
+function getOwnerId(): string {
+    let id = localStorage.getItem(OWNER_ID_KEY);
+    if (!id) {
+        id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem(OWNER_ID_KEY, id);
+    }
+    return id;
+}
 
 interface SavedProject {
     name: string;
@@ -233,7 +244,9 @@ export class Toolbar {
 
     private async getProjects(): Promise<SavedProject[]> {
         try {
-            const res = await fetch('/api/projects');
+            const res = await fetch('/api/projects', {
+                headers: { 'X-Owner-Id': getOwnerId() },
+            });
             if (res.ok) {
                 const data = await res.json();
                 return data.map((p: any) => ({
@@ -317,7 +330,7 @@ export class Toolbar {
                 card.style.transform = 'scale(0.95)';
                 card.style.opacity = '0';
                 if (slug) {
-                    try { await fetch(`/api/projects/${slug}`, { method: 'DELETE' }); } catch { /* ignore */ }
+                    try { await fetch(`/api/projects/${slug}`, { method: 'DELETE', headers: { 'X-Owner-Id': getOwnerId() } }); } catch { /* ignore */ }
                 }
                 setTimeout(() => {
                     this.renderProjectCards();
@@ -408,7 +421,7 @@ export class Toolbar {
             try {
                 const res = await fetch('/api/projects', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Owner-Id': getOwnerId() },
                     body: JSON.stringify({ name, slug, description, createdBy: this.editor.userName }),
                 });
                 const data = await res.json();
