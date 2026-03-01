@@ -1,9 +1,12 @@
+import 'dotenv/config';
 import { WebSocketServer, WebSocket } from 'ws';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
+import { auth } from './auth.js';
+import { toNodeHandler } from 'better-auth/node';
 
 // ── Paths ────────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
@@ -40,6 +43,22 @@ try {
     db.exec(`ALTER TABLE projects ADD COLUMN ownerId TEXT DEFAULT ''`);
     console.log('[DB] Added ownerId column (migration)');
 } catch { /* column already exists */ }
+
+// User events for health scoring
+db.exec(`
+    CREATE TABLE IF NOT EXISTS user_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId TEXT NOT NULL,
+        orgId TEXT DEFAULT '',
+        event TEXT NOT NULL,
+        metadata TEXT DEFAULT '{}',
+        createdAt TEXT NOT NULL
+    )
+`);
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_events_user ON user_events(userId, createdAt)`); } catch { }
+try { db.exec(`CREATE INDEX IF NOT EXISTS idx_events_org ON user_events(orgId, createdAt)`); } catch { }
+
+const logEvent = db.prepare('INSERT INTO user_events (userId, orgId, event, metadata, createdAt) VALUES (?, ?, ?, ?, ?)');
 
 const stmts = {
     listProjects: db.prepare('SELECT * FROM projects WHERE ownerId = ? ORDER BY updatedAt DESC'),
@@ -159,17 +178,70 @@ const connectionLocks = new Map();  // connectionId → projectSlug
 const connectionNames = new Map();  // connectionId → userName
 const connectionWs = new Map();     // connectionId → WebSocket
 
+// ── Auth helpers ─────────────────────────────────────────────
+const authHandler = toNodeHandler(auth);
+
+async function getSession(req) {
+    try {
+        const session = await auth.api.getSession({ headers: req.headers });
+        return session;
+    } catch {
+        return null;
+    }
+}
+
+// ── Rate Limiting ────────────────────────────────────────────
+const rateMap = new Map(); // IP → {count, resetAt}
+const RATE_LIMIT = 120;    // requests per window
+const RATE_WINDOW = 60000; // 1 minute
+
+function checkRateLimit(req) {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    const now = Date.now();
+    let entry = rateMap.get(ip);
+    if (!entry || now > entry.resetAt) {
+        entry = { count: 0, resetAt: now + RATE_WINDOW };
+        rateMap.set(ip, entry);
+    }
+    entry.count++;
+    return entry.count <= RATE_LIMIT;
+}
+
 // ── HTTP Server ──────────────────────────────────────────────
 const server = http.createServer(async (req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
     const pathname = parsedUrl.pathname;
     const method = req.method;
 
-    // CORS headers (for dev)
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // CORS headers
+    const origin = req.headers.origin || '*';
+    res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Owner-Id, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+
+    // Rate limiting
+    if (!checkRateLimit(req)) {
+        res.writeHead(429, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Too many requests' }));
+        return;
+    }
+
+    // ─── Auth Routes (better-auth handles /api/auth/*) ──────
+    if (pathname.startsWith('/api/auth')) {
+        return authHandler(req, res);
+    }
+
+    // ─── Health Check ────────────────────────────────────────
+    if (pathname === '/api/health' && method === 'GET') {
+        return sendJSON(res, 200, {
+            status: 'ok',
+            uptime: process.uptime(),
+            timestamp: new Date().toISOString(),
+            projects: stmts.listAllProjects.all().length,
+        });
+    }
 
     // ─── API Routes ──────────────────────────────────────────
 
