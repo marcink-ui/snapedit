@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume — Your Name</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .resume {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .resume-header {
+            padding: 48px 48px 40px;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: #fff;
+        }
+
+        .resume-header h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .resume-header .title {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .resume-header .contacts {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .resume-header .contacts span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .resume-body {
+            padding: 40px 48px;
+        }
+
+        .section {
+            margin-bottom: 36px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .section p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #555;
+        }
+
+        .experience-item {
+            margin-bottom: 24px;
+        }
+
+        .experience-item .role {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .experience-item .company {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .experience-item .dates {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .experience-item ul {
+            padding-left: 20px;
+        }
+
+        .experience-item li {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skills-grid span {
+            padding: 6px 14px;
+            background: #f0f4ff;
+            color: #4f46e5;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .education-item {
+            margin-bottom: 16px;
+        }
+
+        .education-item .degree {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .education-item .school {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="resume">
+        <div class="resume-header">
+            <h1>Your Name</h1>
+            <div class="title">Full Stack Developer & Designer</div>
+            <div class="contacts">
+                <span>📧 hello@example.com</span>
+                <span>📱 +48 123 456 789</span>
+                <span>🌐 yourwebsite.com</span>
+                <span>📍 Warsaw, Poland</span>
+            </div>
+        </div>
+
+        <div class="resume-body">
+            <div class="section">
+                <h2>Summary</h2>
+                <p>Creative full-stack developer with 5+ years of experience building web applications and SaaS
+                    products. Passionate about clean design, performant code, and user-centric development. Strong track
+                    record of delivering projects from concept to production.</p>
+            </div>
+
+            <div class="section">
+                <h2>Experience</h2>
+                <div class="experience-item">
+                    <div class="role">Senior Frontend Developer</div>
+                    <div class="company">TechCorp Inc.</div>
+                    <div class="dates">Jan 2024 — Present</div>
+                    <ul>
+                        <li>Led redesign of the main SaaS platform, improving user engagement by 42%</li>
+                        <li>Built component library used across 12 internal products</li>
+                        <li>Mentored team of 4 junior developers</li>
+                    </ul>
+                </div>
+                <div class="experience-item">
+                    <div class="role">Full Stack Developer</div>
+                    <div class="company">StartupXYZ</div>
+                    <div class="dates">Mar 2021 — Dec 2023</div>
+                    <ul>
+                        <li>Architected and built real-time collaboration features using WebSockets</li>
+                        <li>Reduced page load time by 60% through code splitting and caching</li>
+                        <li>Implemented CI/CD pipeline with automated testing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Skills</h2>
+                <div class="skills-grid">
+                    <span>TypeScript</span>
+                    <span>React</span>
+                    <span>Node.js</span>
+                    <span>PostgreSQL</span>
+                    <span>Python</span>
+                    <span>Docker</span>
+                    <span>AWS</span>
+                    <span>Figma</span>
+                    <span>Next.js</span>
+                    <span>GraphQL</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Education</h2>
+                <div class="education-item">
+                    <div class="degree">B.Sc. Computer Science</div>
+                    <div class="school">Warsaw University of Technology — 2017-2021</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -245,13 +245,26 @@ const server = http.createServer(async (req, res) => {
 
     // ─── API Routes ──────────────────────────────────────────
 
-    // GET /api/projects — list owner's projects only
+    // GET /api/templates — list available starter templates
+    if (pathname === '/api/templates' && method === 'GET') {
+        const TEMPLATES_DIR = path.join(__dirname, 'data', 'templates');
+        const templates = [
+            { id: 'blank', name: 'Blank Page', description: 'Start from scratch', icon: '📄' },
+            { id: 'landing', name: 'Landing Page', description: 'Hero + features + CTA', icon: '🚀' },
+            { id: 'portfolio', name: 'Portfolio', description: 'Dark theme project showcase', icon: '🎨' },
+            { id: 'blog', name: 'Blog', description: 'Editorial with posts', icon: '✍️' },
+            { id: 'docs', name: 'Documentation', description: 'Sidebar + content area', icon: '📘' },
+            { id: 'resume', name: 'CV / Resume', description: 'Professional print-ready', icon: '📋' },
+        ];
+        return sendJSON(res, 200, templates);
+    }
+
+    // GET /api/projects — list user's projects (session-based)
     if (pathname === '/api/projects' && method === 'GET') {
-        const ownerId = req.headers['x-owner-id'] || '';
-        if (!ownerId) {
-            return sendJSON(res, 400, { error: 'X-Owner-Id header required' });
-        }
-        const projects = stmts.listProjects.all(ownerId);
+        const session = await getSession(req);
+        if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
+        const userId = session.user.id;
+        const projects = stmts.listProjects.all(userId);
         // Enrich with lock info
         const enriched = projects.map(p => ({
             ...p,
@@ -262,10 +275,9 @@ const server = http.createServer(async (req, res) => {
 
     // POST /api/projects — create project
     if (pathname === '/api/projects' && method === 'POST') {
-        const ownerId = req.headers['x-owner-id'] || '';
-        if (!ownerId) {
-            return sendJSON(res, 400, { error: 'X-Owner-Id header required' });
-        }
+        const session = await getSession(req);
+        if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
+        const ownerId = session.user.id;
         const body = await readBody(req);
         if (!body || !body.name || !body.slug) {
             return sendJSON(res, 400, { error: 'name and slug required' });
@@ -283,9 +295,17 @@ const server = http.createServer(async (req, res) => {
         const projectDir = path.join(PROJECTS_DIR, slug);
         fs.mkdirSync(projectDir, { recursive: true });
 
-        // Create default index.html
-        const defaultHTML = `<!DOCTYPE html>
-<html lang="pl">
+        // Load template or use blank default
+        let projectHTML;
+        const templateId = body.template || 'blank';
+        const templatePath = path.join(__dirname, 'data', 'templates', `${templateId}.html`);
+        if (templateId !== 'blank' && fs.existsSync(templatePath)) {
+            projectHTML = fs.readFileSync(templatePath, 'utf-8');
+            // Replace title placeholder
+            projectHTML = projectHTML.replace(/<title>[^<]*<\/title>/, `<title>${body.name}</title>`);
+        } else {
+            projectHTML = `<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -301,9 +321,11 @@ const server = http.createServer(async (req, res) => {
     <p>Start editing this page in SnapEdit.</p>
 </body>
 </html>`;
-        fs.writeFileSync(path.join(projectDir, 'index.html'), defaultHTML);
+        }
+        fs.writeFileSync(path.join(projectDir, 'index.html'), projectHTML);
 
-        stmts.insertProject.run(id, slug, body.name, body.description || '', now, now, body.createdBy || '', ownerId);
+        stmts.insertProject.run(id, slug, body.name, body.description || '', now, now, session.user.name || session.user.email || '', ownerId);
+        logEvent.run(ownerId, '', 'project.created', JSON.stringify({ slug, name: body.name }), now);
         const project = stmts.getProject.get(slug);
         return sendJSON(res, 201, project);
     }
@@ -311,8 +333,9 @@ const server = http.createServer(async (req, res) => {
     // DELETE /api/projects/:slug
     const deleteMatch = pathname.match(/^\/api\/projects\/([a-z0-9_-]+)$/);
     if (deleteMatch && method === 'DELETE') {
-        const ownerId = req.headers['x-owner-id'] || '';
-        if (!ownerId) return sendJSON(res, 400, { error: 'X-Owner-Id header required' });
+        const session = await getSession(req);
+        if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
+        const ownerId = session.user.id;
         const slug = deleteMatch[1];
         const project = stmts.getProject.get(slug);
         if (!project) return sendJSON(res, 404, { error: 'Project not found' });
@@ -354,6 +377,68 @@ const server = http.createServer(async (req, res) => {
         stmts.updateProject.run(new Date().toISOString(), slug);
 
         return sendJSON(res, 200, { success: true, updatedAt: new Date().toISOString() });
+    }
+
+    // POST /api/projects/:slug/publish — publish project publicly
+    const publishMatch = pathname.match(/^\/api\/projects\/([a-z0-9_-]+)\/publish$/);
+    if (publishMatch && method === 'POST') {
+        const session = await getSession(req);
+        if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
+        const slug = publishMatch[1];
+        const project = stmts.getProject.get(slug);
+        if (!project) return sendJSON(res, 404, { error: 'Project not found' });
+        if (project.ownerId !== session.user.id) return sendJSON(res, 403, { error: 'Not your project' });
+
+        const projectDir = path.join(PROJECTS_DIR, slug);
+        const publishDir = path.join(__dirname, 'data', 'published', slug);
+        fs.mkdirSync(publishDir, { recursive: true });
+
+        // Copy all project files to published dir
+        const files = fs.readdirSync(projectDir);
+        for (const file of files) {
+            if (file.endsWith('.bak') || file.endsWith('.tmp')) continue;
+            const src = path.join(projectDir, file);
+            const dest = path.join(publishDir, file);
+            fs.copyFileSync(src, dest);
+        }
+
+        // Inject "Made with SnapEdit" viral footer into published HTML
+        const indexPath = path.join(publishDir, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            let html = fs.readFileSync(indexPath, 'utf-8');
+            if (!html.includes('snapedit-footer')) {
+                const footer = `\n<div class="snapedit-footer" style="position:fixed;bottom:0;left:0;right:0;padding:8px;text-align:center;background:rgba(0,0,0,0.85);font-family:Inter,sans-serif;font-size:12px;color:rgba(255,255,255,0.6);z-index:99999;backdrop-filter:blur(4px);">Made with <a href="https://snapedit.syhi.tech" style="color:#818cf8;text-decoration:none;font-weight:600;">SnapEdit</a></div>\n`;
+                html = html.replace('</body>', footer + '</body>');
+                fs.writeFileSync(indexPath, html);
+            }
+        }
+
+        const publicUrl = `/s/${slug}/`;
+        logEvent.run(session.user.id, '', 'project.published', JSON.stringify({ slug }), new Date().toISOString());
+        return sendJSON(res, 200, { success: true, url: publicUrl, fullUrl: `https://snapedit.syhi.tech${publicUrl}` });
+    }
+
+    // DELETE /api/projects/:slug/publish — unpublish
+    const unpublishMatch = pathname.match(/^\/api\/projects\/([a-z0-9_-]+)\/publish$/);
+    if (unpublishMatch && method === 'DELETE') {
+        const session = await getSession(req);
+        if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
+        const slug = unpublishMatch[1];
+        const publishDir = path.join(__dirname, 'data', 'published', slug);
+        if (fs.existsSync(publishDir)) fs.rmSync(publishDir, { recursive: true, force: true });
+        return sendJSON(res, 200, { success: true });
+    }
+
+    // ─── Static: Published Sites (/s/:slug) ──────────────────
+    if (pathname.startsWith('/s/')) {
+        const relPath = pathname.replace(/^\/s\//, '');
+        const publishedDir = path.join(__dirname, 'data', 'published');
+        const filePath = path.join(publishedDir, relPath);
+        if (!filePath.startsWith(publishedDir)) { res.writeHead(403); res.end('Forbidden'); return; }
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+            return serveFile(res, path.join(filePath, 'index.html'), 'text/html');
+        }
+        return serveFile(res, filePath);
     }
 
     // ─── Static: Project Files (/projects/:slug/*) ───────────

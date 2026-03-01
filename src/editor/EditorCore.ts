@@ -400,7 +400,7 @@ export class EditorCore {
     }
 
     /** Trigger debounced auto-save (2 seconds after last change) */
-    private triggerAutoSave(): void {
+    public triggerAutoSave(): void {
         if (this.isReadOnly || !this.currentProjectUrl) return;
 
         this.isDirty = true;

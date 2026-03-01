@@ -17,6 +17,7 @@ import { SiteSettingsPanel } from './panels/SiteSettingsPanel';
 import { SectionsPanel } from './panels/SectionsPanel';
 import { GeneralPanel } from './panels/GeneralPanel';
 import { AuthUI } from './auth/AuthUI';
+import { CommandPalette } from './panels/CommandPalette';
 
 // Initialize SnapEdit
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,6 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     (window as any).authUI = authUI;
+
+    // Command Palette (Cmd+K)
+    new CommandPalette(editor);
 
     // Initialize UI panels
     new StylesPanel(editor);

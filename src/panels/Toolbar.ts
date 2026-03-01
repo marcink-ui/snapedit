@@ -3,17 +3,6 @@ import { showToast } from '../utils/dom-helpers';
 import TurndownService from 'turndown';
 
 const PROJECTS_STORAGE_KEY = 'snapedit-projects';
-const OWNER_ID_KEY = 'snapedit-owner-id';
-
-/** Get or create a unique owner ID for this browser (tenant isolation) */
-function getOwnerId(): string {
-    let id = localStorage.getItem(OWNER_ID_KEY);
-    if (!id) {
-        id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        localStorage.setItem(OWNER_ID_KEY, id);
-    }
-    return id;
-}
 
 interface SavedProject {
     name: string;
@@ -245,7 +234,7 @@ export class Toolbar {
     private async getProjects(): Promise<SavedProject[]> {
         try {
             const res = await fetch('/api/projects', {
-                headers: { 'X-Owner-Id': getOwnerId() },
+                credentials: 'include',
             });
             if (res.ok) {
                 const data = await res.json();
@@ -330,7 +319,7 @@ export class Toolbar {
                 card.style.transform = 'scale(0.95)';
                 card.style.opacity = '0';
                 if (slug) {
-                    try { await fetch(`/api/projects/${slug}`, { method: 'DELETE', headers: { 'X-Owner-Id': getOwnerId() } }); } catch { /* ignore */ }
+                    try { await fetch(`/api/projects/${slug}`, { method: 'DELETE', credentials: 'include' }); } catch { /* ignore */ }
                 }
                 setTimeout(() => {
                     this.renderProjectCards();
@@ -393,6 +382,47 @@ export class Toolbar {
         fieldsRow.appendChild(descInput);
         form.appendChild(fieldsRow);
 
+        // Template selector
+        let selectedTemplate = 'blank';
+        const templateSection = document.createElement('div');
+        templateSection.style.cssText = 'margin: 12px 0 8px;';
+        const templateLabel = document.createElement('div');
+        templateLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;';
+        templateLabel.textContent = 'Start from template';
+        templateSection.appendChild(templateLabel);
+
+        const templateGrid = document.createElement('div');
+        templateGrid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:6px;';
+
+        const defaultTemplates = [
+            { id: 'blank', name: 'Blank', icon: '📄' },
+            { id: 'landing', name: 'Landing', icon: '🚀' },
+            { id: 'portfolio', name: 'Portfolio', icon: '🎨' },
+            { id: 'blog', name: 'Blog', icon: '✍️' },
+            { id: 'docs', name: 'Docs', icon: '📘' },
+            { id: 'resume', name: 'Resume', icon: '📋' },
+        ];
+
+        defaultTemplates.forEach(t => {
+            const tpl = document.createElement('button');
+            tpl.type = 'button';
+            tpl.style.cssText = `padding:8px 6px;border-radius:8px;border:1px solid ${t.id === 'blank' ? 'rgba(129,140,248,0.5)' : 'rgba(255,255,255,0.08)'};background:${t.id === 'blank' ? 'rgba(129,140,248,0.08)' : 'rgba(255,255,255,0.02)'};color:rgba(255,255,255,0.8);font-size:11px;cursor:pointer;text-align:center;transition:all .15s;`;
+            tpl.innerHTML = `<div style="font-size:18px;margin-bottom:2px">${t.icon}</div>${t.name}`;
+            tpl.addEventListener('click', () => {
+                selectedTemplate = t.id;
+                templateGrid.querySelectorAll('button').forEach(b => {
+                    (b as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                    (b as HTMLElement).style.background = 'rgba(255,255,255,0.02)';
+                });
+                tpl.style.borderColor = 'rgba(129,140,248,0.5)';
+                tpl.style.background = 'rgba(129,140,248,0.08)';
+            });
+            templateGrid.appendChild(tpl);
+        });
+
+        templateSection.appendChild(templateGrid);
+        form.appendChild(templateSection);
+
         const actions = document.createElement('div');
         actions.className = 'project-add-form-actions';
 
@@ -421,8 +451,9 @@ export class Toolbar {
             try {
                 const res = await fetch('/api/projects', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Owner-Id': getOwnerId() },
-                    body: JSON.stringify({ name, slug, description, createdBy: this.editor.userName }),
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ name, slug, description, template: selectedTemplate, createdBy: this.editor.userName }),
                 });
                 const data = await res.json();
 
