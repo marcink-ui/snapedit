@@ -152,8 +152,13 @@ export class EditorCore {
             this.ws.close();
         }
 
-        // Connect to the WebSocket server running on port 8081
-        const wsUrl = `ws://${window.location.hostname}:8081`;
+        // Connect to the WebSocket locking server
+        // In production: wss://snapedit.syhi.tech/ws (via Nginx proxy)
+        // In development: ws://localhost:8081 (direct)
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = window.location.hostname === 'localhost'
+            ? `ws://${window.location.hostname}:8081`
+            : `${protocol}//${window.location.host}/ws`;
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
