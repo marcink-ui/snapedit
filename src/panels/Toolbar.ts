@@ -22,6 +22,7 @@ export class Toolbar {
         this.setupExportButton();
         this.setupSiteSettingsDropdown();
         this.setupReadOnlyListener();
+        this.setupSaveStatusIndicator();
     }
 
     private setupUndoRedo(): void {
@@ -39,7 +40,10 @@ export class Toolbar {
     }
 
     private setupReadOnlyListener(): void {
-        this.editor.bus.on('editor:readonlyStatus', (isReadOnly: boolean) => {
+        this.editor.bus.on('editor:readonlyStatus', (payload: { readOnly: boolean; lockedByName: string }) => {
+            const isReadOnly = payload.readOnly;
+            const lockedByName = payload.lockedByName || 'Someone';
+
             const printBtn = document.getElementById('btn-print-preview') as HTMLButtonElement | null;
             const htmlBtn = document.getElementById('btn-export-html') as HTMLButtonElement | null;
             const mdBtn = document.getElementById('btn-export-md') as HTMLButtonElement | null;
@@ -55,7 +59,6 @@ export class Toolbar {
                 if (!banner) {
                     banner = document.createElement('div');
                     banner.id = 'readonly-banner';
-                    banner.innerHTML = '🔒 Ten projekt jest obecnie edytowany przez kogoś innego. Tryb tylko do odczytu.';
                     banner.style.position = 'fixed';
                     banner.style.top = '0';
                     banner.style.left = '0';
@@ -69,9 +72,39 @@ export class Toolbar {
                     banner.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
                     document.body.appendChild(banner);
                 }
+                banner.innerHTML = `🔒 Edytuje: <strong>${lockedByName}</strong>. Tryb tylko do odczytu.`;
                 banner.style.display = 'block';
             } else {
                 if (banner) banner.style.display = 'none';
+            }
+        });
+    }
+
+    /** Save-status indicator ("Saving..." / "✓ Saved" / "⚠ Error") */
+    private setupSaveStatusIndicator(): void {
+        // Create indicator element next to toolbar
+        const indicator = document.createElement('div');
+        indicator.id = 'save-status';
+        indicator.style.cssText = 'position:fixed;top:8px;right:16px;z-index:9000;font-size:12px;padding:4px 12px;border-radius:12px;background:rgba(0,0,0,0.6);color:#aaa;display:none;transition:all 0.3s;';
+        document.body.appendChild(indicator);
+
+        this.editor.bus.on('editor:saveStatus', (status: string) => {
+            indicator.style.display = 'block';
+            switch (status) {
+                case 'saving':
+                    indicator.innerHTML = '💾 Saving...';
+                    indicator.style.color = '#ffd54f';
+                    break;
+                case 'saved':
+                    indicator.innerHTML = '✓ Saved';
+                    indicator.style.color = '#81c784';
+                    // Hide after 3 seconds
+                    setTimeout(() => { indicator.style.display = 'none'; }, 3000);
+                    break;
+                case 'error':
+                    indicator.innerHTML = '⚠ Save Error';
+                    indicator.style.color = '#ef5350';
+                    break;
             }
         });
     }
@@ -198,22 +231,33 @@ export class Toolbar {
 
     // ─── Project Card Management ────────────────────────────────
 
-    private getProjects(): SavedProject[] {
+    private async getProjects(): Promise<SavedProject[]> {
+        try {
+            const res = await fetch('/api/projects');
+            if (res.ok) {
+                const data = await res.json();
+                return data.map((p: any) => ({
+                    name: p.name,
+                    path: `/projects/${p.slug}/`,
+                    description: p.description || '',
+                    slug: p.slug,
+                    lockedBy: p.lockedBy || null,
+                }));
+            }
+        } catch { /* API offline */ }
+        // Fallback to localStorage
         try {
             return JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY) || '[]');
         } catch { return []; }
     }
 
-    private saveProjects(projects: SavedProject[]): void {
-        localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
-    }
-
-    private renderProjectCards(): void {
+    private async renderProjectCards(): Promise<void> {
         const container = document.getElementById('project-cards');
         if (!container) return;
-        container.innerHTML = '';
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">Loading projects...</div>';
 
-        const projects = this.getProjects();
+        const projects = await this.getProjects();
+        container.innerHTML = '';
 
         // Section header
         const header = document.createElement('div');
@@ -233,10 +277,10 @@ export class Toolbar {
             const card = document.createElement('div');
             card.className = 'project-card';
 
-            // Left: icon
+            // Left: icon (locked or open)
             const iconEl = document.createElement('div');
             iconEl.className = 'project-card-icon';
-            iconEl.textContent = '📁';
+            iconEl.textContent = (project as any).lockedBy ? '🔒' : '📁';
             card.appendChild(iconEl);
 
             // Center: info
@@ -250,7 +294,8 @@ export class Toolbar {
 
             const descEl = document.createElement('div');
             descEl.className = 'project-card-desc';
-            descEl.textContent = project.description || project.path;
+            const lockInfo = (project as any).lockedBy ? ` (edytuje: ${(project as any).lockedBy})` : '';
+            descEl.textContent = (project.description || (project as any).slug || project.path) + lockInfo;
             info.appendChild(descEl);
 
             card.appendChild(info);
@@ -266,13 +311,15 @@ export class Toolbar {
             delBtn.className = 'project-card-delete';
             delBtn.innerHTML = '×';
             delBtn.title = 'Remove project';
-            delBtn.addEventListener('click', (e) => {
+            delBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
+                const slug = (project as any).slug;
                 card.style.transform = 'scale(0.95)';
                 card.style.opacity = '0';
+                if (slug) {
+                    try { await fetch(`/api/projects/${slug}`, { method: 'DELETE' }); } catch { /* ignore */ }
+                }
                 setTimeout(() => {
-                    const updated = this.getProjects().filter(p => p.path !== project.path);
-                    this.saveProjects(updated);
                     this.renderProjectCards();
                     showToast(`"${project.name}" removed`);
                 }, 150);
@@ -281,8 +328,7 @@ export class Toolbar {
 
             // Click → load project
             card.addEventListener('click', () => {
-                const projectUrl = project.path.endsWith('/') ? project.path + 'index.html' : project.path + '/index.html';
-                this.editor.loadFromURL(projectUrl);
+                this.editor.loadFromURL(project.path);
                 const modal = document.getElementById('html-modal');
                 if (modal) modal.style.display = 'none';
                 showToast(`Loading project: ${project.name}`);
@@ -325,18 +371,12 @@ export class Toolbar {
         nameInput.placeholder = 'Name  (e.g. Ciarko)';
         nameInput.autocomplete = 'off';
 
-        const pathInput = document.createElement('input');
-        pathInput.type = 'text';
-        pathInput.placeholder = 'Path  (e.g. /projects/ciarko/)';
-        pathInput.autocomplete = 'off';
-
         const descInput = document.createElement('input');
         descInput.type = 'text';
         descInput.placeholder = 'Description  (optional)';
         descInput.autocomplete = 'off';
 
         fieldsRow.appendChild(nameInput);
-        fieldsRow.appendChild(pathInput);
         fieldsRow.appendChild(descInput);
         form.appendChild(fieldsRow);
 
@@ -350,30 +390,42 @@ export class Toolbar {
 
         const saveBtn = document.createElement('button');
         saveBtn.className = 'btn-save';
-        saveBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Add Project`;
+        saveBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Create Project`;
 
-        const doSave = () => {
+        const doSave = async () => {
             const name = nameInput.value.trim();
-            let path = pathInput.value.trim();
             const description = descInput.value.trim();
 
             if (!name) { nameInput.focus(); showToast('Please enter a project name.'); return; }
-            if (!path) { pathInput.focus(); showToast('Please enter the project path.'); return; }
 
-            // Ensure path ends with /
-            if (!path.endsWith('/')) path += '/';
+            // Auto-generate slug from name
+            const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').substring(0, 63);
+            if (!slug) { nameInput.focus(); showToast('Invalid name for URL slug.'); return; }
 
-            const projects = this.getProjects();
-            if (projects.some(p => p.path === path)) {
-                pathInput.focus();
-                showToast('A project with this path already exists.');
-                return;
+            saveBtn.textContent = 'Creating...';
+            saveBtn.setAttribute('disabled', 'true');
+
+            try {
+                const res = await fetch('/api/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, slug, description, createdBy: this.editor.userName }),
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    this.renderProjectCards();
+                    showToast(`"${name}" created!`);
+                } else {
+                    showToast(data.error || 'Failed to create project');
+                    saveBtn.textContent = 'Create Project';
+                    saveBtn.removeAttribute('disabled');
+                }
+            } catch {
+                showToast('Server offline — could not create project.');
+                saveBtn.textContent = 'Create Project';
+                saveBtn.removeAttribute('disabled');
             }
-
-            projects.push({ name, path, description });
-            this.saveProjects(projects);
-            this.renderProjectCards();
-            showToast(`"${name}" added!`);
         };
 
         saveBtn.addEventListener('click', doSave);
@@ -384,7 +436,6 @@ export class Toolbar {
             if (e.key === 'Escape') { e.preventDefault(); this.renderProjectCards(); }
         };
         nameInput.addEventListener('keydown', handleKey);
-        pathInput.addEventListener('keydown', handleKey);
         descInput.addEventListener('keydown', handleKey);
 
         actions.appendChild(cancelBtn);

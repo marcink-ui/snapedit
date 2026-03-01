@@ -25,6 +25,14 @@ export class EditorCore {
     private resizeLocked: boolean = false;
     private dragAbortController: AbortController | null = null;
 
+    // ── Auto-Save & Multi-User ──────────────────────────────
+    private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+    private isDirty: boolean = false;
+    private reconnectAttempts: number = 0;
+    private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    public userName: string = '';
+    public currentProjectSlug: string | null = null;
+
     constructor() {
         this.iframe = document.getElementById('canvas-iframe') as HTMLIFrameElement;
         this.hoverOverlay = document.getElementById('hover-overlay') as HTMLElement;
@@ -47,11 +55,36 @@ export class EditorCore {
     init(): void {
         this.loadContent(DEMO_HTML);
         this.setupKeyboardShortcuts();
+
+        // Resolve user identity
+        this.userName = this.getUserName();
+
+        // Warn about unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (this.isDirty && !this.isReadOnly) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved changes.';
+            }
+        });
+    }
+
+    /** Get or prompt for user name */
+    getUserName(): string {
+        let name = localStorage.getItem('snapedit-username');
+        if (!name) {
+            name = prompt('Podaj swoje imię (dla identyfikacji w trybie multi-user):') || 'Anonymous';
+            localStorage.setItem('snapedit-username', name);
+        }
+        return name;
     }
 
     /** Load a multi-file project by URL (served externally) */
     loadFromURL(url: string): void {
         this.currentProjectUrl = url;
+        // Extract slug from URL like '/projects/my-project/' → 'my-project'
+        const slugMatch = url.match(/\/projects\/([a-z0-9_-]+)/);
+        this.currentProjectSlug = slugMatch ? slugMatch[1] : null;
+        this.isDirty = false;
         this.connectWebSocket(url);
 
         // Disconnect old observers
@@ -151,10 +184,14 @@ export class EditorCore {
         if (this.ws) {
             this.ws.close();
         }
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
+        }
 
-        // Connect to the WebSocket locking server
-        // In production: wss://snapedit.syhi.tech/ws (via Nginx proxy)
-        // In development: ws://localhost:8081 (direct)
+        // Connect to the WebSocket server
+        // In production: wss://host/ws (via Nginx proxy)
+        // In development: ws://localhost:8081 (direct, same server)
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = window.location.hostname === 'localhost'
             ? `ws://${window.location.hostname}:8081`
@@ -162,43 +199,84 @@ export class EditorCore {
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
-            console.log('Connected to Locking Server');
+            console.log('[WS] Connected');
+            this.reconnectAttempts = 0;
+
+            // Identify ourselves
+            this.ws?.send(JSON.stringify({ type: 'IDENTIFY', userName: this.userName }));
+
+            // Request lock for the project
             this.ws?.send(JSON.stringify({ type: 'REQUEST_LOCK', projectUrl: url }));
         };
 
         this.ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                if (data.projectUrl !== this.currentProjectUrl) return;
 
                 switch (data.type) {
                     case 'LOCK_DENIED':
                     case 'PROJECT_LOCKED':
-                        this.setReadOnlyMode(true);
+                        this.setReadOnlyMode(true, data.lockedByName || 'Someone');
                         break;
+
                     case 'LOCK_GRANTED':
+                        // If we were read-only, reload from server to get latest content
+                        if (this.isReadOnly && this.currentProjectUrl) {
+                            this.iframe.contentWindow?.location.reload();
+                        }
+                        this.setReadOnlyMode(false);
+                        break;
+
                     case 'PROJECT_FREED':
-                        // Only clear read-only if we didn't just get freed (if freed, we should request lock again to claim it)
-                        if (data.type === 'PROJECT_FREED') {
-                            this.ws?.send(JSON.stringify({ type: 'REQUEST_LOCK', projectUrl: url }));
-                        } else {
-                            this.setReadOnlyMode(false);
+                        // Someone released the lock — try to claim it
+                        this.ws?.send(JSON.stringify({ type: 'REQUEST_LOCK', projectUrl: url }));
+                        break;
+
+                    case 'SAVE_OK':
+                        this.isDirty = false;
+                        this.bus.emit('editor:saveStatus', 'saved');
+                        break;
+
+                    case 'SAVE_ERROR':
+                        this.bus.emit('editor:saveStatus', 'error');
+                        console.error('[WS] Save error:', data.error);
+                        break;
+
+                    case 'CONTENT_UPDATED':
+                        // Another user saved — reload iframe to see their changes
+                        if (this.isReadOnly) {
+                            this.iframe.contentWindow?.location.reload();
                         }
                         break;
                 }
             } catch (e) {
-                console.error('Error parsing WS message', e);
+                console.error('[WS] Error parsing message', e);
             }
         };
 
         this.ws.onclose = () => {
-            console.log('Disconnected from Locking Server');
+            console.log('[WS] Disconnected');
+            // Auto-reconnect with exponential backoff
+            if (this.currentProjectUrl) {
+                const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+                this.reconnectAttempts++;
+                console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+                this.reconnectTimer = setTimeout(() => {
+                    if (this.currentProjectUrl) {
+                        this.connectWebSocket(this.currentProjectUrl);
+                    }
+                }, delay);
+            }
+        };
+
+        this.ws.onerror = (err) => {
+            console.error('[WS] Error:', err);
         };
     }
 
-    public setReadOnlyMode(readOnly: boolean): void {
+    public setReadOnlyMode(readOnly: boolean, lockedByName?: string): void {
         this.isReadOnly = readOnly;
-        this.bus.emit('editor:readonlyStatus', readOnly);
+        this.bus.emit('editor:readonlyStatus', { readOnly, lockedByName: lockedByName || '' });
 
         if (readOnly) {
             this.selectionManager.setEnabled(false);
@@ -318,6 +396,39 @@ export class EditorCore {
     /** Push current state to history (call after any user change) */
     pushHistory(label: string = 'Style change'): void {
         this.history.push(this.getContentHTML(), label);
+        this.triggerAutoSave();
+    }
+
+    /** Trigger debounced auto-save (2 seconds after last change) */
+    private triggerAutoSave(): void {
+        if (this.isReadOnly || !this.currentProjectUrl) return;
+
+        this.isDirty = true;
+        this.bus.emit('editor:saveStatus', 'saving');
+
+        if (this.autoSaveTimer) {
+            clearTimeout(this.autoSaveTimer);
+        }
+
+        this.autoSaveTimer = setTimeout(() => {
+            this.autoSave();
+        }, 2000);
+    }
+
+    /** Save current content to server via WebSocket */
+    private autoSave(): void {
+        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+            this.bus.emit('editor:saveStatus', 'error');
+            return;
+        }
+        if (!this.currentProjectUrl) return;
+
+        const html = this.exportHTML();
+        this.ws.send(JSON.stringify({
+            type: 'SAVE_CONTENT',
+            projectUrl: this.currentProjectUrl,
+            html: html,
+        }));
     }
 
     /** Undo last change */
