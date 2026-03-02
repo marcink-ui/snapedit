@@ -74,7 +74,7 @@ export class Toolbar {
                     banner.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
                     document.body.appendChild(banner);
                 }
-                banner.innerHTML = `🔒 Edytuje: <strong>${lockedByName}</strong>. Tryb tylko do odczytu.`;
+                banner.textContent = `🔒 Edytuje: ${lockedByName}. Tryb tylko do odczytu.`;
                 banner.style.display = 'block';
             } else {
                 if (banner) banner.style.display = 'none';
