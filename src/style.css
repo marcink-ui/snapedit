@@ -3698,3 +3698,153 @@ input:checked+.toggle-slider:before {
   background: rgba(255, 77, 106, 0.15);
   color: #ff4d6a;
 }
+
+/* ===========================
+   Floating Toolbar (Miro-style)
+   =========================== */
+
+#floating-toolbar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, rgba(30, 30, 50, 0.95), rgba(20, 20, 36, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 9000;
+  font-family: var(--font);
+  animation: ftSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ftSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.ft-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ft-divider {
+  width: 1px;
+  height: 22px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  margin: 0 4px;
+}
+
+.ft-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  position: relative;
+}
+
+.ft-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ft-btn:active {
+  transform: scale(0.95);
+}
+
+.ft-btn.ft-active {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.ft-btn.ft-active svg {
+  stroke: #818cf8;
+}
+
+.ft-btn.ft-icon-only {
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  justify-content: center;
+}
+
+.ft-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.ft-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.ft-zoom-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 38px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* Comment pin hover */
+.comment-pin:hover {
+  transform: rotate(-45deg) scale(1.15) !important;
+  filter: brightness(1.2);
+}
+
+/* Comment popups */
+.comment-input-popup,
+.comment-view-popup {
+  animation: commentFadeIn 0.15s ease-out;
+}
+
+@keyframes commentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

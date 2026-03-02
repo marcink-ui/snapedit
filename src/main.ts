@@ -18,6 +18,7 @@ import { SectionsPanel } from './panels/SectionsPanel';
 import { GeneralPanel } from './panels/GeneralPanel';
 import { AuthUI } from './auth/AuthUI';
 import { CommandPalette } from './panels/CommandPalette';
+import { FloatingToolbar } from './panels/FloatingToolbar';
 
 // Initialize SnapEdit
 document.addEventListener('DOMContentLoaded', () => {
@@ -40,6 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Wire visible toolbar buttons
     document.getElementById('btn-cmd-k')?.addEventListener('click', () => cmdPalette.toggle());
     document.getElementById('btn-publish')?.addEventListener('click', () => cmdPalette.publishProject());
+
+    // Floating bottom toolbar (Miro/Figma style)
+    new FloatingToolbar(editor);
 
     // Initialize UI panels
     new StylesPanel(editor);
