@@ -308,9 +308,23 @@ export class EditorCore {
             this.contentResizeObserver = null;
         }
 
-        doc.open();
-        doc.write(html);
-        doc.close();
+        // If the HTML doesn't contain <html> or <body>, wrap it in a basic structure
+        const trimmed = html.trim();
+        let fullHTML = trimmed;
+        if (!/<html[\s>]/i.test(trimmed) && !/<body[\s>]/i.test(trimmed)) {
+            fullHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${trimmed}</body></html>`;
+        } else if (!/<html[\s>]/i.test(trimmed) && /<body[\s>]/i.test(trimmed)) {
+            fullHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>${trimmed}</html>`;
+        }
+
+        try {
+            doc.open();
+            doc.write(fullHTML);
+            doc.close();
+        } catch (e) {
+            console.error('[SnapEdit] Failed to load content:', e);
+            return;
+        }
 
         // Inject editor-specific CSS constraints to prevent inner scrolling and force full height expansion
         const editorStyle = doc.createElement('style');

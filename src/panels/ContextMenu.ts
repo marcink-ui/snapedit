@@ -67,7 +67,7 @@ export class ContextMenu {
         return [
             {
                 label: 'Duplicate',
-                icon: '⧉',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
                 action: () => {
                     const clone = element.cloneNode(true) as HTMLElement;
                     element.parentElement?.insertBefore(clone, element.nextSibling);
@@ -77,7 +77,7 @@ export class ContextMenu {
             },
             {
                 label: 'Delete',
-                icon: '🗑',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
                 action: () => {
                     const parent = element.parentElement;
                     element.remove();
@@ -89,7 +89,7 @@ export class ContextMenu {
             },
             {
                 label: 'Move Up',
-                icon: '↑',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>',
                 action: () => {
                     const prev = element.previousElementSibling;
                     if (prev) {
@@ -103,7 +103,7 @@ export class ContextMenu {
             },
             {
                 label: 'Move Down',
-                icon: '↓',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
                 action: () => {
                     const next = element.nextElementSibling;
                     if (next) {
@@ -118,14 +118,14 @@ export class ContextMenu {
             },
             {
                 label: 'Copy Styles',
-                icon: '🎨',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22c-4.97 0-9-2.69-9-6v-.5C3 12.46 7.03 10 12 10s9 2.46 9 5.5v.5c0 3.31-4.03 6-9 6z"/></svg>',
                 action: () => {
                     this.clipboard.copy(element);
                 },
             },
             {
                 label: 'Paste Styles',
-                icon: '📋',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
                 action: () => {
                     if (this.clipboard.paste(element)) {
                         this.editor.selectionManager.refreshSelectOverlay();
@@ -137,7 +137,7 @@ export class ContextMenu {
             },
             {
                 label: 'Wrap in Container',
-                icon: '☐',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/></svg>',
                 action: () => {
                     const wrapper = element.ownerDocument.createElement('div');
                     wrapper.style.cssText = 'padding: 16px;';
@@ -150,7 +150,7 @@ export class ContextMenu {
             },
             {
                 label: 'Unwrap',
-                icon: '⊡',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>',
                 action: () => {
                     const parent = element.parentElement;
                     if (!parent || parent.tagName === 'BODY') return;
@@ -166,7 +166,7 @@ export class ContextMenu {
             },
             {
                 label: 'Save as Component',
-                icon: '📦',
+                icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
                 action: () => {
                     const name = prompt('Component name:', element.tagName.toLowerCase() + ' component');
                     if (!name) return;
