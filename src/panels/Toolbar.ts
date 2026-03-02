@@ -10,6 +10,8 @@ interface SavedProject {
     description: string;
     slug?: string;
     lockedBy?: string | null;
+    updatedAt?: string;
+    createdBy?: string;
 }
 
 export class Toolbar {
@@ -135,17 +137,20 @@ export class Toolbar {
             [panelBrowse, panelPaste, panelUpload].forEach(p => p.style.display = 'none');
         };
 
+        const modalContent = modal.querySelector('.load-modal') as HTMLElement;
+
         const activateTab = (tab: HTMLElement, panel: HTMLElement) => {
             hideAllTabs();
             tab.classList.add('active');
             panel.style.display = 'flex';
+            // Widen modal for browse tab
+            if (modalContent) {
+                modalContent.classList.toggle('browse-active', tab === tabBrowse);
+            }
         };
 
         tabBrowse.addEventListener('click', () => {
             activateTab(tabBrowse, panelBrowse);
-            // Ensure display: block for the grid, as display: flex messes up previously defined grid
-            // Wait, .load-panel has display: flex flex-col globally now. We need it to just be normal wrapper
-            // Actually, we replaced it to flex col, which is fine, but child grid takes over
         });
 
         tabPaste.addEventListener('click', () => {
@@ -246,6 +251,8 @@ export class Toolbar {
                     description: p.description || '',
                     slug: p.slug,
                     lockedBy: p.lockedBy || null,
+                    updatedAt: p.updatedAt || '',
+                    createdBy: p.createdBy || '',
                 }));
             }
         } catch { /* API offline */ }
@@ -258,197 +265,287 @@ export class Toolbar {
     private async renderProjectCards(): Promise<void> {
         const container = document.getElementById('project-cards');
         if (!container) return;
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">Loading projects...</div>';
-
-        const projects = await this.getProjects();
         container.innerHTML = '';
 
-        // Section header
+        const projects = await this.getProjects();
+
+        // ─── Left column: project list ───
+        const left = document.createElement('div');
+        left.className = 'browse-projects-left';
+
+        // Header
         const header = document.createElement('div');
-        header.className = 'project-cards-header';
+        header.className = 'browse-projects-header';
         header.innerHTML = `
-            <span class="project-cards-label">📂 YOUR PROJECTS</span>
-            <span class="project-cards-count">${projects.length} project${projects.length !== 1 ? 's' : ''}</span>
+            <span class="browse-projects-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Your Projects
+            </span>
+            <span class="browse-projects-count">${projects.length}</span>
         `;
-        container.appendChild(header);
+        left.appendChild(header);
 
-        // Cards grid
-        const grid = document.createElement('div');
-        grid.className = 'project-cards-list';
+        // Scrollable list
+        const scroll = document.createElement('div');
+        scroll.className = 'browse-projects-scroll';
 
-        // Render each saved project card
-        for (const project of projects) {
-            const card = document.createElement('div');
-            card.className = 'project-card';
+        // Search bar (only if there are projects)
+        if (projects.length > 0) {
+            const searchWrap = document.createElement('div');
+            searchWrap.className = 'browse-projects-search';
+            searchWrap.innerHTML = `
+                <div class="browse-search-wrapper">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="Search projects..." id="bp-search" />
+                </div>
+            `;
+            left.appendChild(searchWrap);
 
-            // Left: icon (locked or open)
-            const iconEl = document.createElement('div');
-            iconEl.className = 'project-card-icon';
-            iconEl.textContent = project.lockedBy ? '🔒' : '📁';
-            card.appendChild(iconEl);
-
-            // Center: info
-            const info = document.createElement('div');
-            info.className = 'project-card-info';
-
-            const nameEl = document.createElement('div');
-            nameEl.className = 'project-card-name';
-            nameEl.textContent = project.name;
-            info.appendChild(nameEl);
-
-            const descEl = document.createElement('div');
-            descEl.className = 'project-card-desc';
-            const lockInfo = project.lockedBy ? ` (edytuje: ${project.lockedBy})` : '';
-            descEl.textContent = (project.description || project.slug || project.path) + lockInfo;
-            info.appendChild(descEl);
-
-            card.appendChild(info);
-
-            // Right: open arrow
-            const arrow = document.createElement('span');
-            arrow.className = 'project-card-arrow';
-            arrow.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
-            card.appendChild(arrow);
-
-            // Delete button
-            const delBtn = document.createElement('button');
-            delBtn.className = 'project-card-delete';
-            delBtn.innerHTML = '×';
-            delBtn.title = 'Remove project';
-            delBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const slug = project.slug;
-                card.style.transform = 'scale(0.95)';
-                card.style.opacity = '0';
-                if (slug) {
-                    try { await fetch(`/api/projects/${slug}`, { method: 'DELETE', credentials: 'include' }); } catch { /* ignore */ }
-                }
-                setTimeout(() => {
-                    this.renderProjectCards();
-                    showToast(`"${project.name}" removed`);
-                }, 150);
+            // Wire up search
+            const searchInput = searchWrap.querySelector('#bp-search') as HTMLInputElement;
+            searchInput?.addEventListener('input', () => {
+                const q = searchInput.value.toLowerCase();
+                scroll.querySelectorAll('.bp-card').forEach(c => {
+                    const name = c.querySelector('.bp-card-name')?.textContent?.toLowerCase() || '';
+                    const slug = c.querySelector('.bp-card-slug')?.textContent?.toLowerCase() || '';
+                    (c as HTMLElement).style.display = (name.includes(q) || slug.includes(q)) ? '' : 'none';
+                });
             });
-            card.appendChild(delBtn);
-
-            // Click → load project
-            card.addEventListener('click', () => {
-                this.editor.loadFromURL(project.path);
-                const modal = document.getElementById('html-modal');
-                if (modal) modal.style.display = 'none';
-                showToast(`Loading project: ${project.name}`);
-            });
-
-            grid.appendChild(card);
         }
 
-        // "+ Add Project" button
-        const addBtn = document.createElement('button');
-        addBtn.className = 'project-card-add';
-        addBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Project</span>`;
-        addBtn.addEventListener('click', () => {
-            this.showAddProjectForm(grid);
-        });
-        grid.appendChild(addBtn);
+        if (projects.length === 0) {
+            scroll.innerHTML = `
+                <div class="bp-empty">
+                    <div class="bp-empty-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h4>No projects yet</h4>
+                    <p>Create your first project using<br>the panel on the right →</p>
+                </div>
+            `;
+        } else {
+            for (let i = 0; i < projects.length; i++) {
+                const project = projects[i];
+                const card = this._createProjectCard(project, i);
+                scroll.appendChild(card);
+            }
+        }
 
-        container.appendChild(grid);
+        left.appendChild(scroll);
+        container.appendChild(left);
+
+        // ─── Right column: New Project ───
+        const right = this._buildNewProjectPanel();
+        container.appendChild(right);
     }
 
-    private showAddProjectForm(grid: HTMLElement): void {
-        // Remove any existing form
-        grid.querySelector('.project-add-form')?.remove();
-        // Remove add button temporarily
-        grid.querySelector('.project-card-add')?.remove();
+    private _createProjectCard(project: SavedProject, index: number): HTMLElement {
+        const card = document.createElement('div');
+        card.className = 'bp-card';
+        card.style.animationDelay = `${index * 0.03}s`;
 
-        const form = document.createElement('div');
-        form.className = 'project-add-form';
+        // Icon
+        const iconEl = document.createElement('div');
+        iconEl.className = `bp-card-icon${project.lockedBy ? ' locked' : ''}`;
+        iconEl.textContent = project.lockedBy ? '🔒' : '📁';
+        card.appendChild(iconEl);
 
-        const formTitle = document.createElement('div');
-        formTitle.className = 'project-form-title';
-        formTitle.textContent = '➕ Add new project';
-        form.appendChild(formTitle);
+        // Info
+        const info = document.createElement('div');
+        info.className = 'bp-card-info';
 
-        const fieldsRow = document.createElement('div');
-        fieldsRow.className = 'project-form-fields';
+        const nameEl = document.createElement('div');
+        nameEl.className = 'bp-card-name';
+        nameEl.textContent = project.name;
+        info.appendChild(nameEl);
 
+        const meta = document.createElement('div');
+        meta.className = 'bp-card-meta';
+
+        if (project.slug) {
+            const slugEl = document.createElement('span');
+            slugEl.className = 'bp-card-slug';
+            slugEl.textContent = `/${project.slug}`;
+            meta.appendChild(slugEl);
+        }
+
+        if (project.updatedAt) {
+            if (project.slug) {
+                const dot = document.createElement('span');
+                dot.className = 'bp-card-dot';
+                meta.appendChild(dot);
+            }
+            const timeEl = document.createElement('span');
+            timeEl.className = 'bp-card-time';
+            timeEl.textContent = this._formatRelativeTime(project.updatedAt);
+            meta.appendChild(timeEl);
+        }
+
+        if (project.lockedBy) {
+            const dot2 = document.createElement('span');
+            dot2.className = 'bp-card-dot';
+            meta.appendChild(dot2);
+            const badge = document.createElement('span');
+            badge.className = 'bp-card-badge editing';
+            badge.textContent = `✏️ ${project.lockedBy}`;
+            meta.appendChild(badge);
+        }
+
+        info.appendChild(meta);
+        card.appendChild(info);
+
+        // Actions (open + delete)
+        const actions = document.createElement('div');
+        actions.className = 'bp-card-actions';
+
+        const openBtn = document.createElement('button');
+        openBtn.className = 'bp-card-btn';
+        openBtn.title = 'Open project';
+        openBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>`;
+        openBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this._openProject(project);
+        });
+        actions.appendChild(openBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'bp-card-btn danger';
+        delBtn.title = 'Delete project';
+        delBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+        delBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            if (project.slug) {
+                try { await fetch(`/api/projects/${project.slug}`, { method: 'DELETE', credentials: 'include' }); } catch { /* ignore */ }
+            }
+            setTimeout(() => {
+                this.renderProjectCards();
+                showToast(`"${project.name}" deleted`);
+            }, 150);
+        });
+        actions.appendChild(delBtn);
+
+        card.appendChild(actions);
+
+        // Click whole card to open
+        card.addEventListener('click', () => this._openProject(project));
+
+        return card;
+    }
+
+    private _openProject(project: SavedProject): void {
+        this.editor.loadFromURL(project.path);
+        const modal = document.getElementById('html-modal');
+        if (modal) modal.style.display = 'none';
+        showToast(`Loading: ${project.name
+            }`);
+    }
+
+    private _formatRelativeTime(isoDate: string): string {
+        try {
+            const diff = Date.now() - new Date(isoDate).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return `${mins}m ago`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs}h ago`;
+            const days = Math.floor(hrs / 24);
+            if (days < 7) return `${days}d ago`;
+            return new Date(isoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        } catch { return ''; }
+    }
+
+    private _buildNewProjectPanel(): HTMLElement {
+        const right = document.createElement('div');
+        right.className = 'browse-projects-right';
+
+        // Title
+        const title = document.createElement('div');
+        title.className = 'bp-new-title';
+        title.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Project`;
+        right.appendChild(title);
+
+        // Fields
+        const fields = document.createElement('div');
+        fields.className = 'bp-new-fields';
+
+        const nameField = document.createElement('div');
+        nameField.className = 'bp-new-field';
+        nameField.innerHTML = `<label>Project Name</label>`;
         const nameInput = document.createElement('input');
         nameInput.type = 'text';
-        nameInput.placeholder = 'Name  (e.g. Ciarko)';
+        nameInput.placeholder = 'My Website';
         nameInput.autocomplete = 'off';
+        nameField.appendChild(nameInput);
+        fields.appendChild(nameField);
 
+        const descField = document.createElement('div');
+        descField.className = 'bp-new-field';
+        descField.innerHTML = `<label>Description</label>`;
         const descInput = document.createElement('input');
         descInput.type = 'text';
-        descInput.placeholder = 'Description  (optional)';
+        descInput.placeholder = 'Optional...';
         descInput.autocomplete = 'off';
+        descField.appendChild(descInput);
+        fields.appendChild(descField);
 
-        fieldsRow.appendChild(nameInput);
-        fieldsRow.appendChild(descInput);
-        form.appendChild(fieldsRow);
+        right.appendChild(fields);
 
-        // Template selector
+        // Template label
+        const tplLabel = document.createElement('div');
+        tplLabel.className = 'bp-template-label';
+        tplLabel.textContent = 'Template';
+        right.appendChild(tplLabel);
+
+        // Template grid
+        const tplGrid = document.createElement('div');
+        tplGrid.className = 'bp-template-grid';
+
         let selectedTemplate = 'blank';
-        const templateSection = document.createElement('div');
-        templateSection.style.cssText = 'margin: 12px 0 8px;';
-        const templateLabel = document.createElement('div');
-        templateLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;';
-        templateLabel.textContent = 'Start from template';
-        templateSection.appendChild(templateLabel);
 
-        const templateGrid = document.createElement('div');
-        templateGrid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:6px;';
-
-        const defaultTemplates = [
-            { id: 'blank', name: 'Blank', icon: '📄' },
-            { id: 'landing', name: 'Landing', icon: '🚀' },
-            { id: 'portfolio', name: 'Portfolio', icon: '🎨' },
-            { id: 'blog', name: 'Blog', icon: '✍️' },
-            { id: 'docs', name: 'Docs', icon: '📘' },
-            { id: 'resume', name: 'Resume', icon: '📋' },
+        const templates = [
+            { id: 'blank', name: 'Blank', icon: '📄', bg: 'rgba(129,140,248,0.12)' },
+            { id: 'landing', name: 'Landing', icon: '🚀', bg: 'rgba(56,189,248,0.12)' },
+            { id: 'portfolio', name: 'Portfolio', icon: '🎨', bg: 'rgba(168,85,247,0.12)' },
+            { id: 'blog', name: 'Blog', icon: '✍️', bg: 'rgba(34,197,94,0.12)' },
+            { id: 'docs', name: 'Docs', icon: '📘', bg: 'rgba(251,191,36,0.12)' },
+            { id: 'resume', name: 'Resume', icon: '📋', bg: 'rgba(244,114,182,0.12)' },
         ];
 
-        defaultTemplates.forEach(t => {
-            const tpl = document.createElement('button');
-            tpl.type = 'button';
-            tpl.style.cssText = `padding:8px 6px;border-radius:8px;border:1px solid ${t.id === 'blank' ? 'rgba(129,140,248,0.5)' : 'rgba(255,255,255,0.08)'};background:${t.id === 'blank' ? 'rgba(129,140,248,0.08)' : 'rgba(255,255,255,0.02)'};color:rgba(255,255,255,0.8);font-size:11px;cursor:pointer;text-align:center;transition:all .15s;`;
-            tpl.innerHTML = `<div style="font-size:18px;margin-bottom:2px">${t.icon}</div>${t.name}`;
-            tpl.addEventListener('click', () => {
+        templates.forEach(t => {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = `bp-template-card${t.id === 'blank' ? ' selected' : ''}`;
+            card.innerHTML = `<span class="bp-template-icon" style="background:${t.bg}">${t.icon}</span>${t.name}`;
+            card.addEventListener('click', () => {
                 selectedTemplate = t.id;
-                templateGrid.querySelectorAll('button').forEach(b => {
-                    (b as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
-                    (b as HTMLElement).style.background = 'rgba(255,255,255,0.02)';
-                });
-                tpl.style.borderColor = 'rgba(129,140,248,0.5)';
-                tpl.style.background = 'rgba(129,140,248,0.08)';
+                tplGrid.querySelectorAll('.bp-template-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
             });
-            templateGrid.appendChild(tpl);
+            tplGrid.appendChild(card);
         });
 
-        templateSection.appendChild(templateGrid);
-        form.appendChild(templateSection);
+        right.appendChild(tplGrid);
 
-        const actions = document.createElement('div');
-        actions.className = 'project-add-form-actions';
-
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'btn-cancel';
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.addEventListener('click', () => this.renderProjectCards());
-
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn-save';
-        saveBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Create Project`;
-
-        const doSave = async () => {
+        // Create button
+        const createBtn = document.createElement('button');
+        createBtn.className = 'bp-create-btn';
+        createBtn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Create Project
+        `;
+        createBtn.addEventListener('click', async () => {
             const name = nameInput.value.trim();
             const description = descInput.value.trim();
 
-            if (!name) { nameInput.focus(); showToast('Please enter a project name.'); return; }
+            if (!name) { nameInput.focus(); showToast('Enter a project name.'); return; }
 
-            // Auto-generate slug from name
             const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').substring(0, 63);
             if (!slug) { nameInput.focus(); showToast('Invalid name for URL slug.'); return; }
 
-            saveBtn.textContent = 'Creating...';
-            saveBtn.setAttribute('disabled', 'true');
+            createBtn.textContent = 'Creating...';
+            createBtn.setAttribute('disabled', 'true');
 
             try {
                 const res = await fetch('/api/projects', {
@@ -464,38 +561,58 @@ export class Toolbar {
                     showToast(`"${name}" created!`);
                 } else {
                     showToast(data.error || 'Failed to create project');
-                    saveBtn.textContent = 'Create Project';
-                    saveBtn.removeAttribute('disabled');
+                    createBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Create Project`;
+                    createBtn.removeAttribute('disabled');
                 }
             } catch {
-                showToast('Server offline — could not create project.');
-                saveBtn.textContent = 'Create Project';
-                saveBtn.removeAttribute('disabled');
+                showToast('Connection error. Try again.');
+                createBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Create Project`;
+                createBtn.removeAttribute('disabled');
             }
-        };
+        });
 
-        saveBtn.addEventListener('click', doSave);
+        // Enter key on name input triggers create
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') createBtn.click();
+        });
 
-        // Enter key submits, Escape cancels
-        const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'Enter') { e.preventDefault(); doSave(); }
-            if (e.key === 'Escape') { e.preventDefault(); this.renderProjectCards(); }
-        };
-        nameInput.addEventListener('keydown', handleKey);
-        descInput.addEventListener('keydown', handleKey);
+        right.appendChild(createBtn);
+        return right;
+    }
 
-        actions.appendChild(cancelBtn);
-        actions.appendChild(saveBtn);
-        form.appendChild(actions);
+    private showAddProjectForm(_grid: HTMLElement): void {
+        this.renderProjectCards();
+    }
 
-        grid.appendChild(form);
-        nameInput.focus();
+    private _triggerDownload(content: string, filename: string, mime: string): void {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        // Delay cleanup so the download actually starts
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 200);
+
+        // Hide dropdown
+        const menu = document.querySelector('.toolbar-dropdown-menu');
+        if (menu) menu.classList.remove('show');
     }
 
     private setupExportButton(): void {
-        const printBtn = document.getElementById('btn-print-preview')!;
-        const htmlBtn = document.getElementById('btn-export-html')!;
-        const mdBtn = document.getElementById('btn-export-md')!;
+        const printBtn = document.getElementById('btn-print-preview');
+        const htmlBtn = document.getElementById('btn-export-html');
+        const mdBtn = document.getElementById('btn-export-md');
+
+        if (!printBtn || !htmlBtn || !mdBtn) {
+            console.error('[Export] Missing button elements — printBtn:', !!printBtn, 'htmlBtn:', !!htmlBtn, 'mdBtn:', !!mdBtn);
+            return;
+        }
 
         // --- Print Preview ---
         printBtn.addEventListener('click', () => {
@@ -510,38 +627,27 @@ export class Toolbar {
         });
 
         // --- Download HTML ---
-        htmlBtn.addEventListener('click', () => {
+        htmlBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const html = this.editor.exportHTML();
             if (!html) { showToast('No content to export.'); return; }
-
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'snapedit-export.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
+            this._triggerDownload(html, 'snapedit-export.html', 'text/html');
             showToast('HTML downloaded!');
-
-            // Hide dropdown
-            const menu = document.querySelector('.toolbar-dropdown-menu');
-            if (menu) menu.classList.remove('show');
         });
 
         // --- Download Markdown ---
-        mdBtn.addEventListener('click', () => {
+        mdBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const doc = this.editor.getIframeDocument();
             if (!doc?.body) { showToast('No content to export.'); return; }
 
-            // We use a clone to clean up editor-specific elements before conversion
+            // Clone to clean up editor-specific elements before conversion
             const clone = doc.body.cloneNode(true) as HTMLElement;
             clone.querySelectorAll('.se-drag-handle, #se-drag-styles').forEach(el => el.remove());
 
             try {
-                // Initialize turndown service
                 const turndownService = new TurndownService({
                     headingStyle: 'atx',
                     hr: '---',
@@ -549,7 +655,6 @@ export class Toolbar {
                     codeBlockStyle: 'fenced'
                 });
 
-                // Add custom rule for form placeholders or complex elements
                 turndownService.addRule('form', {
                     filter: 'form',
                     replacement: function () {
@@ -557,7 +662,6 @@ export class Toolbar {
                     }
                 });
 
-                // Add rule for video embedded iframes
                 turndownService.addRule('iframe', {
                     filter: function (node) {
                         return node.nodeName === 'DIV' && node.querySelector('iframe') !== null;
@@ -569,26 +673,12 @@ export class Toolbar {
                 });
 
                 const markdown = turndownService.turndown(clone.innerHTML);
-
-                const blob = new Blob([markdown], { type: 'text/markdown' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'snapedit-export.md';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
+                this._triggerDownload(markdown, 'snapedit-export.md', 'text/markdown');
                 showToast('Markdown downloaded!');
             } catch (err) {
                 console.error(err);
                 showToast('Error converting to Markdown.');
             }
-
-            // Hide dropdown
-            const menu = document.querySelector('.toolbar-dropdown-menu');
-            if (menu) menu.classList.remove('show');
         });
 
         // Dropdown toggle logic
