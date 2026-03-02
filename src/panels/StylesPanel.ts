@@ -1,7 +1,14 @@
 import { EditorCore } from '../editor/EditorCore';
 import { ColorInput } from '../utils/ColorInput';
 import { rgbToHex, parsePx, getTagDescriptor, showToast } from '../utils/dom-helpers';
-import { BoxModelEditor } from './BoxModelEditor';
+
+/** Detect if an element is an SVG or contains a direct child SVG */
+function findSvgElement(el: HTMLElement): SVGElement | null {
+    if (el instanceof SVGElement) return el;
+    const childSvg = el.querySelector(':scope > svg');
+    if (childSvg instanceof SVGElement) return childSvg;
+    return null;
+}
 
 export class StylesPanel {
     private editor: EditorCore;
@@ -23,7 +30,7 @@ export class StylesPanel {
     private borderWidthInput!: HTMLInputElement;
     private borderRadiusInput!: HTMLInputElement;
     private alignButtons!: NodeListOf<HTMLElement>;
-    private boxModelEditor!: BoxModelEditor;
+    private borderStyleSelect!: HTMLSelectElement;
 
     // Link controls
     private linkSection!: HTMLElement;
@@ -43,6 +50,19 @@ export class StylesPanel {
     private imgRadius!: HTMLInputElement;
     private imgOpacity!: HTMLInputElement;
     private imgShadow!: HTMLSelectElement;
+    private imgBrightness!: HTMLInputElement;
+    private imgContrast!: HTMLInputElement;
+    private imgGrayscale!: HTMLInputElement;
+    private imgBlur!: HTMLInputElement;
+
+    // SVG controls
+    private svgSelectedSettings!: HTMLElement;
+    private svgWidthInput!: HTMLInputElement;
+    private svgHeightInput!: HTMLInputElement;
+    private svgStrokeWidthInput!: HTMLInputElement;
+    private svgColorInput!: ColorInput;
+    private svgFillInput!: ColorInput;
+    private svgStrokeInput!: ColorInput;
 
     // Global controls (HEX color inputs)
     private globalTextColor!: ColorInput;
@@ -64,10 +84,20 @@ export class StylesPanel {
         this.bindElements();
         this.setupTabs();
         this.setupListeners();
+
+        // Auto-select text on focus to prevent appending to "0"
+        [this.fontSizeInput, this.letterSpacingInput, this.paddingInput, this.marginInput, this.borderWidthInput, this.borderRadiusInput, this.imgWidth, this.imgHeight, this.imgRadius, this.imgOpacity, this.svgWidthInput, this.svgHeightInput, this.svgStrokeWidthInput].forEach(input => {
+            if (input) {
+                input.addEventListener('focus', () => setTimeout(() => input.select(), 10));
+                input.addEventListener('click', () => setTimeout(() => input.select(), 10));
+            }
+        });
+
         this.setupLinkListeners();
         this.setupImageListeners();
+        this.setupSvgListeners();
         this.setupEventBus();
-        this.initBoxModelEditor();
+        this.initFontPicker();
     }
 
     private bindElements(): void {
@@ -78,6 +108,7 @@ export class StylesPanel {
 
         // Element styles (standard inputs)
         this.fontFamilySelect = document.getElementById('style-font-family') as HTMLSelectElement;
+        this.borderStyleSelect = document.getElementById('style-border-style') as HTMLSelectElement;
         this.fontSizeInput = document.getElementById('style-font-size') as HTMLInputElement;
         this.fontWeightSelect = document.getElementById('style-font-weight') as HTMLSelectElement;
         this.letterSpacingInput = document.getElementById('style-letter-spacing') as HTMLInputElement;
@@ -105,6 +136,16 @@ export class StylesPanel {
         this.imgRadius = document.getElementById('img-radius') as HTMLInputElement;
         this.imgOpacity = document.getElementById('img-opacity') as HTMLInputElement;
         this.imgShadow = document.getElementById('img-shadow') as HTMLSelectElement;
+        this.imgBrightness = document.getElementById('img-brightness') as HTMLInputElement;
+        this.imgContrast = document.getElementById('img-contrast') as HTMLInputElement;
+        this.imgGrayscale = document.getElementById('img-grayscale') as HTMLInputElement;
+        this.imgBlur = document.getElementById('img-blur') as HTMLInputElement;
+
+        // SVG controls
+        this.svgSelectedSettings = document.getElementById('svg-selected-settings') as HTMLElement;
+        this.svgWidthInput = document.getElementById('svg-width') as HTMLInputElement;
+        this.svgHeightInput = document.getElementById('svg-height') as HTMLInputElement;
+        this.svgStrokeWidthInput = document.getElementById('svg-stroke-width') as HTMLInputElement;
 
         // Global color inputs — now using ColorInput with HEX
         this.globalTextColor = new ColorInput('global-text-color');
@@ -122,42 +163,145 @@ export class StylesPanel {
         this.selectedTagEl = document.getElementById('selected-element-tag') as HTMLElement;
     }
 
-    // Initialize Box Model editor for margin & padding
-    private initBoxModelEditor(): void {
-        // Create container for the editor
-        const container = document.createElement('div');
-        container.id = 'box-model-editor-container';
-        // Insert after the margin input row (assuming its parent is a row element)
-        const marginRow = document.getElementById('style-margin')?.parentElement;
-        if (marginRow && marginRow.parentElement) {
-            marginRow.parentElement.insertBefore(container, marginRow.nextSibling);
-        }
-        // Instantiate editor with current values
-        this.boxModelEditor = new BoxModelEditor(
-            container,
-            parseInt(this.marginInput.value) || 0,
-            parseInt(this.paddingInput.value) || 0,
-            ({ margin, padding }) => {
-                // Sync input fields
-                this.marginInput.value = String(margin);
-                this.paddingInput.value = String(padding);
-                // Apply styles
-                const apply = (prop: string, value: string) => {
-                    if (this.suppressUpdates || !this.currentElement) return;
-                    this.editor.styleMutator.apply(this.currentElement, prop, value);
+    // Initialize custom font picker
+    private initFontPicker(): void {
+        const FONTS = [
+            { label: 'Inter', value: 'Inter, sans-serif' },
+            { label: 'Roboto', value: 'Roboto, sans-serif' },
+            { label: 'Poppins', value: 'Poppins, sans-serif' },
+            { label: 'Montserrat', value: 'Montserrat, sans-serif' },
+            { label: 'Open Sans', value: '"Open Sans", sans-serif' },
+            { label: 'Lato', value: 'Lato, sans-serif' },
+            { label: 'Raleway', value: 'Raleway, sans-serif' },
+            { label: 'Nunito', value: 'Nunito, sans-serif' },
+            { label: 'Playfair Display', value: '"Playfair Display", serif' },
+            { label: 'Merriweather', value: 'Merriweather, serif' },
+            { label: 'Work Sans', value: '"Work Sans", sans-serif' },
+            { label: 'DM Sans', value: '"DM Sans", sans-serif' },
+            { label: 'Space Grotesk', value: '"Space Grotesk", sans-serif' },
+            { label: 'Outfit', value: 'Outfit, sans-serif' },
+            { label: 'Fira Sans', value: '"Fira Sans", sans-serif' },
+            { label: 'Helvetica', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+            { label: 'Georgia', value: 'Georgia, serif' },
+            { label: 'System', value: 'system-ui, sans-serif' }
+        ];
+
+        const wrapper = this.fontFamilySelect.parentElement!;
+        wrapper.style.position = 'relative';
+        // Hide native select
+        this.fontFamilySelect.style.display = 'none';
+
+        // Create trigger button
+        const trigger = document.createElement('div');
+        trigger.className = 'font-picker-trigger';
+        trigger.id = 'font-picker-trigger';
+        trigger.innerHTML = '<span class="font-picker-label">Inter</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>';
+        wrapper.appendChild(trigger);
+
+        // Create dropdown (appended to body so it's not clipped by overflow)
+        const dropdown = document.createElement('div');
+        dropdown.className = 'font-picker-dropdown';
+        dropdown.id = 'font-picker-dropdown';
+
+        // Search input
+        const searchWrap = document.createElement('div');
+        searchWrap.className = 'font-picker-search-wrap';
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search fonts…';
+        searchInput.className = 'font-picker-search';
+        searchWrap.appendChild(searchInput);
+        dropdown.appendChild(searchWrap);
+
+        // Items container (scrollable)
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'font-picker-items';
+
+        FONTS.forEach(f => {
+            const item = document.createElement('div');
+            item.className = 'font-picker-item';
+            item.dataset.value = f.value;
+            item.textContent = f.label;
+            item.style.fontFamily = f.value;
+            item.addEventListener('click', () => {
+                // Apply font directly (the native <select> may not have all options)
+                if (this.currentElement && !this.suppressUpdates) {
+                    this.editor.styleMutator.apply(this.currentElement, 'fontFamily', f.value);
                     this.editor.selectionManager.refreshSelectOverlay();
-                    this.editor.pushHistory(`Change ${prop}`);
-                };
-                apply('margin', `${margin}px`);
-                apply('padding', `${padding}px`);
+                    this.editor.pushHistory('Change fontFamily');
+                }
+                // Update native select for consistency with populateStyles() reads
+                this.fontFamilySelect.value = f.value;
+                trigger.querySelector('.font-picker-label')!.textContent = f.label;
+                (trigger.querySelector('.font-picker-label') as HTMLElement).style.fontFamily = f.value;
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            });
+            itemsContainer.appendChild(item);
+        });
+        dropdown.appendChild(itemsContainer);
+
+        // Append to document body to avoid sidebar overflow clipping
+        document.body.appendChild(dropdown);
+
+        // Search filter
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase();
+            itemsContainer.querySelectorAll('.font-picker-item').forEach((item) => {
+                const el = item as HTMLElement;
+                el.style.display = el.textContent!.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+
+        // Prevent clicks inside dropdown from bubbling to document close handler
+        dropdown.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+        });
+
+        // Position and toggle dropdown
+        const positionDropdown = () => {
+            const rect = trigger.getBoundingClientRect();
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 4) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            dropdown.style.width = rect.width + 'px';
+        };
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            if (!isOpen) {
+                positionDropdown();
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
             }
-        );
+            dropdown.classList.toggle('open', !isOpen);
+            trigger.classList.toggle('open', !isOpen);
+            if (!isOpen) {
+                setTimeout(() => searchInput.focus(), 50);
+            }
+        });
+
+        // Close on outside click
+        document.addEventListener('mousedown', (e) => {
+            if (!dropdown.contains(e.target as Node) && !trigger.contains(e.target as Node)) {
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+            }
+        });
+
+        // Store reference for updating
+        (this as any)._fontPickerTrigger = trigger;
+        (this as any)._fontPickerDropdown = dropdown;
+        (this as any)._fontPickerFonts = FONTS;
     }
 
     private setupTabs(): void {
         const tabs = document.querySelectorAll('.panel-tab');
         const elementContent = document.getElementById('panel-content-element')!;
         const insertContent = document.getElementById('panel-content-insert')!;
+        const sectionsContent = document.getElementById('panel-content-sections')!;
+        const generalContent = document.getElementById('panel-content-global-tab');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -167,6 +311,12 @@ export class StylesPanel {
                 const tabName = (tab as HTMLElement).dataset.tab;
                 elementContent.classList.toggle('active', tabName === 'element');
                 insertContent.classList.toggle('active', tabName === 'insert');
+                if (sectionsContent) {
+                    sectionsContent.classList.toggle('active', tabName === 'sections');
+                }
+                if (generalContent) {
+                    generalContent.classList.toggle('active', tabName === 'global');
+                }
             });
         });
     }
@@ -225,37 +375,30 @@ export class StylesPanel {
         });
 
         // ─── Element Spacing ────────────────────────────────────
-        // Keep listeners for backward compatibility; they will also update the BoxModelEditor
         this.paddingInput.addEventListener('input', () => {
-            const val = parseInt(this.paddingInput.value) || 0;
-            this.boxModelEditor = new BoxModelEditor(
-                document.getElementById('box-model-editor-container') as HTMLElement,
-                parseInt(this.marginInput.value) || 0,
-                val,
-                ({ margin, padding }) => {
-                    this.marginInput.value = String(margin);
-                    this.paddingInput.value = String(padding);
-                }
-            );
-            applyStyle('padding', `${val}px`);
+            applyStyle('padding', `${parseInt(this.paddingInput.value) || 0}px`);
         });
         this.marginInput.addEventListener('input', () => {
-            const val = parseInt(this.marginInput.value) || 0;
-            this.boxModelEditor = new BoxModelEditor(
-                document.getElementById('box-model-editor-container') as HTMLElement,
-                val,
-                parseInt(this.paddingInput.value) || 0,
-                ({ margin, padding }) => {
-                    this.marginInput.value = String(margin);
-                    this.paddingInput.value = String(padding);
-                }
-            );
-            applyStyle('margin', `${val}px`);
+            applyStyle('margin', `${parseInt(this.marginInput.value) || 0}px`);
         });
 
         // ─── Element Border ─────────────────────────────────────
-        this.borderWidthInput.addEventListener('input', () => applyStyle('borderWidth', this.borderWidthInput.value + 'px'));
+        this.borderWidthInput.addEventListener('input', () => {
+            applyStyle('borderWidth', this.borderWidthInput.value + 'px');
+            // Auto-set border-style to solid if width > 0 and style is none
+            if (this.currentElement && parseInt(this.borderWidthInput.value) > 0) {
+                const cs = window.getComputedStyle(this.currentElement);
+                if (!cs.borderStyle || cs.borderStyle === 'none') {
+                    applyStyle('borderStyle', 'solid');
+                    this.borderStyleSelect.value = 'solid';
+                }
+            }
+        });
         this.borderRadiusInput.addEventListener('input', () => applyStyle('borderRadius', this.borderRadiusInput.value + 'px'));
+        // Border style
+        if (this.borderStyleSelect) {
+            this.borderStyleSelect.addEventListener('change', () => applyStyle('borderStyle', this.borderStyleSelect.value));
+        }
 
         // Align buttons
         this.alignButtons.forEach(btn => {
@@ -370,6 +513,21 @@ export class StylesPanel {
                 this.linkUrlInput.value = '';
             }
         });
+
+        // Reactively apply target changes when the user switches the dropdown
+        this.linkTargetSelect.addEventListener('change', () => {
+            if (!this.currentElement) return;
+            let anchor: HTMLAnchorElement | null = null;
+            if (this.currentElement.tagName === 'A') {
+                anchor = this.currentElement as HTMLAnchorElement;
+            } else {
+                anchor = this.currentElement.closest('a');
+            }
+            if (anchor) {
+                anchor.target = this.linkTargetSelect.value;
+                this.editor.pushHistory('Change link target');
+            }
+        });
     }
 
     private setupImageListeners(): void {
@@ -451,6 +609,23 @@ export class StylesPanel {
         this.imgRadius.addEventListener('input', () => applyImgStyle('borderRadius', this.imgRadius.value + 'px'));
         this.imgOpacity.addEventListener('input', () => applyImgStyle('opacity', String(Number(this.imgOpacity.value) / 100)));
         this.imgShadow.addEventListener('change', () => applyImgStyle('boxShadow', this.imgShadow.value));
+
+        // Filters — compose combined filter string
+        const applyImgFilter = () => {
+            if (!this.currentElement || this.currentElement.tagName !== 'IMG') return;
+            const b = this.imgBrightness?.value || '100';
+            const c = this.imgContrast?.value || '100';
+            const g = this.imgGrayscale?.value || '0';
+            const bl = this.imgBlur?.value || '0';
+            const filter = `brightness(${b}%) contrast(${c}%) grayscale(${g}%) blur(${bl}px)`;
+            this.editor.styleMutator.apply(this.currentElement, 'filter', filter);
+            this.editor.selectionManager.refreshSelectOverlay();
+            this.editor.pushHistory('Image filter');
+        };
+        this.imgBrightness?.addEventListener('input', applyImgFilter);
+        this.imgContrast?.addEventListener('input', applyImgFilter);
+        this.imgGrayscale?.addEventListener('input', applyImgFilter);
+        this.imgBlur?.addEventListener('input', applyImgFilter);
     }
 
     private insertFileAsImage(file: File, alt: string): void {
@@ -494,6 +669,7 @@ export class StylesPanel {
         this.populateStyles(el);
         this.populateLink(el);
         this.populateImage(el);
+        this.populateSvg(el);
     }
 
     private populateStyles(el: HTMLElement): void {
@@ -543,23 +719,29 @@ export class StylesPanel {
         // Spacing
         this.paddingInput.value = String(parsePx(computed.padding));
         this.marginInput.value = String(parsePx(computed.margin));
-        // Update BoxModelEditor if initialized
-        if (this.boxModelEditor) {
-            this.boxModelEditor = new BoxModelEditor(
-                document.getElementById('box-model-editor-container') as HTMLElement,
-                parseInt(this.marginInput.value) || 0,
-                parseInt(this.paddingInput.value) || 0,
-                ({ margin, padding }) => {
-                    this.marginInput.value = String(margin);
-                    this.paddingInput.value = String(padding);
-                }
-            );
-        }
 
         // Border
         this.borderWidthInput.value = String(parsePx(computed.borderWidth));
         this.borderRadiusInput.value = String(parsePx(computed.borderRadius));
         this.borderColorInput.value = rgbToHex(computed.borderColor);
+        if (this.borderStyleSelect) {
+            const bs = computed.borderStyle || 'none';
+            // borderStyle can return "solid solid solid solid" — take first word
+            this.borderStyleSelect.value = bs.split(' ')[0];
+        }
+
+        // Update font picker trigger label
+        const fontPickerTrigger = (this as any)._fontPickerTrigger as HTMLElement;
+        const fontPickerFonts = (this as any)._fontPickerFonts as Array<{ label: string, value: string }>;
+        if (fontPickerTrigger && fontPickerFonts) {
+            const fontFamily = computed.fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+            const match = fontPickerFonts.find((f: any) => f.value.toLowerCase().includes(fontFamily.toLowerCase()) || f.label.toLowerCase() === fontFamily.toLowerCase());
+            const lbl = fontPickerTrigger.querySelector('.font-picker-label') as HTMLElement;
+            if (lbl) {
+                lbl.textContent = match ? match.label : fontFamily;
+                lbl.style.fontFamily = match ? match.value : fontFamily;
+            }
+        }
 
         this.suppressUpdates = false;
     }
@@ -577,7 +759,7 @@ export class StylesPanel {
         }
 
         if (anchor) {
-            this.linkUrlInput.value = anchor.href || '';
+            this.linkUrlInput.value = anchor.getAttribute('href') || '';
             this.linkTargetSelect.value = anchor.target || '_self';
         } else {
             this.linkUrlInput.value = '';
@@ -616,6 +798,131 @@ export class StylesPanel {
         } else {
             // keep current value
         }
+
+        // Parse filter values
+        const filter = computed.filter || '';
+        const bMatch = filter.match(/brightness\(([\d.]+)%?\)/);
+        const cMatch = filter.match(/contrast\(([\d.]+)%?\)/);
+        const gMatch = filter.match(/grayscale\(([\d.]+)%?\)/);
+        const blMatch = filter.match(/blur\(([\d.]+)px\)/);
+        if (this.imgBrightness) this.imgBrightness.value = bMatch ? String(Math.round(Number(bMatch[1]))) : '100';
+        if (this.imgContrast) this.imgContrast.value = cMatch ? String(Math.round(Number(cMatch[1]))) : '100';
+        if (this.imgGrayscale) this.imgGrayscale.value = gMatch ? String(Math.round(Number(gMatch[1]))) : '0';
+        if (this.imgBlur) this.imgBlur.value = blMatch ? String(Math.round(Number(blMatch[1]))) : '0';
+    }
+
+    private setupSvgListeners(): void {
+        if (!this.svgSelectedSettings) return;
+
+        // Color inputs for SVG — lazily initialized since DOM is ready
+        requestAnimationFrame(() => {
+            this.svgColorInput = new ColorInput('svg-color');
+            this.svgFillInput = new ColorInput('svg-fill');
+            this.svgStrokeInput = new ColorInput('svg-stroke');
+
+            this.svgColorInput.onChange((hex) => {
+                if (!this.currentElement) return;
+                const svg = findSvgElement(this.currentElement);
+                if (svg) {
+                    this.currentElement.style.color = hex;
+                    svg.style.color = hex;
+                    this.editor.pushHistory('SVG color');
+                }
+            });
+
+            this.svgFillInput.onChange((hex) => {
+                if (!this.currentElement) return;
+                const svg = findSvgElement(this.currentElement);
+                if (svg) {
+                    svg.setAttribute('fill', hex);
+                    svg.style.fill = hex;
+                    this.editor.pushHistory('SVG fill');
+                }
+            });
+
+            this.svgStrokeInput.onChange((hex) => {
+                if (!this.currentElement) return;
+                const svg = findSvgElement(this.currentElement);
+                if (svg) {
+                    svg.setAttribute('stroke', hex);
+                    svg.style.stroke = hex;
+                    this.editor.pushHistory('SVG stroke');
+                }
+            });
+        });
+
+        this.svgWidthInput?.addEventListener('input', () => {
+            if (!this.currentElement) return;
+            const svg = findSvgElement(this.currentElement);
+            if (svg) {
+                const val = this.svgWidthInput.value;
+                svg.setAttribute('width', val);
+                svg.style.width = val + 'px';
+                this.editor.selectionManager.refreshSelectOverlay();
+                this.editor.pushHistory('SVG width');
+            }
+        });
+
+        this.svgHeightInput?.addEventListener('input', () => {
+            if (!this.currentElement) return;
+            const svg = findSvgElement(this.currentElement);
+            if (svg) {
+                const val = this.svgHeightInput.value;
+                svg.setAttribute('height', val);
+                svg.style.height = val + 'px';
+                this.editor.selectionManager.refreshSelectOverlay();
+                this.editor.pushHistory('SVG height');
+            }
+        });
+
+        this.svgStrokeWidthInput?.addEventListener('input', () => {
+            if (!this.currentElement) return;
+            const svg = findSvgElement(this.currentElement);
+            if (svg) {
+                const val = this.svgStrokeWidthInput.value;
+                svg.setAttribute('stroke-width', val);
+                svg.style.strokeWidth = val;
+                this.editor.pushHistory('SVG stroke-width');
+            }
+        });
+    }
+
+    private populateSvg(el: HTMLElement): void {
+        if (!this.svgSelectedSettings) return;
+
+        const svg = findSvgElement(el);
+        if (!svg) {
+            this.svgSelectedSettings.style.display = 'none';
+            return;
+        }
+
+        this.svgSelectedSettings.style.display = 'block';
+
+        // Width/height
+        const w = svg.getAttribute('width') || svg.style.width || '24';
+        const h = svg.getAttribute('height') || svg.style.height || '24';
+        this.svgWidthInput.value = String(parseInt(w) || 24);
+        this.svgHeightInput.value = String(parseInt(h) || 24);
+
+        // Color (CSS)
+        const computed = getComputedStyle(el);
+        if (this.svgColorInput) this.svgColorInput.value = rgbToHex(computed.color);
+
+        // Fill
+        const fill = svg.getAttribute('fill') || svg.style.fill || 'none';
+        if (this.svgFillInput) {
+            this.svgFillInput.value = fill === 'none' || fill === 'currentColor' ? '#000000' : rgbToHex(fill);
+        }
+
+        // Stroke
+        const stroke = svg.getAttribute('stroke') || svg.style.stroke || 'currentColor';
+        if (this.svgStrokeInput) {
+            this.svgStrokeInput.value = stroke === 'currentColor' ? rgbToHex(computed.color) : rgbToHex(stroke);
+        }
+
+        // Stroke width
+        const sw = svg.getAttribute('stroke-width') || svg.style.strokeWidth || '2';
+        this.svgStrokeWidthInput.value = String(parseFloat(sw) || 2);
     }
 
     private selectClosestOption(select: HTMLSelectElement, value: string): void {

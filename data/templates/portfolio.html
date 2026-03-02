@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #1a1a2e;
+            background: #0f0f1a;
+            color: #e0e0e0;
+        }
+
+        header {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        header nav a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-left: 28px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .intro {
+            padding: 100px 40px 80px;
+            max-width: 800px;
+        }
+
+        .intro .tag {
+            font-size: 14px;
+            color: #818cf8;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .intro h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .intro p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 560px;
+        }
+
+        .projects {
+            padding: 60px 40px 80px;
+        }
+
+        .projects h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 36px;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 28px;
+            transition: transform 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .project-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .project-card p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+        }
+
+        .project-card .tech {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .project-card .tech span {
+            padding: 4px 10px;
+            background: rgba(129, 140, 248, 0.1);
+            color: #818cf8;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .contact {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .contact p {
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 24px;
+        }
+
+        .contact a {
+            color: #818cf8;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">JD</div>
+        <nav>
+            <a href="#">Work</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+    </header>
+
+    <section class="intro">
+        <div class="tag">Designer & Developer</div>
+        <h1>Hi, I'm Jane Doe</h1>
+        <p>I design and build digital products that people love. Currently open for new projects and collaborations.</p>
+    </section>
+
+    <section class="projects">
+        <h2>Selected Work</h2>
+        <div class="project-grid">
+            <div class="project-card">
+                <h3>E-Commerce Platform</h3>
+                <p>Full redesign of a major online store, improving conversion by 34%.</p>
+                <div class="tech"><span>React</span><span>Node.js</span><span>Figma</span></div>
+            </div>
+            <div class="project-card">
+                <h3>Finance Dashboard</h3>
+                <p>Analytics dashboard for tracking investments and portfolio performance.</p>
+                <div class="tech"><span>Vue.js</span><span>D3.js</span><span>PostgreSQL</span></div>
+            </div>
+            <div class="project-card">
+                <h3>Health & Fitness App</h3>
+                <p>Mobile app for tracking workouts and nutrition with AI recommendations.</p>
+                <div class="tech"><span>React Native</span><span>Firebase</span></div>
+            </div>
+            <div class="project-card">
+                <h3>SaaS Marketing Site</h3>
+                <p>Landing page and brand identity for a B2B SaaS product launch.</p>
+                <div class="tech"><span>Next.js</span><span>Tailwind</span><span>Framer</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact">
+        <h2>Let's Work Together</h2>
+        <p>I'm always open to discuss new projects and creative ideas.</p>
+        <a href="mailto:hello@example.com">hello@example.com →</a>
+    </section>
+
+    <footer>
+        <p>© 2026 Jane Doe. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

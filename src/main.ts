@@ -14,11 +14,36 @@ import { PageManager } from './editor/PageManager';
 import { PageSelector } from './panels/PageSelector';
 import { PrintPreviewPanel } from './panels/PrintPreviewPanel';
 import { SiteSettingsPanel } from './panels/SiteSettingsPanel';
+import { SectionsPanel } from './panels/SectionsPanel';
+import { GeneralPanel } from './panels/GeneralPanel';
+import { AuthUI } from './auth/AuthUI';
+import { CommandPalette } from './panels/CommandPalette';
+import { FloatingToolbar } from './panels/FloatingToolbar';
 
 // Initialize SnapEdit
 document.addEventListener('DOMContentLoaded', () => {
     const editor = new EditorCore();
     editor.init();
+    (window as any).editor = editor;
+
+    // Auth UI — account button + login modal
+    const authUI = new AuthUI((user) => {
+        if (user) {
+            editor.userName = user.name || user.email;
+        }
+    });
+    (window as any).authUI = authUI;
+
+    // Command Palette (Cmd+K)
+    const cmdPalette = new CommandPalette(editor);
+    (window as any).cmdPalette = cmdPalette;
+
+    // Wire visible toolbar buttons
+    document.getElementById('btn-cmd-k')?.addEventListener('click', () => cmdPalette.toggle());
+    document.getElementById('btn-publish')?.addEventListener('click', () => cmdPalette.publishProject());
+
+    // Floating bottom toolbar (Miro/Figma style)
+    new FloatingToolbar(editor);
 
     // Initialize UI panels
     new StylesPanel(editor);
@@ -29,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     insertPanel.setupEmbedBuilder();
     new BreadcrumbBar(editor);
     new SiteSettingsPanel(editor);
+    new SectionsPanel(editor);
+    new GeneralPanel(editor);
 
     // Layout panels
     new BreakpointManager(editor.bus);
@@ -123,4 +150,59 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(key, isCollapsed ? '1' : '0');
         });
     });
+
+    // ─── Collapsible Sidebars ───────────────────────────────
+    const layersPanel = document.getElementById('layers-panel');
+    const layersCollapsed = document.getElementById('layers-collapsed');
+    const toggleLayers = document.getElementById('toggle-layers');
+    const expandLayers = document.getElementById('expand-layers');
+    const resizeLeft = document.getElementById('resize-left');
+
+    const stylesPanel = document.getElementById('styles-panel');
+    const stylesCollapsed = document.getElementById('styles-collapsed');
+    const toggleStyles = document.getElementById('toggle-styles');
+    const expandStyles = document.getElementById('expand-styles');
+    const resizeRight = document.getElementById('resize-right');
+
+    const collapseLeft = () => {
+        if (layersPanel && layersCollapsed && resizeLeft) {
+            layersPanel.style.display = 'none';
+            layersCollapsed.style.display = 'flex';
+            resizeLeft.style.display = 'none';
+            localStorage.setItem('snap_sidebar_layers', 'collapsed');
+        }
+    };
+    const expandLeft = () => {
+        if (layersPanel && layersCollapsed && resizeLeft) {
+            layersPanel.style.display = 'flex';
+            layersCollapsed.style.display = 'none';
+            resizeLeft.style.display = '';
+            localStorage.setItem('snap_sidebar_layers', 'expanded');
+        }
+    };
+    const collapseRight = () => {
+        if (stylesPanel && stylesCollapsed && resizeRight) {
+            stylesPanel.style.display = 'none';
+            stylesCollapsed.style.display = 'flex';
+            resizeRight.style.display = 'none';
+            localStorage.setItem('snap_sidebar_styles', 'collapsed');
+        }
+    };
+    const expandRight = () => {
+        if (stylesPanel && stylesCollapsed && resizeRight) {
+            stylesPanel.style.display = 'flex';
+            stylesCollapsed.style.display = 'none';
+            resizeRight.style.display = '';
+            localStorage.setItem('snap_sidebar_styles', 'expanded');
+        }
+    };
+
+    toggleLayers?.addEventListener('click', collapseLeft);
+    expandLayers?.addEventListener('click', expandLeft);
+    toggleStyles?.addEventListener('click', collapseRight);
+    expandStyles?.addEventListener('click', expandRight);
+
+    // Restore sidebar states
+    if (localStorage.getItem('snap_sidebar_layers') === 'collapsed') collapseLeft();
+    if (localStorage.getItem('snap_sidebar_styles') === 'collapsed') collapseRight();
 });

@@ -52,7 +52,7 @@ export class PrintPreviewPanel {
     public togglePanel(): void {
         this.isOpen = !this.isOpen;
         if (this.isOpen) {
-            this.panel.style.display = 'flex';
+            this.panel.classList.add('preview-open');
             this.resizeHandle.style.display = 'block';
             this.toggleBtn.classList.add('active');
             this.updatePreview();
@@ -63,7 +63,7 @@ export class PrintPreviewPanel {
 
     public closePanel(): void {
         this.isOpen = false;
-        this.panel.style.display = 'none';
+        this.panel.classList.remove('preview-open');
         this.resizeHandle.style.display = 'none';
         this.toggleBtn.classList.remove('active');
     }

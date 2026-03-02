@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: #333;
+            background: #fff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #f9fafb;
+            border-right: 1px solid #e5e7eb;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar .logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 28px;
+        }
+
+        .sidebar .nav-group {
+            margin-bottom: 24px;
+        }
+
+        .sidebar .nav-group h4 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .sidebar .nav-group a {
+            display: block;
+            padding: 6px 12px;
+            font-size: 14px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 2px;
+        }
+
+        .sidebar .nav-group a:hover {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .sidebar .nav-group a.active {
+            background: #e0e7ff;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 48px 60px;
+            max-width: 800px;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #1a1a2e;
+        }
+
+        .content .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .content h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
+
+        .content p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .content code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #e11d48;
+        }
+
+        .content pre {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .content .callout {
+            padding: 16px 20px;
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        .content ul {
+            padding-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .content li {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="logo">📘 Docs</div>
+        <div class="nav-group">
+            <h4>Getting Started</h4>
+            <a href="#" class="active">Introduction</a>
+            <a href="#">Installation</a>
+            <a href="#">Quick Start</a>
+        </div>
+        <div class="nav-group">
+            <h4>Guide</h4>
+            <a href="#">Configuration</a>
+            <a href="#">Authentication</a>
+            <a href="#">Database</a>
+            <a href="#">API Reference</a>
+        </div>
+        <div class="nav-group">
+            <h4>Advanced</h4>
+            <a href="#">Deployment</a>
+            <a href="#">Plugins</a>
+            <a href="#">Troubleshooting</a>
+        </div>
+    </aside>
+
+    <main class="content">
+        <h1>Introduction</h1>
+        <p class="subtitle">Learn how to get started with our platform and build your first project in minutes.</p>
+
+        <h2>Overview</h2>
+        <p>Our platform provides a complete toolkit for building modern web applications. With built-in authentication,
+            database management, and a powerful API, you can go from idea to production in record time.</p>
+
+        <div class="callout">
+            💡 <strong>Tip:</strong> If you're new here, start with the <a href="#">Quick Start</a> guide to build your
+            first app in under 5 minutes.
+        </div>
+
+        <h2>Installation</h2>
+        <p>Install the package using your preferred package manager:</p>
+        <pre>npm install @your-package/core</pre>
+
+        <h3>Requirements</h3>
+        <ul>
+            <li>Node.js 18 or later</li>
+            <li>npm, yarn, or pnpm</li>
+            <li>A supported database (SQLite, PostgreSQL, or MySQL)</li>
+        </ul>
+
+        <h2>Basic Usage</h2>
+        <p>Import and initialize the library in your application:</p>
+        <pre>import { createApp } from '@your-package/core';
+
+const app = createApp({
+  database: 'sqlite',
+  auth: { enabled: true },
+});
+
+app.listen(3000);</pre>
+
+        <p>That's it! Your application is now running with authentication and a database connection ready to use.</p>
+    </main>
+</body>
+
+</html>

@@ -1,6 +1,8 @@
 import { EditorCore } from '../editor/EditorCore';
 import { showToast, parsePx } from '../utils/dom-helpers';
 
+const COMPONENTS_KEY = 'snapedit-components';
+
 /**
  * InsertPanel — Handles the 'Insert' tab in the right sidebar:
  * - Image insertion via URL or file upload
@@ -15,6 +17,7 @@ export class InsertPanel {
         this.editor = editor;
         this.setupElementInsert();
         this.setupEmbedBuilder();
+        this.setupComponents();
         this.setupEventBus();
     }
 
@@ -25,6 +28,10 @@ export class InsertPanel {
 
         this.editor.bus.on('selection:clear', () => {
             this.currentElement = null;
+        });
+
+        this.editor.bus.on('component:saved', () => {
+            this.renderComponents();
         });
     }
 
@@ -93,11 +100,24 @@ export class InsertPanel {
                         // Visual marker (only visible on screen, hidden in print)
                         el.innerHTML = '<div style="border-top: 2px dashed #9ca3af; width: 100%;"></div><span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 2px 12px; font-size: 11px; color: #9ca3af; font-family: Inter, system-ui, sans-serif; letter-spacing: 0.5px; text-transform: uppercase;">✂ Page Break</span>';
                         break;
+                    case 'icon':
+                        el = doc.createElement('div');
+                        const iconUrl = prompt("Enter an SVG snippet or click OK for a default icon:");
+                        if (iconUrl === null) return;
+                        el.innerHTML = iconUrl && iconUrl.trim().startsWith('<svg') ? iconUrl : '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
+                        el.style.cssText = 'display: inline-flex; align-items: center; justify-content: center; font-size: 32px; color: #4361ee; margin: 8px; line-height: 1;';
+                        el.setAttribute('data-se-label', 'Icon (SVG)');
+                        break;
                     case 'embed': {
                         // Show embed panel instead of prompt
                         this.showEmbedBuilder();
                         return;
                     }
+                    case 'custom-code':
+                        el = doc.createElement('div');
+                        el.innerHTML = '<style>\n  /* Custom CSS */\n  .custom-box { padding: 20px; background: #f3f4f6; border: 1px dashed #9ca3af; text-align: center; }\n</style>\n<div class="custom-box">Double-click to edit custom HTML/CSS</div>';
+                        el.setAttribute('data-se-label', 'Custom Code');
+                        break;
                     case 'video': {
                         const videoUrl = prompt('Enter video URL (.mp4, .webm, or YouTube embed):', 'https://www.w3schools.com/html/mov_bbb.mp4');
                         if (!videoUrl) return;
@@ -313,6 +333,94 @@ export class InsertPanel {
             // Hide form builder
             const section = document.getElementById('form-builder-section');
             if (section) section.style.display = 'none';
+        });
+    }
+
+    // ─── Components ──────────────────────────────────────────────
+    private setupComponents(): void {
+        this.renderComponents();
+    }
+
+    private renderComponents(): void {
+        const list = document.getElementById('components-list');
+        if (!list) return;
+
+        let components: { id: string; name: string; tag: string; html: string; created: number }[] = [];
+        try {
+            components = JSON.parse(localStorage.getItem(COMPONENTS_KEY) || '[]');
+        } catch { /* ignore */ }
+
+        if (components.length === 0) {
+            list.innerHTML = '<p class="panel-empty-hint" style="text-align:center; font-size:11px; color:var(--color-gray-400); padding:12px 0;">No components saved yet.<br>Right-click an element → Save as Component</p>';
+            return;
+        }
+
+        list.innerHTML = '';
+        components.forEach(comp => {
+            const card = document.createElement('div');
+            card.className = 'component-card';
+            card.title = `Click to insert "${comp.name}"`;
+
+            card.innerHTML = `
+                <div class="component-card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+                <div class="component-card-info">
+                    <div class="component-card-name">${comp.name}</div>
+                    <div class="component-card-tag">&lt;${comp.tag}&gt;</div>
+                </div>
+            `;
+
+            // Delete button
+            const delBtn = document.createElement('button');
+            delBtn.className = 'component-card-delete';
+            delBtn.innerHTML = '×';
+            delBtn.title = 'Delete component';
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                try {
+                    const stored = JSON.parse(localStorage.getItem(COMPONENTS_KEY) || '[]');
+                    const updated = stored.filter((c: any) => c.id !== comp.id);
+                    localStorage.setItem(COMPONENTS_KEY, JSON.stringify(updated));
+                    this.renderComponents();
+                    showToast('Component deleted');
+                } catch { /* ignore */ }
+            });
+            card.appendChild(delBtn);
+
+            // Click to insert
+            card.addEventListener('click', () => {
+                const doc = this.editor.getIframeDocument();
+                if (!doc?.body) return;
+
+                // Parse HTML and insert using a robust approach
+                const temp = doc.createElement('div');
+                temp.innerHTML = comp.html.trim();
+
+                // Get all children to insert (component might be multi-element)
+                const children = Array.from(temp.children) as HTMLElement[];
+                if (children.length === 0) {
+                    showToast('Component HTML is empty');
+                    return;
+                }
+
+                const insertionPoint = this.currentElement && this.currentElement.parentNode
+                    ? this.currentElement : null;
+
+                children.forEach(child => {
+                    if (insertionPoint && insertionPoint.parentNode) {
+                        insertionPoint.parentNode.insertBefore(child, insertionPoint.nextSibling);
+                    } else {
+                        doc.body.appendChild(child);
+                    }
+                });
+
+                this.editor.requestResize();
+                this.editor.bus.emit('dom:changed');
+                this.editor.pushHistory(`Insert component: ${comp.name}`);
+                if (children[0]) this.editor.selectionManager.selectElement(children[0]);
+                showToast(`Inserted "${comp.name}"`);
+            });
+
+            list.appendChild(card);
         });
     }
 }
