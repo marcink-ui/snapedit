@@ -94,18 +94,43 @@ export class PrintPreviewPanel {
         doc.write('<!DOCTYPE html><html><head></head><body></body></html>');
         doc.close();
 
+        // ── FIX 1: Inject <base> tag so relative image/asset paths resolve correctly ──
+        // The editor iframe loads content from e.g. '/projects/snapedit-demo/'
+        // so images with src="assets/hero.png" need that base URL to resolve.
+        const editorIframe = document.getElementById('canvas-iframe') as HTMLIFrameElement;
+        const projectUrl = this.editor.getProjectUrl();
+        if (projectUrl) {
+            const base = doc.createElement('base');
+            // Ensure trailing slash for directory-style URLs
+            base.href = projectUrl.endsWith('/') ? projectUrl : projectUrl + '/';
+            doc.head.appendChild(base);
+        } else if (editorIframe?.src && editorIframe.src !== 'about:blank') {
+            // Fallback: use the editor iframe's actual src
+            const base = doc.createElement('base');
+            base.href = editorIframe.src;
+            doc.head.appendChild(base);
+        }
+
+        // Copy styles and links from the parsed document
         if (doc.head && parsedDoc.head) {
-            Array.from(parsedDoc.head.querySelectorAll('style, link')).forEach(el => {
+            Array.from(parsedDoc.head.querySelectorAll('style, link, meta')).forEach(el => {
                 doc.head.appendChild(doc.importNode(el, true));
+            });
+        }
+
+        // ── Copy body content so we can pre-process DOM BEFORE paged.js ──
+        if (parsedDoc.body) {
+            // Import the parsed body's content into the iframe document
+            Array.from(parsedDoc.body.childNodes).forEach(node => {
+                doc.body.appendChild(doc.importNode(node, true));
             });
         }
 
         // Inject aggressive print-normalization CSS AFTER the document's own styles
         // so our rules win via specificity + !important
-        // Rules extracted from: Transformacja/artifacts/clients/dps-software/raport-ai-sprint-v3.html
         const printStyle = doc.createElement('style');
         printStyle.textContent = `
-            /* === PAGE DEFINITION (from AI Sprint report template) === */
+            /* === PAGE DEFINITION === */
             @page {
                 size: A4;
                 margin: 15mm 12mm;
@@ -125,13 +150,13 @@ export class PrintPreviewPanel {
                 print-color-adjust: exact;
             }
 
-            /* === SECTION BREAKS (AI Sprint convention: .page-break on each chapter) === */
+            /* === SECTION BREAKS === */
             .page-break {
                 page-break-before: always !important;
                 break-before: page !important;
             }
 
-            /* === COVER PAGE: Remove forced min-height so it doesn't create empty space === */
+            /* === COVER PAGE: Remove forced min-height === */
             .cover {
                 min-height: auto !important;
                 height: auto !important;
@@ -156,7 +181,7 @@ export class PrintPreviewPanel {
             h3 { font-size: 1.25rem !important; margin-top: 1.25rem !important; margin-bottom: 0.5rem !important; }
             h4 { font-size: 1.1rem !important; margin-top: 1rem !important; margin-bottom: 0.25rem !important; }
 
-            /* === BLOCK COMPONENTS: Keep together (avoid splitting mid-element) === */
+            /* === BLOCK COMPONENTS: Keep together === */
             .alert,
             .timeline-item,
             .slider-grid,
@@ -247,9 +272,9 @@ export class PrintPreviewPanel {
             void this.iframe.offsetWidth;
             void this.a4Container.offsetWidth;
 
-            // === DOM PRE-PROCESSING ===
+            // ── FIX 2: DOM PRE-PROCESSING on the actual body content ──
             // Walk all elements INSIDE the iframe and normalize layouts that break Paged.js.
-            // We MUST use the iframe's own window for getComputedStyle!
+            // This runs on the REAL DOM (not the raw HTML string), so changes persist.
             const iframeWin = this.iframe.contentWindow;
             if (doc.body && iframeWin) {
                 doc.body.querySelectorAll('*').forEach(node => {
@@ -279,11 +304,28 @@ export class PrintPreviewPanel {
                 });
             }
 
+            // ── FIX 3: Wait for images to load before paged.js pagination ──
+            const images = Array.from(doc.querySelectorAll('img')) as HTMLImageElement[];
+            if (images.length > 0) {
+                await Promise.all(images.map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise<void>(resolve => {
+                        img.onload = () => resolve();
+                        img.onerror = () => resolve(); // Don't block on broken images
+                        // Timeout fallback (5s per image max)
+                        setTimeout(() => resolve(), 5000);
+                    });
+                }));
+            }
+
+            // ── Now pass the pre-processed body content to Paged.js ──
+            // We pass doc.body.innerHTML so paged.js receives the NORMALIZED content
+            // (flex→block, vh→auto, fixed→relative) instead of the raw HTML.
+            const processedContent = doc.body.innerHTML;
             const { Previewer } = await import('pagedjs');
             const previewer = new Previewer();
 
-            // Render the clean HTML into the iframe body using Paged.js
-            await previewer.preview(cleanHtml, [], doc.body);
+            await previewer.preview(processedContent, [], doc.body);
 
             this.scalePreview();
         } catch (error) {

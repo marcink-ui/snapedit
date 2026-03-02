@@ -497,6 +497,11 @@ export class EditorCore {
         return this.editorEnabled;
     }
 
+    /** Get the current project URL (e.g. '/projects/my-project/') */
+    getProjectUrl(): string | null {
+        return this.currentProjectUrl;
+    }
+
     exportHTML(): string {
         const doc = this.iframe.contentDocument;
         if (!doc) return '';
