@@ -33,6 +33,19 @@ export class EditorCore {
     public userName: string = '';
     public currentProjectSlug: string | null = null;
 
+    // ── Bound event handlers (to avoid stacking listeners) ──
+    private _onDomChanged = () => {
+        this.setupDragAndDrop();
+        this.requestResize();
+    };
+    private _onInlineStart = () => {
+        this.selectionManager.setEnabled(false);
+    };
+    private _onInlineStop = (el: HTMLElement) => {
+        this.selectionManager.setEnabled(true);
+        this.selectionManager.selectElement(el);
+    };
+
     constructor() {
         this.iframe = document.getElementById('canvas-iframe') as HTMLIFrameElement;
         this.hoverOverlay = document.getElementById('hover-overlay') as HTMLElement;
@@ -126,11 +139,9 @@ export class EditorCore {
                 // Save initial history state
                 this.history.saveInitial(this.getContentHTML());
 
-                // Re-apply drag/drop handlers when DOM changes
-                this.bus.on('dom:changed', () => {
-                    this.setupDragAndDrop();
-                    this.requestResize();
-                });
+                // Re-apply drag/drop handlers when DOM changes (remove old to avoid stacking)
+                this.bus.off('dom:changed', this._onDomChanged);
+                this.bus.on('dom:changed', this._onDomChanged);
 
                 // Click on body clears selection
                 doc.addEventListener('click', (e: MouseEvent) => {
@@ -152,13 +163,10 @@ export class EditorCore {
                 });
 
                 // Prevent selection overlay from overlapping with inline edit outline
-                this.bus.on('inline:start', () => {
-                    this.selectionManager.setEnabled(false);
-                });
-                this.bus.on('inline:stop', (el: HTMLElement) => {
-                    this.selectionManager.setEnabled(true);
-                    this.selectionManager.selectElement(el);
-                });
+                this.bus.off('inline:start', this._onInlineStart);
+                this.bus.off('inline:stop', this._onInlineStop);
+                this.bus.on('inline:start', this._onInlineStart);
+                this.bus.on('inline:stop', this._onInlineStop);
 
                 // Right-click context menu forwarding
                 doc.addEventListener('contextmenu', (e: MouseEvent) => {
@@ -351,11 +359,9 @@ export class EditorCore {
             // Save initial history state
             this.history.saveInitial(this.getContentHTML());
 
-            // Re-apply drag/drop handlers when DOM changes
-            this.bus.on('dom:changed', () => {
-                this.setupDragAndDrop();
-                this.requestResize();
-            });
+            // Re-apply drag/drop handlers when DOM changes (remove old to avoid stacking)
+            this.bus.off('dom:changed', this._onDomChanged);
+            this.bus.on('dom:changed', this._onDomChanged);
 
             // Click on body clears selection
             doc.addEventListener('click', (e: MouseEvent) => {
@@ -377,13 +383,10 @@ export class EditorCore {
             });
 
             // Prevent selection overlay from overlapping with inline edit outline
-            this.bus.on('inline:start', () => {
-                this.selectionManager.setEnabled(false);
-            });
-            this.bus.on('inline:stop', (el: HTMLElement) => {
-                this.selectionManager.setEnabled(true);
-                this.selectionManager.selectElement(el);
-            });
+            this.bus.off('inline:start', this._onInlineStart);
+            this.bus.off('inline:stop', this._onInlineStop);
+            this.bus.on('inline:start', this._onInlineStart);
+            this.bus.on('inline:stop', this._onInlineStop);
 
 
             // Right-click context menu forwarding

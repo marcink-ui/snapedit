@@ -35,7 +35,7 @@ export class CommandPalette {
             // ── File ──────────────────────────────────────
             {
                 id: 'new-project', label: 'New Project', icon: '📄', category: 'File', action: () => {
-                    (document.querySelector('#btn-load') as HTMLElement)?.click();
+                    (document.querySelector('#btn-load-html') as HTMLElement)?.click();
                 }, keywords: 'create add project'
             },
             {
@@ -46,7 +46,7 @@ export class CommandPalette {
             },
             {
                 id: 'export-html', label: 'Export as HTML', icon: '📦', category: 'File', action: () => {
-                    const btn = document.querySelector('#btn-export') as HTMLElement;
+                    const btn = document.querySelector('#btn-export-dropdown') as HTMLElement;
                     btn?.click();
                 }, keywords: 'download export code'
             },
@@ -88,7 +88,7 @@ export class CommandPalette {
 
     public async publishProject() {
         // Get current project URL from the editor
-        const iframe = document.querySelector('.canvas-iframe') as HTMLIFrameElement;
+        const iframe = document.querySelector('#canvas-iframe') as HTMLIFrameElement;
         if (!iframe?.src) { showToast('No project loaded to publish.'); return; }
 
         const match = iframe.src.match(/\/projects\/([a-z0-9_-]+)\//);

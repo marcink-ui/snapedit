@@ -8,6 +8,8 @@ interface SavedProject {
     name: string;
     path: string;
     description: string;
+    slug?: string;
+    lockedBy?: string | null;
 }
 
 export class Toolbar {
@@ -282,7 +284,7 @@ export class Toolbar {
             // Left: icon (locked or open)
             const iconEl = document.createElement('div');
             iconEl.className = 'project-card-icon';
-            iconEl.textContent = (project as any).lockedBy ? '🔒' : '📁';
+            iconEl.textContent = project.lockedBy ? '🔒' : '📁';
             card.appendChild(iconEl);
 
             // Center: info
@@ -296,8 +298,8 @@ export class Toolbar {
 
             const descEl = document.createElement('div');
             descEl.className = 'project-card-desc';
-            const lockInfo = (project as any).lockedBy ? ` (edytuje: ${(project as any).lockedBy})` : '';
-            descEl.textContent = (project.description || (project as any).slug || project.path) + lockInfo;
+            const lockInfo = project.lockedBy ? ` (edytuje: ${project.lockedBy})` : '';
+            descEl.textContent = (project.description || project.slug || project.path) + lockInfo;
             info.appendChild(descEl);
 
             card.appendChild(info);
@@ -315,7 +317,7 @@ export class Toolbar {
             delBtn.title = 'Remove project';
             delBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const slug = (project as any).slug;
+                const slug = project.slug;
                 card.style.transform = 'scale(0.95)';
                 card.style.opacity = '0';
                 if (slug) {
