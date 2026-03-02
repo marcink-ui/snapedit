@@ -118,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         zoomLabel.textContent = clamped + '%';
         canvasWrapper.style.transform = `scale(${clamped / 100})`;
         canvasWrapper.style.transformOrigin = 'top center';
+        // Emit zoom event so FloatingToolbar can sync its zoom label
+        editor.bus.emit('zoom:change', { zoom: clamped });
     };
 
     zoomSlider?.addEventListener('input', () => applyZoom(parseInt(zoomSlider.value)));

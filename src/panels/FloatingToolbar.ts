@@ -110,13 +110,13 @@ export class FloatingToolbar {
         document.getElementById('ft-redo')?.addEventListener('click', () => this.editor.redo());
 
         // Sync zoom display with existing breakpoint/zoom slider
-        this.editor.bus.on('zoom:changed', (data: { zoom: number }) => {
+        this.editor.bus.on('zoom:change', (data: { zoom: number }) => {
             const label = document.getElementById('ft-zoom-value');
             if (label) label.textContent = `${Math.round(data.zoom)}%`;
         });
 
         // Update undo/redo state
-        this.editor.bus.on('history:changed', (state: { canUndo: boolean; canRedo: boolean }) => {
+        this.editor.bus.on('history:change', (state: { canUndo: boolean; canRedo: boolean }) => {
             const undo = document.getElementById('ft-undo') as HTMLButtonElement;
             const redo = document.getElementById('ft-redo') as HTMLButtonElement;
             if (undo) undo.disabled = !state.canUndo;
