@@ -43,7 +43,7 @@ export function getRelativeRect(el: HTMLElement, reference: HTMLElement): DOMRec
  * Check if an element is an editable text element.
  */
 export function isTextElement(el: HTMLElement): boolean {
-    const textTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SPAN', 'A', 'LI', 'LABEL', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'BUTTON'];
+    const textTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SPAN', 'A', 'LI', 'LABEL', 'TD', 'TH', 'BLOCKQUOTE', 'FIGCAPTION', 'BUTTON', 'STRONG', 'EM', 'B', 'I', 'U', 'SMALL', 'TIME', 'CITE', 'CODE', 'PRE', 'DT', 'DD', 'SUMMARY', 'MARK'];
     if (textTags.includes(el.tagName)) return true;
 
     // Allow DIV elements that have direct text content (e.g. badges, inline labels)

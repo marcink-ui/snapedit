@@ -102,12 +102,22 @@ export class SelectionManager {
 
     private onClick(e: MouseEvent): void {
         if (!this.enabled) return;
-        e.preventDefault();
-        e.stopPropagation();
 
         const target = e.target as HTMLElement;
         if (!target || target === this.iframe.contentDocument?.body || target === this.iframe.contentDocument?.documentElement) {
             this.clearSelection();
+            return;
+        }
+
+        // Only preventDefault for links to avoid navigation
+        if (target.tagName === 'A' || target.closest('a')) {
+            e.preventDefault();
+        }
+        e.stopPropagation();
+
+        // If clicking the same element that's already selected → request edit mode
+        if (target === this.selectedElement || this.selectedElement?.contains(target)) {
+            this.bus.emit('selection:edit-request', this.selectedElement);
             return;
         }
 
