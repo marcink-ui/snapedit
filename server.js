@@ -353,9 +353,12 @@ const server = http.createServer(async (req, res) => {
     // POST /api/projects/:slug/save — save HTML content
     const saveMatch = pathname.match(/^\/api\/projects\/([a-z0-9_-]+)\/save$/);
     if (saveMatch && method === 'POST') {
+        const session = await getSession(req);
+        if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
         const slug = saveMatch[1];
         const project = stmts.getProject.get(slug);
         if (!project) return sendJSON(res, 404, { error: 'Project not found' });
+        if (project.ownerId !== session.user.id) return sendJSON(res, 403, { error: 'Not your project' });
 
         const body = await readBody(req);
         if (!body || !body.html) {
@@ -393,11 +396,12 @@ const server = http.createServer(async (req, res) => {
         const publishDir = path.join(__dirname, 'data', 'published', slug);
         fs.mkdirSync(publishDir, { recursive: true });
 
-        // Copy all project files to published dir
+        // Copy project files to published dir (skip backups, tmp, and directories)
         const files = fs.readdirSync(projectDir);
         for (const file of files) {
-            if (file.endsWith('.bak') || file.endsWith('.tmp')) continue;
+            if (file.startsWith('.') || file.endsWith('.bak') || file.endsWith('.tmp')) continue;
             const src = path.join(projectDir, file);
+            if (fs.statSync(src).isDirectory()) continue;
             const dest = path.join(publishDir, file);
             fs.copyFileSync(src, dest);
         }
@@ -424,6 +428,8 @@ const server = http.createServer(async (req, res) => {
         const session = await getSession(req);
         if (!session?.user) return sendJSON(res, 401, { error: 'Unauthorized' });
         const slug = unpublishMatch[1];
+        const project = stmts.getProject.get(slug);
+        if (project && project.ownerId !== session.user.id) return sendJSON(res, 403, { error: 'Not your project' });
         const publishDir = path.join(__dirname, 'data', 'published', slug);
         if (fs.existsSync(publishDir)) fs.rmSync(publishDir, { recursive: true, force: true });
         return sendJSON(res, 200, { success: true });

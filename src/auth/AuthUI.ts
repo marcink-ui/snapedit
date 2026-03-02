@@ -1,5 +1,5 @@
 import { createAuthClient } from 'better-auth/client';
-import { showToast } from '../utils/dom-helpers';
+import { showToast, escapeHtml } from '../utils/dom-helpers';
 
 const authClient = createAuthClient();
 
@@ -62,15 +62,17 @@ export class AuthUI {
 
         if (this.user) {
             const initial = (this.user.name || this.user.email || '?')[0].toUpperCase();
+            const safeName = escapeHtml(this.user.name || this.user.email);
+            const safeEmail = escapeHtml(this.user.email);
             this.accountBtn.innerHTML = `
                 <button class="toolbar-btn secondary" id="btn-account" style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;">
                     <span style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#818cf8,#4361ee);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;">${initial}</span>
-                    <span style="font-size:12px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${this.user.name || this.user.email}</span>
+                    <span style="font-size:12px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName}</span>
                 </button>
                 <div id="account-dropdown" class="toolbar-dropdown-menu" style="display:none;right:0;left:auto;min-width:180px;">
                     <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.08);">
-                        <div style="font-weight:600;font-size:12px;">${this.user.name || 'User'}</div>
-                        <div style="font-size:11px;opacity:0.5;margin-top:2px;">${this.user.email}</div>
+                        <div style="font-weight:600;font-size:12px;">${safeName}</div>
+                        <div style="font-size:11px;opacity:0.5;margin-top:2px;">${safeEmail}</div>
                     </div>
                     <button id="btn-signout" style="width:100%;text-align:left;padding:8px 14px;font-size:12px;color:#ef4444;">Sign Out</button>
                 </div>

@@ -95,3 +95,10 @@ export function getTagDescriptor(el: HTMLElement): string {
     desc += '>';
     return desc;
 }
+
+/**
+ * Escape HTML special characters to prevent XSS when inserting into innerHTML.
+ */
+export function escapeHtml(str: string): string {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
