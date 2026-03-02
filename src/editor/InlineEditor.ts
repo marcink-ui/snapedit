@@ -43,6 +43,38 @@ export class InlineEditor {
         this.editingElement = null;
     }
 
+    /** Public method to start editing a given element. Called by re-click or dblclick. */
+    startEditing(el: HTMLElement): void {
+        if (!el || !isTextElement(el)) return;
+
+        // Stop any existing editing
+        if (this.editingElement) {
+            this.stopEditing();
+        }
+
+        this.editingElement = el;
+        this.originalOutline = el.style.outline;
+        this.originalCursor = el.style.cursor;
+
+        el.contentEditable = 'true';
+        el.style.outline = '2px solid #4361ee';
+        el.style.cursor = 'text';
+
+        el.focus();
+
+        // Select all text in the element
+        const doc = this.iframe.contentDocument;
+        if (doc) {
+            const range = doc.createRange();
+            range.selectNodeContents(el);
+            const sel = doc.getSelection();
+            sel?.removeAllRanges();
+            sel?.addRange(range);
+        }
+
+        this.bus.emit('inline:start', el);
+    }
+
     private onDoubleClick(e: MouseEvent): void {
         const target = e.target as HTMLElement;
         if (!target || !isTextElement(target)) return;
@@ -50,32 +82,7 @@ export class InlineEditor {
         e.preventDefault();
         e.stopPropagation();
 
-        // Stop any existing editing
-        if (this.editingElement) {
-            this.stopEditing();
-        }
-
-        this.editingElement = target;
-        this.originalOutline = target.style.outline;
-        this.originalCursor = target.style.cursor;
-
-        target.contentEditable = 'true';
-        target.style.outline = '2px solid #4361ee';
-        target.style.cursor = 'text';
-
-        target.focus();
-
-        // Select all text in the element
-        const doc = this.iframe.contentDocument;
-        if (doc) {
-            const range = doc.createRange();
-            range.selectNodeContents(target);
-            const sel = doc.getSelection();
-            sel?.removeAllRanges();
-            sel?.addRange(range);
-        }
-
-        this.bus.emit('inline:start', target);
+        this.startEditing(target);
     }
 
     private onKeyDown(e: KeyboardEvent): void {

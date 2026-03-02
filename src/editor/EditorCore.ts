@@ -45,6 +45,11 @@ export class EditorCore {
         this.selectionManager.setEnabled(true);
         this.selectionManager.selectElement(el);
     };
+    private _onEditRequest = (el: HTMLElement) => {
+        if (el && !this.inlineEditor.isEditing()) {
+            this.inlineEditor.startEditing(el);
+        }
+    };
 
     constructor() {
         this.iframe = document.getElementById('canvas-iframe') as HTMLIFrameElement;
@@ -385,8 +390,10 @@ export class EditorCore {
             // Prevent selection overlay from overlapping with inline edit outline
             this.bus.off('inline:start', this._onInlineStart);
             this.bus.off('inline:stop', this._onInlineStop);
+            this.bus.off('selection:edit-request', this._onEditRequest);
             this.bus.on('inline:start', this._onInlineStart);
             this.bus.on('inline:stop', this._onInlineStop);
+            this.bus.on('selection:edit-request', this._onEditRequest);
 
 
             // Right-click context menu forwarding
